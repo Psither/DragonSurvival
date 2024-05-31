@@ -7,6 +7,7 @@ import by.dragonsurvivalteam.dragonsurvival.client.render.util.AnimationTimer;
 import by.dragonsurvivalteam.dragonsurvival.client.render.util.CommonTraits;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.subcapabilities.EmoteCap;
+import by.dragonsurvivalteam.dragonsurvival.common.handlers.DragonFoodHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.handlers.DragonSizeHandler;
 import by.dragonsurvivalteam.dragonsurvival.config.ClientConfig;
 import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
@@ -120,7 +121,7 @@ public class DragonEntity extends LivingEntity implements GeoEntity, CommonTrait
 			// When the player is using an item
 			handler.getMovementData().bite = false;
 			return state.setAndContinue(AnimationUtils.createAnimation(builder, USE_ITEM));
-		} else if (!ClientDragonRender.renderItemsInMouth && doesAnimationExist("eat_item_right") && player.isUsingItem() && player.getMainHandItem().isEdible() || animationTimer.getDuration("eat_item_right") > 0) {
+		} else if (!ClientDragonRender.renderItemsInMouth && doesAnimationExist("eat_item_right") && player.isUsingItem() && DragonFoodHandler.isDragonEdible(player.getMainHandItem().getItem(), DragonUtils.getDragonType(player)) || animationTimer.getDuration("eat_item_right") > 0) {
 			// When the player is eating the main hand item
 			if (animationTimer.getDuration("eat_item_right") <= 0) {
 				handler.getMovementData().bite = false;
@@ -128,7 +129,7 @@ public class DragonEntity extends LivingEntity implements GeoEntity, CommonTrait
 			}
 
 			return state.setAndContinue(AnimationUtils.createAnimation(builder, EAT_ITEM_RIGHT));
-		} else if (!ClientDragonRender.renderItemsInMouth && doesAnimationExist("eat_item_left") && player.isUsingItem() && player.getOffhandItem().isEdible() || animationTimer.getDuration("eat_item_right") > 0) {
+		} else if (!ClientDragonRender.renderItemsInMouth && doesAnimationExist("eat_item_left") && player.isUsingItem() && DragonFoodHandler.isDragonEdible(player.getOffhandItem().getItem(), DragonUtils.getDragonType(player)) || animationTimer.getDuration("eat_item_right") > 0) {
 			// When the player is eating the offhand item
 			if (animationTimer.getDuration("eat_item_left") <= 0) {
 				handler.getMovementData().bite = false;
