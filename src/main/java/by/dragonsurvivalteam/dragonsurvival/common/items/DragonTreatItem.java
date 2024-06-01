@@ -1,5 +1,6 @@
 package by.dragonsurvivalteam.dragonsurvival.common.items;
 
+import by.dragonsurvivalteam.dragonsurvival.api.DragonFood;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
 import by.dragonsurvivalteam.dragonsurvival.common.handlers.magic.ManaHandler;
 import by.dragonsurvivalteam.dragonsurvival.registry.DragonEffects;
@@ -38,7 +39,7 @@ public class DragonTreatItem extends Item {
 			}
 		}
 
-		return isEdible() ? livingEntity.eat(level, itemStack) : itemStack;
+		return DragonFood.isEdible(this, livingEntity) ? livingEntity.eat(level, itemStack) : itemStack;
 	}
 
 	@Override

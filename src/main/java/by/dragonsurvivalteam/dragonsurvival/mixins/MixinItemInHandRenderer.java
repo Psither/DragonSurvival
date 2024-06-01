@@ -1,5 +1,6 @@
 package by.dragonsurvivalteam.dragonsurvival.mixins;
 
+import by.dragonsurvivalteam.dragonsurvival.api.DragonFood;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.common.handlers.DragonFoodHandler;
@@ -13,6 +14,7 @@ import net.minecraft.client.renderer.ItemInHandRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.HumanoidArm;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
@@ -32,9 +34,8 @@ public class MixinItemInHandRenderer{
 
 	@ModifyExpressionValue( method = "renderArmWithItem", at = @At( value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getUseAnimation()Lnet/minecraft/world/item/UseAnim;"))
 	private UseAnim dragonRenderArmWithItem(UseAnim original, AbstractClientPlayer pPlayer, float pPartialTicks, float pPitch, InteractionHand pHand, float pSwingProgress, ItemStack pStack, float pEquippedProgress, PoseStack pPoseStack, MultiBufferSource pBuffer, int pCombinedLight){
-		DragonStateHandler handler = DragonStateProvider.getHandler(pPlayer);
-		if(handler != null && handler.isDragon()){
-			return DragonFoodHandler.isDragonEdible(pStack.getItem(), handler.getType()) ? UseAnim.EAT : UseAnim.NONE;
+		if(DragonUtils.isDragon(pPlayer)) {
+			return DragonFood.isEdible(pStack.getItem(), pPlayer) ? UseAnim.EAT : original;
 		}
 
 		return original;
@@ -42,7 +43,12 @@ public class MixinItemInHandRenderer{
 
 	@ModifyExpressionValue( method = "applyEatTransform", at = @At( value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;getUseDuration()I"))
 	private int dragonUseDuration(int original, @Local(argsOnly = true) ItemStack stack){
-		return DragonStateProvider.getCap(minecraft.player).map(dragonStateHandler -> dragonStateHandler.isDragon() ? DragonFoodHandler.getUseDuration(stack, dragonStateHandler.getType()) : original).orElse(original);
+		DragonStateHandler handler = DragonStateProvider.getHandler(minecraft.player);
+		if (handler != null && handler.isDragon()) {
+			return DragonFoodHandler.getUseDuration(stack, handler.getType());
+		}
+
+		return original;
 	}
 
 	@Inject( at = @At( value = "HEAD" ), method = "renderPlayerArm", cancellable = true )
