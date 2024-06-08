@@ -75,9 +75,10 @@ public class SkinPreset implements NBTInterface{
 					if (texts != null) {
 						for (DragonEditorObject.Texture text : texts) {
 							if (text.key.equals(part)) {
-								if(text.average_hue != null) {
-									layerSettings.put(layer, Lazy.of(()->new LayerSettings(part, text.average_hue)));
+								if (text.average_hue == null) {
+									throw new NullPointerException("Average hue for customization is null. Did you run colors.py for any new data?");
 								}
+								layerSettings.put(layer, Lazy.of(()->new LayerSettings(part, text.average_hue)));
 								break;
 							}
 						}
