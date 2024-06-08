@@ -210,10 +210,10 @@ public class DragonEntity extends LivingEntity implements GeoEntity, CommonTrait
 
 		boolean useDynamicScaling = false;
 		double animationSpeed = 1;
-		double speedFactor = 1;
+		double speedFactor = ClientConfig.movementAnimationSpeedFactor;
 		double baseSpeed = defaultPlayerWalkSpeed;
-		double smallSizeFactor = 0.3;
-		double bigSizeFactor = 1;
+		double smallSizeFactor = ClientConfig.smallSizeAnimationSpeedFactor;
+		double bigSizeFactor = ClientConfig.largeSizeAnimationSpeedFactor;
 		double baseSize = ServerConfig.DEFAULT_MAX_GROWTH_SIZE;
 		double distanceFromGround = ServerFlightHandler.distanceFromGround(player);
 		double height = DragonSizeHandler.calculateDragonHeight(handler.getSize(), ServerConfig.hitboxGrowsPastHuman);
@@ -368,12 +368,12 @@ public class DragonEntity extends LivingEntity implements GeoEntity, CommonTrait
 		double finalAnimationSpeed = animationSpeed;
 		if(useDynamicScaling) {
 			double horizontalDistance = deltaMovement.horizontalDistance();
-			double speedComponent = (horizontalDistance - baseSpeed) / baseSpeed * speedFactor;
+			double speedComponent = Math.min(ClientConfig.maxAnimationSpeedFactor, (horizontalDistance - baseSpeed) / baseSpeed * speedFactor);
 			double sizeDistance = handler.getSize() - baseSize;
 			double sizeFactor = sizeDistance >= 0 ? bigSizeFactor : smallSizeFactor;
 			double sizeComponent = baseSize / (baseSize + sizeDistance * sizeFactor);
 			// We need a minimum speed here to prevent the animation from ever being truly at 0 speed (otherwise the animation state machine implodes)
- 			finalAnimationSpeed = Math.min(0.05, (animationSpeed + speedComponent) * sizeComponent);
+ 			finalAnimationSpeed = Math.max(0.05, (animationSpeed + speedComponent) * sizeComponent);
 		}
 		AnimationUtils.setAnimationSpeed(finalAnimationSpeed, state.getAnimationTick(), animationController);
 
