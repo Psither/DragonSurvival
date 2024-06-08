@@ -45,4 +45,13 @@ public class ClientConfig{
 	@ConfigRange(min = 0.0, max = 10.0)
 	@ConfigOption(side = ConfigSide.CLIENT, category = "animation", key = "movementAnimationSpeedFactor", comment = "The maximum value that the speed factor can add to the base animation speed.")
 	public static Double maxAnimationSpeedFactor = 5.0;
+
+	@ConfigRange(min = 1.0, max = 5.0)
+	@ConfigOption(side = ConfigSide.CLIENT, category = "animation", key = "maxAnimationSpeed", comment = "The maximum animation speed allowed for dragons.")
+	public static Double maxAnimationSpeed = 2.0;
+
+	@ConfigRange(min = 0.05, max = 1.0)
+	@ConfigOption(side = ConfigSide.CLIENT, category = "animation", key = "minAnimationSpeed", comment = "The minimum animation speed allowed for dragons.")
+	public static Double minAnimationSpeed = 0.2;
+
 }
