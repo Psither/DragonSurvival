@@ -9,7 +9,9 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Fireball;
+import net.minecraft.world.level.Explosion;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 
@@ -49,6 +51,27 @@ public class FireBallEntity extends DragonBallEntity{
 		}
 	}
 
+	private void onCommonHit() {
+		if (!level().isClientSide) {
+			float explosivePower = getExplosivePower();
+			DamageSource damagesource;
+			if(getOwner() == null){
+				damagesource = getDamageSource(this, this);
+			} else {
+				damagesource = getDamageSource(this, getOwner());
+			}
+			Entity attacker = canSelfDamage() ? this : getOwner();
+			level().explode(attacker, damagesource, null, getX(), getY(), getZ(), explosivePower, true, Level.ExplosionInteraction.BLOCK);
+			this.discard();
+		}
+	}
+
+	@Override
+	protected void onHitBlock(BlockHitResult pResult){
+		super.onHitBlock(pResult);
+		onCommonHit();
+	}
+
 	@Override
 	public boolean isInvulnerableTo(DamageSource damageSource){
 		return damageSource.is(DamageTypeTags.IS_EXPLOSION) || super.isInvulnerableTo(damageSource);
@@ -56,6 +79,8 @@ public class FireBallEntity extends DragonBallEntity{
 
 	@Override
 	protected void onHitEntity(EntityHitResult hitResult){
+		super.onHitEntity(hitResult);
+
 		// Apply the explosion damage using math from the real explosion formula
 		float explosivePower = getSkillLevel();
 		// From Explosion.class on line 215 (the left side of the formula is 1.0f if you are at the center of the explosion)

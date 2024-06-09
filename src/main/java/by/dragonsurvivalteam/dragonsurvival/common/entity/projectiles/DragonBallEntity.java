@@ -103,39 +103,9 @@ public abstract class DragonBallEntity extends Fireball implements GeoEntity {
 		//return DamageSource.fireball(pFireball, pIndirectEntity);
 	}
 
-	@Override
-	protected void onHit(HitResult hitResult){
-		if (!level().isClientSide) {
-			HitResult.Type hitresult$type = hitResult.getType();
-			if (hitresult$type == HitResult.Type.ENTITY && canHitEntity(((EntityHitResult) hitResult).getEntity())) {
-				onHitEntity((EntityHitResult) hitResult);
-			}
 
-			float explosivePower = getExplosivePower();
-			DamageSource damagesource;
-			if(getOwner() == null){
-				damagesource = getDamageSource(this, this);
-			} else {
-				damagesource = getDamageSource(this, getOwner());
-			}
-			// We are intentionally not setting ourselves as the attacker to make sure we are
-			// included in the fireball damage. This is because explode() will not include the
-			// "attacker" in the damage calculation when gathering entities to damage.
-			Entity attacker = canSelfDamage() ? this : getOwner();
-			level().explode(attacker, damagesource, null, getX(), getY(), getZ(), explosivePower, true, ExplosionInteraction.BLOCK);
-		}
-		else {
-			hasExploded = true;
-		}
-	}
-	
-	private PlayState predicate(final AnimationState<DragonBallEntity> state) {
-		AnimationController<DragonBallEntity> animationController = state.getController();
-		if(hasExploded) {
-			animationController.setAnimation(EXPLOSION);
-		} else {
-			animationController.setAnimation(IDLE);
-		}
+	public PlayState predicate(final AnimationState<DragonBallEntity> state) {
+		state.getController().setAnimation(IDLE);
 		return PlayState.CONTINUE;
 	}
 
