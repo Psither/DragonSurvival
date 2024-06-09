@@ -38,6 +38,7 @@ public class DSParticles{
 	});
 	public static SimpleParticleType fireBeaconParticle, magicBeaconParticle, peaceBeaconParticle;
 	public static SimpleParticleType seaSweep;
+	public static SimpleParticleType snowflake;
 
 	public static void register()
 	{
@@ -52,6 +53,9 @@ public class DSParticles{
 
 		seaSweep = new SimpleParticleType(false);
 		REGISTRY.register("sea_sweep", ()->seaSweep);
+
+		snowflake = new SimpleParticleType(false);
+		REGISTRY.register("snowflake", ()->snowflake);
 	}
 
 	//Insecure modifications

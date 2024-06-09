@@ -6,6 +6,7 @@ import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.common.handlers.DragonFoodHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.handlers.DragonSizeHandler;
 import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
+import by.dragonsurvivalteam.dragonsurvival.registry.DragonEffects;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -131,7 +132,7 @@ public abstract class MixinPlayerEntity extends LivingEntity{
 			if(DragonStateProvider.getCap(this).isPresent() && ServerConfig.bonuses && ServerConfig.caveLavaSwimming && DragonUtils.isDragonType(this, DragonTypes.CAVE) && DragonSizeHandler.getOverridePose(this) == Pose.SWIMMING || isSwimming() && !isPassenger()){
 				double d3 = getLookAngle().y;
 				double d4 = d3 < -0.2D ? 0.185D : 0.06D;
-				if(d3 <= 0.0D || jumping || !level.getBlockState(new BlockPos(getX(), getY() + 1.0D - 0.1D, getZ())).getFluidState().isEmpty()){
+				if(d3 <= 0.0D || jumping || !level.getBlockState(new BlockPos(getX(), getY() + 1.0D - 0.1D, getZ())).getFluidState().isEmpty() && !this.hasEffect(DragonEffects.FULLY_FROZEN)){
 					Vec3 vector3d1 = getDeltaMovement();
 					setDeltaMovement(vector3d1.add(0.0D, (d3 - vector3d1.y) * d4, 0.0D));
 				}
@@ -173,18 +174,20 @@ public abstract class MixinPlayerEntity extends LivingEntity{
 						}
 
 						f6 *= (float)getAttribute(net.minecraftforge.common.ForgeMod.SWIM_SPEED.get()).getValue();
-						moveRelative(f6, pTravelVector);
-						move(MoverType.SELF, getDeltaMovement());
-						Vec3 vector3d6 = getDeltaMovement();
-						if(horizontalCollision && onClimbable()){
-							vector3d6 = new Vec3(vector3d6.x, 0.2D, vector3d6.z);
-						}
+						if (!this.hasEffect(DragonEffects.FULLY_FROZEN)) {
+							moveRelative(f6, pTravelVector);
+							move(MoverType.SELF, getDeltaMovement());
+							Vec3 vector3d6 = getDeltaMovement();
+							if (horizontalCollision && onClimbable()) {
+								vector3d6 = new Vec3(vector3d6.x, 0.2D, vector3d6.z);
+							}
 
-						setDeltaMovement(vector3d6.multiply(f5, 0.8F, f5));
-						Vec3 vector3d2 = getFluidFallingAdjustedMovement(d0, flag, getDeltaMovement());
-						setDeltaMovement(vector3d2);
-						if(horizontalCollision && isFree(vector3d2.x, vector3d2.y + (double)0.6F - getY() + d8, vector3d2.z)){
-							setDeltaMovement(vector3d2.x, 0.3F, vector3d2.z);
+							setDeltaMovement(vector3d6.multiply(f5, 0.8F, f5));
+							Vec3 vector3d2 = getFluidFallingAdjustedMovement(d0, flag, getDeltaMovement());
+							setDeltaMovement(vector3d2);
+							if (horizontalCollision && isFree(vector3d2.x, vector3d2.y + (double) 0.6F - getY() + d8, vector3d2.z)) {
+								setDeltaMovement(vector3d2.x, 0.3F, vector3d2.z);
+							}
 						}
 					}
 				}

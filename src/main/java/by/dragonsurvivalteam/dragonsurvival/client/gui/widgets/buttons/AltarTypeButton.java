@@ -108,7 +108,7 @@ public class AltarTypeButton extends Button implements TooltipRender{
 				cap.setType(null);
 				cap.setBody(null, player);
 				cap.setSize(20F, player);
-				cap.setIsHiding(false);
+				cap.setIsDiving(false);
 
 				if (!ServerConfig.saveAllAbilities) {
 					cap.getMovementData().spinLearned = false;
@@ -116,7 +116,7 @@ public class AltarTypeButton extends Button implements TooltipRender{
 				}
 
 				NetworkHandler.CHANNEL.sendToServer(new SyncAltarCooldown(Minecraft.getInstance().player.getId(), Functions.secondsToTicks(ServerConfig.altarUsageCooldown)));
-				NetworkHandler.CHANNEL.sendToServer(new SynchronizeDragonCap(player.getId(), cap.isHiding(), cap.getType(), cap.getBody(), cap.getSize(), cap.hasFlight(), 0));
+				NetworkHandler.CHANNEL.sendToServer(new SynchronizeDragonCap(player.getId(), cap.isDiving(), cap.getType(), cap.getBody(), cap.getSize(), cap.hasFlight(), 0));
 				NetworkHandler.CHANNEL.sendToServer(new SyncSpinStatus(Minecraft.getInstance().player.getId(), cap.getMovementData().spinAttack, cap.getMovementData().spinCooldown, cap.getMovementData().spinLearned));
 				ClientEvents.sendClientData(new RequestClientData(cap.getType(), cap.getBody(), cap.getLevel()));
 			});

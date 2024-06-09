@@ -7,20 +7,28 @@ import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigOption;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigRange;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigSide;
+import by.dragonsurvivalteam.dragonsurvival.magic.DragonAbilities;
+import by.dragonsurvivalteam.dragonsurvival.magic.common.active.ActiveDragonAbility;
+import by.dragonsurvivalteam.dragonsurvival.magic.common.active.DiveAbility;
 import by.dragonsurvivalteam.dragonsurvival.network.NetworkHandler;
 import by.dragonsurvivalteam.dragonsurvival.network.flight.SyncFlyingStatus;
 import by.dragonsurvivalteam.dragonsurvival.network.flight.SyncSpinStatus;
+import by.dragonsurvivalteam.dragonsurvival.network.player.SynchronizeDragonCap;
 import by.dragonsurvivalteam.dragonsurvival.registry.DragonEffects;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap.Types;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.event.TickEvent;
@@ -95,8 +103,11 @@ public class ServerFlightHandler{
 		double flightSpeed = event.getDistance();
 
 		DragonStateProvider.getCap(livingEntity).ifPresent(dragonStateHandler -> {
-			if(dragonStateHandler.isDragon() && dragonStateHandler.hasFlight()){
+			if(dragonStateHandler.isDragon() && !dragonStateHandler.hasFlight()) {
+				doDiving(event);
+			} else if(dragonStateHandler.isDragon() && dragonStateHandler.hasFlight()) {
 				try{
+					if (doDiving(event)) return;
 					if (!enableFlightFallDamage) {
 						event.setCanceled(true);
 						return;
@@ -111,7 +122,6 @@ public class ServerFlightHandler{
 						event.setCanceled(true);
 						return;
 					}
-
 
 					MobEffectInstance effectinstance = livingEntity.getEffect(MobEffects.JUMP);
 					float f = effectinstance == null ? 0.0F : (float) (effectinstance.getAmplifier() + 1);
@@ -339,5 +349,57 @@ public class ServerFlightHandler{
 		int height = blockHeight.getY();
 		double aboveGround = Math.max(0, player.position().y - height);
 		return aboveGround;
+	}
+
+	@SubscribeEvent
+	public static boolean doDivingContinuous(PlayerTickEvent event) {
+		Player player = event.player;
+		if (DragonUtils.isDragon(player) && DragonUtils.getHandler(player).isDiving()) {
+			DragonStateHandler handler = DragonUtils.getHandler(player);
+
+			for (ActiveDragonAbility ability : handler.getMagicData().getActiveAbilities()) {
+				if (ability instanceof DiveAbility dive) {
+					if (player.isOnGround() && player.isCreative())
+						dive.finishDive(player, player.fallDistance);
+					else
+						dive.continueDive(player, player.fallDistance);
+				}
+			}
+
+			if (!player.level.isClientSide()) {
+				//NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) player), new SynchronizeDragonCap(player.getId(), handler.isDiving(), handler.getType(), handler.getBody(), handler.getSize(), handler.hasFlight(), handler.getPassengerId()));
+			}
+
+			return true;
+		}
+		return player.isOnGround();
+	}
+
+	public static boolean doDiving(LivingFallEvent event) {
+		LivingEntity livingEntity = event.getEntity();
+		if (DragonUtils.isDragon(livingEntity) && DragonUtils.getHandler(livingEntity).isDiving()) {
+			DragonStateHandler handler = DragonUtils.getHandler(livingEntity);
+			if (!enableFlightFallDamage)
+				event.setCanceled(true);
+
+			MobEffectInstance effectinstance = livingEntity.getEffect(MobEffects.JUMP);
+			float f = effectinstance == null ? 0.0F : (float) (effectinstance.getAmplifier() + 1);
+			float oldDistance = event.getDistance();
+
+			double damage = Mth.clamp(event.getDistance() * 0.4f, 0, livingEntity.getHealth() - (lethalFlight ? 0 : 1));
+			event.setDistance((float) Math.floor((damage + 3.0F + f) * event.getDamageMultiplier() * 0.5f));
+
+			handler.setIsDiving(false);
+			for (ActiveDragonAbility ability : handler.getMagicData().getActiveAbilities()) {
+				if (ability instanceof DiveAbility dive && livingEntity instanceof Player player) {
+					dive.finishDive(player, oldDistance);
+				}
+			}
+			if (!livingEntity.level.isClientSide()) {
+				//NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) livingEntity), new SynchronizeDragonCap(livingEntity.getId(), false, handler.getType(), handler.getBody(), handler.getSize(), handler.hasFlight(), handler.getPassengerId()));
+			}
+			return true;
+		}
+		return false;
 	}
 }

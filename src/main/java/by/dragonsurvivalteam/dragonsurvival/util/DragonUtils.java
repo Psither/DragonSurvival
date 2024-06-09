@@ -59,6 +59,12 @@ public class DragonUtils {
 		return handler.getBody();
 	}
 
+	public static boolean isDragonSubtype(final Entity entity, final AbstractDragonType type) {
+		if (!(entity instanceof Player))
+			return false;
+		return Objects.equal(DragonUtils.getHandler(entity).getSubtypeName(), type.getSubtypeName());
+	}
+
 	public static boolean isDragonType(final Entity entity, final AbstractDragonType typeToCheck) {
 		if (!(entity instanceof Player)) {
 			return false;

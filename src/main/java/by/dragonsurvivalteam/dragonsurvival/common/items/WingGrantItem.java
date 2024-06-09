@@ -31,7 +31,7 @@ public class WingGrantItem extends Item{
 		if(handler.isDragon()){
 			if(!world.isClientSide){
 				handler.setHasFlight(!handler.hasFlight());
-				NetworkHandler.CHANNEL.send(PacketDistributor.ALL.noArg(), new SynchronizeDragonCap(player.getId(), handler.isHiding(), handler.getType(), handler.getBody(), handler.getSize(), handler.hasFlight(), handler.getPassengerId()));
+				NetworkHandler.CHANNEL.send(PacketDistributor.ALL.noArg(), new SynchronizeDragonCap(player.getId(), handler.isDiving(), handler.getType(), handler.getBody(), handler.getSize(), handler.hasFlight(), handler.getPassengerId()));
 
 				if(!player.isCreative()){
 					player.getItemInHand(p_77659_3_).shrink(1);

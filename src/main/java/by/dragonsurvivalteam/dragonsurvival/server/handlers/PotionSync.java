@@ -12,12 +12,16 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.TargetPoint;
 
+import java.util.List;
+
 
 @EventBusSubscriber
 public class PotionSync{
+
 	@SubscribeEvent
 	public static void potionAdded(MobEffectEvent.Added event){
-		if(event.getEffectInstance().getEffect() != DragonEffects.DRAIN && event.getEffectInstance().getEffect() != DragonEffects.CHARGED && event.getEffectInstance().getEffect() != DragonEffects.BURN){
+		//List<MobEffect> effects = List.of(DragonEffects.DRAIN, DragonEffects.CHARGED, DragonEffects.BURN, DragonEffects.FROSTED, DragonEffects.FULLY_FROZEN, DragonEffects.BRITTLE, DragonEffects.HEALING_COLD);
+		if (!DragonEffects.syncEffects.contains(event.getEffectInstance().getEffect())) {
 			return;
 		}
 
@@ -31,7 +35,8 @@ public class PotionSync{
 
 	@SubscribeEvent
 	public static void potionRemoved(MobEffectEvent.Expired event){
-		if(event.getEffectInstance() != null && event.getEffectInstance().getEffect() != DragonEffects.DRAIN && event.getEffectInstance().getEffect() != DragonEffects.CHARGED && event.getEffectInstance().getEffect() != DragonEffects.BURN){
+		//List<MobEffect> effects = List.of(DragonEffects.DRAIN, DragonEffects.CHARGED, DragonEffects.BURN, DragonEffects.FROSTED, DragonEffects.FULLY_FROZEN, DragonEffects.BRITTLE, DragonEffects.HEALING_COLD);
+		if (event.getEffectInstance() == null || !DragonEffects.syncEffects.contains(event.getEffectInstance().getEffect())) {
 			return;
 		}
 

@@ -4,6 +4,7 @@ import by.dragonsurvivalteam.dragonsurvival.DragonSurvivalMod;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.projectiles.Bolas;
 import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
 import by.dragonsurvivalteam.dragonsurvival.magic.abilities.CaveDragon.active.ToughSkinAbility;
+import by.dragonsurvivalteam.dragonsurvival.magic.abilities.FrostDragon.FrostBreathAbility;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
@@ -16,11 +17,11 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodData;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.RegisterEvent;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,6 +33,7 @@ public class DragonEffects{
 	public static MobEffect ROYAL_CHASE;
 	public static MobEffect PEACE, MAGIC, FIRE;
 	public static MobEffect ANIMAL_PEACE;
+	public static MobEffect FROSTED, BRITTLE, HEALING_COLD, BLIZZARD, FULLY_FROZEN;
 
 	public static MobEffect SOURCE_OF_MAGIC;
 
@@ -46,6 +48,8 @@ public class DragonEffects{
 
 	public static MobEffect cave_wings, sea_wings, forest_wings;
 
+	public static List<MobEffect> syncEffects = new ArrayList<MobEffect>();
+
 	@SuppressWarnings( "unused" )
 	@SubscribeEvent
 	public static void registerEffects(RegisterEvent event){
@@ -59,6 +63,15 @@ public class DragonEffects{
 		MAGIC = registerMobEffect(event, "magic", new Effect2(MobEffectCategory.BENEFICIAL, 0x0, false));
 		FIRE = registerMobEffect(event, "fire", new Effect2(MobEffectCategory.BENEFICIAL, 0x0, false));
 		ANIMAL_PEACE = registerMobEffect(event, "animal_peace", new Effect2(MobEffectCategory.BENEFICIAL, 0x0, false));
+
+		FROSTED = registerMobEffect(event, "frosted", new Effect2(MobEffectCategory.HARMFUL, 0x0, false));
+		FULLY_FROZEN = registerMobEffect(event, "fully_frozen", new Effect2(MobEffectCategory.HARMFUL, 0x0, false));
+		BRITTLE = registerMobEffect(event, "brittle", new Effect2(MobEffectCategory.HARMFUL, 0x0, false))
+				.addAttributeModifier(Attributes.ARMOR, "b1ba6c05-b8b3-4c58-9c71-cba025d02821", -FrostBreathAbility.frostBreathBrittlePercent, Operation.MULTIPLY_TOTAL);
+		HEALING_COLD = registerMobEffect(event, "healing_cold", new Effect2(MobEffectCategory.HARMFUL, 0x0, false))
+				.addAttributeModifier(Attributes.ARMOR, "5b55a162-7471-4995-8bae-b821f71c8c95", 5, Operation.ADDITION);
+		BLIZZARD = registerMobEffect(event, "blizzard", new Effect2(MobEffectCategory.BENEFICIAL, 0x0, false));
+
 		SOURCE_OF_MAGIC = registerMobEffect(event, "source_of_magic",new Effect2(MobEffectCategory.BENEFICIAL, 0x0, false));
 
 		ROYAL_DEPARTURE = registerMobEffect(event, "royal_departure", new TradeEffect(MobEffectCategory.HARMFUL, -3407617, true));
@@ -86,6 +99,14 @@ public class DragonEffects{
 		sea_wings =  registerMobEffect(event,"wings_sea",new Effect2(MobEffectCategory.BENEFICIAL, 0x0, true));
 
 		cave_wings = registerMobEffect(event,"wings_cave",new Effect2(MobEffectCategory.BENEFICIAL, 0x0, true));
+
+		syncEffects.add(BURN);
+		syncEffects.add(CHARGED);
+		syncEffects.add(DRAIN);
+		syncEffects.add(FROSTED);
+		syncEffects.add(BRITTLE);
+		syncEffects.add(HEALING_COLD);
+		syncEffects.add(FULLY_FROZEN);
 	}
 	protected static MobEffect registerMobEffect(RegisterEvent event, String identity, MobEffect mobEffect)
 	{

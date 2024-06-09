@@ -1,6 +1,7 @@
 package by.dragonsurvivalteam.dragonsurvival.common.handlers;
 
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
+import by.dragonsurvivalteam.dragonsurvival.common.entity.goals.FreezeSolidGoal;
 import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
 import by.dragonsurvivalteam.dragonsurvival.network.NetworkHandler;
 import by.dragonsurvivalteam.dragonsurvival.network.container.OpenDragonAltar;
@@ -21,6 +22,7 @@ import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Wolf;
@@ -115,6 +117,9 @@ public class EventHandler{
 		Entity entity = joinWorldEvent.getEntity();
 		if(entity instanceof Animal && !(entity instanceof Wolf || entity instanceof Hoglin)){
 			((Animal)entity).goalSelector.addGoal(5, new AvoidEntityGoal((Animal)entity, Player.class, living -> DragonUtils.isDragon((Player)living) && !((Player)living).hasEffect(DragonEffects.ANIMAL_PEACE), 20.0F, 1.3F, 1.5F, s -> true));
+		}
+		if (entity instanceof Mob mob) {
+			mob.goalSelector.addGoal(-Integer.MAX_VALUE, new FreezeSolidGoal(mob));
 		}
 	}
 
@@ -227,7 +232,7 @@ public class EventHandler{
 		final LivingEntity living = jumpEvent.getEntity();
 
 
-		if(living.getEffect(DragonEffects.TRAPPED) != null){
+		if(living.getEffect(DragonEffects.TRAPPED) != null || living.getEffect(DragonEffects.FULLY_FROZEN) != null){
 			Vec3 deltaMovement = living.getDeltaMovement();
 			living.setDeltaMovement(deltaMovement.x, deltaMovement.y < 0 ? deltaMovement.y : 0, deltaMovement.z);
 			living.setJumping(false);

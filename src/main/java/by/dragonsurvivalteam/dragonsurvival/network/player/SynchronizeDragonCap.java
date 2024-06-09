@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 
 public class SynchronizeDragonCap implements IMessage<SynchronizeDragonCap> {
 	public int playerId;
-	public boolean hiding;
+	public boolean diving;
 	public AbstractDragonType dragonType;
 	public AbstractDragonBody dragonBody;
 	public double size;
@@ -28,9 +28,9 @@ public class SynchronizeDragonCap implements IMessage<SynchronizeDragonCap> {
 
 	public SynchronizeDragonCap() { /* Nothing to do */ }
 
-	public SynchronizeDragonCap(int playerId, boolean hiding, final AbstractDragonType dragonType, final AbstractDragonBody dragonBody, double size, boolean hasWings, int passengerId) {
+	public SynchronizeDragonCap(int playerId, boolean diving, final AbstractDragonType dragonType, final AbstractDragonBody dragonBody, double size, boolean hasWings, int passengerId) {
 		this.playerId = playerId;
-		this.hiding = hiding;
+		this.diving = diving;
 		this.dragonType = dragonType;
 		this.dragonBody = dragonBody;
 		this.size = size;
@@ -43,7 +43,7 @@ public class SynchronizeDragonCap implements IMessage<SynchronizeDragonCap> {
 		buffer.writeInt(message.playerId);
 		buffer.writeUtf(message.dragonType != null ? message.dragonType.getSubtypeName() : "none");
 		buffer.writeUtf(message.dragonBody != null ? message.dragonBody.getBodyName() : "none");
-		buffer.writeBoolean(message.hiding);
+		buffer.writeBoolean(message.diving);
 		buffer.writeDouble(message.size);
 		buffer.writeBoolean(message.hasWings);
 		buffer.writeInt(message.passengerId);
@@ -56,11 +56,11 @@ public class SynchronizeDragonCap implements IMessage<SynchronizeDragonCap> {
 		String typeB = buffer.readUtf();
 		AbstractDragonType type = typeS.equals("none") ? null : DragonTypes.getStaticSubtype(typeS);
 		AbstractDragonBody body = typeB.equals("none") ? null : DragonBodies.getStatic(typeB);
-		boolean hiding = buffer.readBoolean();
+		boolean diving = buffer.readBoolean();
 		double size = buffer.readDouble();
 		boolean hasWings = buffer.readBoolean();
 		int passengerId = buffer.readInt();
-		return new SynchronizeDragonCap(id, hiding, type, body, size, hasWings, passengerId);
+		return new SynchronizeDragonCap(id, diving, type, body, size, hasWings, passengerId);
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class SynchronizeDragonCap implements IMessage<SynchronizeDragonCap> {
 						DragonCommand.reInsertClawTools(sender, handler);
 					}
 
-					handler.setIsHiding(message.hiding);
+					handler.setIsDiving(message.diving);
 					handler.setType(message.dragonType, sender);
 					handler.setBody(message.dragonBody, sender);
 					handler.setSize(message.size, sender);

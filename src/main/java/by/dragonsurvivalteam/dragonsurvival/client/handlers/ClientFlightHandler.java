@@ -6,7 +6,6 @@ import by.dragonsurvivalteam.dragonsurvival.client.sounds.FastGlideSound;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
-import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonBody;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigOption;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigRange;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigSide;
@@ -16,6 +15,7 @@ import by.dragonsurvivalteam.dragonsurvival.network.flight.RequestSpinResync;
 import by.dragonsurvivalteam.dragonsurvival.network.flight.SyncFlightSpeed;
 import by.dragonsurvivalteam.dragonsurvival.network.flight.SyncFlyingStatus;
 import by.dragonsurvivalteam.dragonsurvival.network.flight.SyncSpinStatus;
+import by.dragonsurvivalteam.dragonsurvival.network.player.SynchronizeDragonCap;
 import by.dragonsurvivalteam.dragonsurvival.registry.DragonEffects;
 import by.dragonsurvivalteam.dragonsurvival.server.handlers.ServerFlightHandler;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
@@ -274,7 +274,7 @@ public class ClientFlightHandler {
 		Minecraft minecraft = Minecraft.getInstance();
 		LocalPlayer player = minecraft.player;
 		
-		if (event.phase.equals(ClientTickEvent.Phase.START)) {
+		if (event.phase.equals(Phase.START)) {
 			return;
 		}
 
@@ -294,6 +294,15 @@ public class ClientFlightHandler {
 			} else {
 				DragonStateProvider.getCap(player).ifPresent(handler -> {
 					if (handler.isDragon()) {
+						if (player.input.jumping && handler.isDiving()) {
+							handler.setIsDiving(false);
+							NetworkHandler.CHANNEL.sendToServer(new SynchronizeDragonCap(player.getId(), false, handler.getType(), handler.getBody(), handler.getSize(), handler.hasFlight(), handler.getPassengerId()));
+						}
+						if (handler.isDiving()) {
+							player.setDeltaMovement(player.getDeltaMovement().add(0.0f, -0.1f, 0.0f));
+							handler.setWingsSpread(handler.hasFlight());
+							return;
+						}
 						Double flightMult = 1.0;
 						if (DragonUtils.getDragonBody(handler) != null) { flightMult = DragonUtils.getDragonBody(handler).getFlightMult(); }
 
@@ -578,7 +587,7 @@ public class ClientFlightHandler {
 		if(KeyInputHandler.TOGGLE_WINGS.consumeClick()){
 			if(handler.hasFlight()){
 				//Allows toggling the wings if food level is above 0, player is creative, wings are already enabled (allows disabling even when hungry) or if config options is turned on
-				if(!player.hasEffect(DragonEffects.TRAPPED) && (player.getFoodData().getFoodLevel() > ServerFlightHandler.flightHungerThreshold || player.isCreative() || currentState || ServerFlightHandler.allowFlyingWithoutHunger)){
+				if(!(player.hasEffect(DragonEffects.TRAPPED) || player.hasEffect(DragonEffects.FULLY_FROZEN)) && (player.getFoodData().getFoodLevel() > ServerFlightHandler.flightHungerThreshold || player.isCreative() || currentState || ServerFlightHandler.allowFlyingWithoutHunger)){
 					NetworkHandler.CHANNEL.sendToServer(new SyncFlyingStatus(player.getId(), !currentState));
 					if(notifyWingStatus){
 						if(!currentState){
@@ -588,7 +597,7 @@ public class ClientFlightHandler {
 						}
 					}
 				}else{
-					if(!player.hasEffect(DragonEffects.TRAPPED))
+					if(!player.hasEffect(DragonEffects.TRAPPED) && !player.hasEffect(DragonEffects.FULLY_FROZEN))
 					{
 						player.sendSystemMessage(Component.translatable("ds.wings.nohunger"));
 					}

@@ -293,7 +293,7 @@ public class ClientDragonRender{
 					if(ServerFlightHandler.isGliding(player) || (player.isPassenger() && DragonUtils.isDragon(player.getVehicle()) && ServerFlightHandler.isGliding((Player) player.getVehicle()))){
 						if(renderOtherPlayerRotation || minecraft.player == player){
 							float upRot = 0;
-							if (ServerFlightHandler.isGliding(player)) {
+							if (ServerFlightHandler.isGliding(player) || handler.isDiving()) {
 								upRot = Mth.clamp((float)(player.getDeltaMovement().y * 20), -80, 80);
 							} else {
 								upRot = Mth.clamp((float)(player.getVehicle().getDeltaMovement().y * 20), -80, 80);
@@ -397,6 +397,11 @@ public class ClientDragonRender{
 							bolasScale = (float) DragonSizeHandler.calculateDragonEyeHeight(handler.getSize(), ServerConfig.hitboxGrowsPastHuman);
 						}
 						ClientEvents.renderBolas(eventLight, combinedOverlayIn, renderTypeBuffer, matrixStack, bolasScale);
+					}
+					if(player.hasEffect(DragonEffects.FULLY_FROZEN)){
+						float height = (DragonUtils.getHandler(player).isDragon() ? (float)DragonSizeHandler.calculateDragonHeight(DragonUtils.getHandler(player).getSize(), ServerConfig.hitboxGrowsPastHuman) : player.getBbHeight()) * 2;
+						float width = player.getBbWidth() * 4;
+						ClientEvents.renderIceBlock(eventLight, combinedOverlayIn, renderTypeBuffer, matrixStack, height, width);
 					}
 				}
 			} catch (Throwable throwable) {

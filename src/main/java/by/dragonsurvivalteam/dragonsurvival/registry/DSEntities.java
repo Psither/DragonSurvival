@@ -3,23 +3,16 @@ package by.dragonsurvivalteam.dragonsurvival.registry;
 import by.dragonsurvivalteam.dragonsurvival.DragonSurvivalMod;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.DragonEntity;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.creatures.*;
-import by.dragonsurvivalteam.dragonsurvival.common.entity.projectiles.BallLightningEntity;
-import by.dragonsurvivalteam.dragonsurvival.common.entity.projectiles.Bolas;
-import by.dragonsurvivalteam.dragonsurvival.common.entity.projectiles.DragonSpikeEntity;
-import by.dragonsurvivalteam.dragonsurvival.common.entity.projectiles.FireBallEntity;
+import by.dragonsurvivalteam.dragonsurvival.common.entity.projectiles.*;
 import by.dragonsurvivalteam.dragonsurvival.common.handlers.VillagerRelationsHandler;
 import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
 import by.dragonsurvivalteam.dragonsurvival.util.ResourceHelper;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Lists;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.entity.EntityDimensions;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
-import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.animal.Wolf;
@@ -32,14 +25,11 @@ import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.event.entity.EntityAttributeCreationEvent;
 import net.minecraftforge.event.entity.SpawnPlacementRegisterEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.RegisterEvent;
-import org.spongepowered.asm.launch.Phases;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @SuppressWarnings( "rawtypes,unchecked" )
 @Mod.EventBusSubscriber( modid = DragonSurvivalMod.MODID, bus = Mod.EventBusSubscriber.Bus.MOD )
@@ -56,6 +46,7 @@ public class DSEntities{
 	public static EntityType<Bolas> BOLAS_ENTITY;
 	//Magic abilities
 	public static EntityType<DragonSpikeEntity> DRAGON_SPIKE;
+	public static EntityType<BlizzardSpikeEntity> BLIZZARD_SPIKE;
 	public static EntityType<BallLightningEntity> BALL_LIGHTNING;
 	public static EntityType<FireBallEntity> FIREBALL;
 	public static VillagerProfession PRINCESS_PROFESSION, PRINCE_PROFESSION;
@@ -106,6 +97,7 @@ public class DSEntities{
 		BOLAS_ENTITY = register(event, "bolas", cast(EntityType.Builder.of((p_create_1_, p_create_2_) -> new Bolas(p_create_2_), MobCategory.MISC).sized(0.8F, 0.8F).clientTrackingRange(4).updateInterval(10).build("bolas")));
 
 		DRAGON_SPIKE = register(event, "dragon_spike", EntityType.Builder.<DragonSpikeEntity>of(DragonSpikeEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(1).build("dragon_spike"));
+		BLIZZARD_SPIKE = register(event, "blizzard_spike", EntityType.Builder.<BlizzardSpikeEntity>of(BlizzardSpikeEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(1).build("blizzard_spike"));
 		BALL_LIGHTNING = register(event, "ball_lightning", EntityType.Builder.<BallLightningEntity>of(BallLightningEntity::new, MobCategory.MISC).sized(1F, 1F).clientTrackingRange(4).updateInterval(1).build("ball_lightning"));
 		FIREBALL = register(event, "fireball", EntityType.Builder.<FireBallEntity>of(FireBallEntity::new, MobCategory.MISC).sized(1F, 1F).clientTrackingRange(4).updateInterval(1).build("fireball"));
 

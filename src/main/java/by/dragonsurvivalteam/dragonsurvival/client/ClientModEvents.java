@@ -12,16 +12,13 @@ import by.dragonsurvivalteam.dragonsurvival.client.models.projectiles.LightningB
 import by.dragonsurvivalteam.dragonsurvival.client.particles.BeaconParticle;
 import by.dragonsurvivalteam.dragonsurvival.client.particles.DSParticles;
 import by.dragonsurvivalteam.dragonsurvival.client.particles.SeaSweepParticle;
+import by.dragonsurvivalteam.dragonsurvival.client.particles.SnowflakeParticle;
 import by.dragonsurvivalteam.dragonsurvival.client.render.ClientDragonRender;
 import by.dragonsurvivalteam.dragonsurvival.client.render.blocks.DragonBeaconRenderer;
 import by.dragonsurvivalteam.dragonsurvival.client.render.blocks.HelmetEntityRenderer;
 import by.dragonsurvivalteam.dragonsurvival.client.render.entity.creatures.*;
 import by.dragonsurvivalteam.dragonsurvival.client.render.entity.dragon.DragonRenderer;
-import by.dragonsurvivalteam.dragonsurvival.client.render.entity.projectiles.BallLightningRenderer;
-import by.dragonsurvivalteam.dragonsurvival.client.render.entity.projectiles.BolasEntityRenderer;
-import by.dragonsurvivalteam.dragonsurvival.client.render.entity.projectiles.DragonSpikeRenderer;
-import by.dragonsurvivalteam.dragonsurvival.client.render.entity.projectiles.FireBallRenderer;
-import by.dragonsurvivalteam.dragonsurvival.registry.DSBlocks;
+import by.dragonsurvivalteam.dragonsurvival.client.render.entity.projectiles.*;
 import by.dragonsurvivalteam.dragonsurvival.registry.DSContainers;
 import by.dragonsurvivalteam.dragonsurvival.registry.DSEntities;
 import by.dragonsurvivalteam.dragonsurvival.server.tileentity.DSTileEntities;
@@ -29,8 +26,6 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -66,7 +61,7 @@ public class ClientModEvents{
 	@SubscribeEvent
 	public static void setup(FMLClientSetupEvent event)
 	{
-		ItemBlockRenderTypes.setRenderLayer(DSBlocks.dragon_altar_stone, RenderType.cutout());
+		/*ItemBlockRenderTypes.setRenderLayer(DSBlocks.dragon_altar_stone, RenderType.cutout());
 		ItemBlockRenderTypes.setRenderLayer(DSBlocks.dragon_altar_sandstone, RenderType.cutout());
 		ItemBlockRenderTypes.setRenderLayer(DSBlocks.dragon_altar_red_sandstone, RenderType.cutout());
 		ItemBlockRenderTypes.setRenderLayer(DSBlocks.dragon_altar_purpur_block, RenderType.cutout());
@@ -83,9 +78,10 @@ public class ClientModEvents{
 
 		// enable transparency for certain small doors
 		ItemBlockRenderTypes.setRenderLayer(DSBlocks.birchSmallDoor, RenderType.cutout());
-		ItemBlockRenderTypes.setRenderLayer(DSBlocks.acaciaSmallDoor, RenderType.cutout());
+		ItemBlockRenderTypes.setRenderLayer(DSBlocks.acaciaSmallDoor, RenderType.cutout());*/
 
 		EntityRenderers.register(DSEntities.DRAGON_SPIKE, DragonSpikeRenderer::new);
+		EntityRenderers.register(DSEntities.BLIZZARD_SPIKE, BlizzardSpikeRenderer::new);
 
 		EntityRenderers.register(DSEntities.BOLAS_ENTITY, BolasEntityRenderer::new);
 
@@ -151,6 +147,14 @@ public class ClientModEvents{
 				SeaSweepParticle beaconParticle = new SeaSweepParticle(clientWorld, v, v1, v2, v3, p_create_1_);
 				beaconParticle.pickSprite(p_create_1_);
 				return beaconParticle;
+			}
+		});
+		event.register(DSParticles.snowflake, p_create_1_ -> new ParticleProvider<SimpleParticleType>(){
+			@Override
+			public @NotNull Particle createParticle(@NotNull SimpleParticleType p_199234_1_, @NotNull ClientLevel clientWorld, double x, double y, double z, double vX, double vY, double vZ){
+				SnowflakeParticle snowflakeParticle = new SnowflakeParticle(clientWorld, x, y, z, vX, vY, vZ);
+				snowflakeParticle.pickSprite(p_create_1_);
+				return snowflakeParticle;
 			}
 		});
 	}

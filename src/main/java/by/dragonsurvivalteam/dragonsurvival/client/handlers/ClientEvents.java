@@ -92,6 +92,7 @@ public class ClientEvents{
 	@ConfigOption( side = ConfigSide.CLIENT, category = "inventory", key = "inventoryToggle", comment = "Should the buttons for toggeling between dragon and normaly inventory be added?" )
 	public static Boolean inventoryToggle = true;
 	private static ItemStack BOLAS;
+	private static ItemStack ICE_BLOCK;
 	private static boolean hasUpdatedSinceChangingLavaVision = false;
 	private static boolean hasLavaVisionPrev = false;
 
@@ -243,6 +244,31 @@ public class ClientEvents{
 			BOLAS = new ItemStack(DSItems.huntingNet);
 		}
 		Minecraft.getInstance().getItemRenderer().renderStatic(BOLAS, ItemTransforms.TransformType.NONE, light, overlayCoords, matrixStack, buffers, 0);
+		matrixStack.popPose();
+	}
+
+	@SubscribeEvent
+	public static void renderIce(RenderLivingEvent.Pre<LivingEntity, EntityModel<LivingEntity>> postEvent){
+		LivingEntity entity = postEvent.getEntity();
+		if(entity.getEffect(DragonEffects.FULLY_FROZEN) != null) {
+			int light = postEvent.getPackedLight();
+			int overlayCoords = LivingEntityRenderer.getOverlayCoords(entity, 0);
+			MultiBufferSource buffers = postEvent.getMultiBufferSource();
+			PoseStack matrixStack = postEvent.getPoseStack();
+			float height = DragonUtils.getHandler(entity).isDragon() ? (float)DragonSizeHandler.calculateDragonHeight(DragonUtils.getHandler(entity).getSize(), ServerConfig.hitboxGrowsPastHuman) : entity.getBbHeight();
+			float width = entity.getBbWidth();
+			renderIceBlock(light, overlayCoords, buffers, matrixStack, height, width);
+		}
+	}
+
+	public static void renderIceBlock(int light, int overlayCoords, MultiBufferSource buffers, PoseStack matrixStack, float height, float width) {
+		matrixStack.pushPose();
+		matrixStack.translate(0, height / 2, 0);
+		matrixStack.scale(width * 1.2f, height * 1.2f, width * 1.2f);
+		if(ICE_BLOCK == null){
+			ICE_BLOCK = new ItemStack(Items.ICE);
+		}
+		Minecraft.getInstance().getItemRenderer().renderStatic(ICE_BLOCK, ItemTransforms.TransformType.NONE, light, overlayCoords, matrixStack, buffers, 0);
 		matrixStack.popPose();
 	}
 

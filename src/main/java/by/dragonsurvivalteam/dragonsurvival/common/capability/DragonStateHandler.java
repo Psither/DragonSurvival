@@ -18,9 +18,6 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.ai.attributes.AttributeInstance;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -30,7 +27,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -82,7 +78,7 @@ public class DragonStateHandler extends EntityStateHandler {
 	private AbstractDragonBody dragonBody;
 
 	private int passengerId;
-	private boolean isHiding;
+	private boolean isDiving;
 	private boolean hasFlight;
 	private boolean areWingsSpread;
 	private double size;
@@ -117,7 +113,7 @@ public class DragonStateHandler extends EntityStateHandler {
 
 			tag.putBoolean("bite", movementData.bite);
 			tag.putBoolean("dig", movementData.dig);
-			tag.putBoolean("isHiding", isHiding());
+			tag.putBoolean("isDiving", isDiving());
 
 			//Spin attack
 			tag.putInt("spinCooldown", movementData.spinCooldown);
@@ -182,7 +178,7 @@ public class DragonStateHandler extends EntityStateHandler {
 			getMovementData().headYawLastTick = getMovementData().headYaw;
 			getMovementData().bodyYawLastTick = getMovementData().bodyYaw;
 			getMovementData().headPitchLastTick = getMovementData().headPitch;
-			setIsHiding(tag.getBoolean("isHiding"));
+			setIsDiving(tag.getBoolean("isDiving"));
 			getMovementData().dig = tag.getBoolean("dig");
 
 			setWingsSpread(tag.getBoolean("isFlying"));
@@ -571,8 +567,8 @@ public class DragonStateHandler extends EntityStateHandler {
 		}
 	}
 
-	public void setIsHiding(boolean isHiding) {
-		this.isHiding = isHiding;
+	public void setIsDiving(boolean isDiving) {
+		this.isDiving = isDiving;
 	}
 
 	public MagicCap getMagicData(){
@@ -611,8 +607,8 @@ public class DragonStateHandler extends EntityStateHandler {
 		return hasFlight && areWingsSpread;
 	}
 
-	public boolean isHiding(){
-		return isHiding;
+	public boolean isDiving(){
+		return isDiving;
 	}
 
 	public ClawInventory getClawToolData()  {

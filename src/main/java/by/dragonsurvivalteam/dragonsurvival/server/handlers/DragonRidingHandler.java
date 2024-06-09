@@ -44,7 +44,7 @@ public class DragonRidingHandler{
 							self.startRiding(target);
 							target.connection.send(new ClientboundSetPassengersPacket(target));
 							targetCap.setPassengerId(self.getId());
-							NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> target), new SynchronizeDragonCap(target.getId(), targetCap.isHiding(), targetCap.getType(), targetCap.getBody(), targetCap.getSize(), targetCap.hasFlight(), self.getId()));
+							NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> target), new SynchronizeDragonCap(target.getId(), targetCap.isDiving(), targetCap.getType(), targetCap.getBody(), targetCap.getSize(), targetCap.hasFlight(), self.getId()));
 							event.setCancellationResult(InteractionResult.SUCCESS);
 							event.setCanceled(true);
 						}
@@ -94,7 +94,7 @@ public class DragonRidingHandler{
 			}
 			if(flag || passenger == null || !player.hasPassenger(passenger) || passenger.isSpectator() || player.isSpectator()){
 				dragonStateHandler.setPassengerId(0);
-				NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SynchronizeDragonCap(player.getId(), dragonStateHandler.isHiding(), dragonStateHandler.getType(), dragonStateHandler.getBody(), dragonStateHandler.getSize(), dragonStateHandler.hasFlight(), 0));
+				NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new SynchronizeDragonCap(player.getId(), dragonStateHandler.isDiving(), dragonStateHandler.getType(), dragonStateHandler.getBody(), dragonStateHandler.getSize(), dragonStateHandler.hasFlight(), 0));
 			}
 		});
 	}
@@ -110,7 +110,7 @@ public class DragonRidingHandler{
 				player.stopRiding();
 				vehicle.connection.send(new ClientboundSetPassengersPacket(vehicle));
 				vehicleCap.setPassengerId(0);
-				NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> vehicle), new SynchronizeDragonCap(player.getId(), vehicleCap.isHiding(), vehicleCap.getType(), vehicleCap.getBody(), vehicleCap.getSize(), vehicleCap.hasFlight(), 0));
+				NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> vehicle), new SynchronizeDragonCap(player.getId(), vehicleCap.isDiving(), vehicleCap.getType(), vehicleCap.getBody(), vehicleCap.getSize(), vehicleCap.hasFlight(), 0));
 			});
 		});
 	}
@@ -119,7 +119,7 @@ public class DragonRidingHandler{
 	public static void changedDimension(PlayerEvent.PlayerChangedDimensionEvent changedDimensionEvent){
 		Player player = changedDimensionEvent.getEntity();
 		DragonStateProvider.getCap(player).ifPresent(dragonStateHandler -> {
-			NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new SynchronizeDragonCap(player.getId(), dragonStateHandler.isHiding(), dragonStateHandler.getType(), dragonStateHandler.getBody(), dragonStateHandler.getSize(), dragonStateHandler.hasFlight(), 0));
+			NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new SynchronizeDragonCap(player.getId(), dragonStateHandler.isDiving(), dragonStateHandler.getType(), dragonStateHandler.getBody(), dragonStateHandler.getSize(), dragonStateHandler.hasFlight(), 0));
 			NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new RefreshDragons(player.getId()));
 		});
 	}
