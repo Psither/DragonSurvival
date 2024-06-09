@@ -331,7 +331,7 @@ public class DragonEntity extends LivingEntity implements GeoEntity, CommonTrait
 			state.setAnimation(AnimationUtils.createAnimation(builder, JUMP));
 			animationController.transitionLength(2);
 		// Extra condition to prevent the player from triggering the fall animation when falling a trivial distance (this happens when you are really big)
-		}else if(!player.onGround() && (distanceFromGround > height * 0.15)) {
+		}else if(!player.onGround()) {
 			state.setAnimation(AnimationUtils.createAnimation(builder, FALL_LOOP));
 			animationController.transitionLength(2);
 		} else if(player.isShiftKeyDown() || !DragonSizeHandler.canPoseFit(player, Pose.STANDING) && DragonSizeHandler.canPoseFit(player, Pose.CROUCHING)){
