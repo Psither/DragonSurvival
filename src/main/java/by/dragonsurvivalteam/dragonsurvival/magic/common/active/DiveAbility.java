@@ -1,7 +1,6 @@
 package by.dragonsurvivalteam.dragonsurvival.magic.common.active;
 
 import by.dragonsurvivalteam.dragonsurvival.client.handlers.magic.ClientMagicHUDHandler;
-import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleOptions;

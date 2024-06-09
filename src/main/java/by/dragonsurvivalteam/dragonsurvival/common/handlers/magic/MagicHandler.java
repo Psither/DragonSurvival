@@ -55,12 +55,9 @@ import net.minecraftforge.eventbus.api.Event.Result;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 
-import java.util.HashMap;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.Callable;
 
-import com.mojang.datafixers.util.Pair;
 import net.minecraftforge.network.PacketDistributor;
 
 

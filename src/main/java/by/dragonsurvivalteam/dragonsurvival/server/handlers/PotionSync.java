@@ -12,8 +12,6 @@ import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
 import net.minecraftforge.network.PacketDistributor;
 import net.minecraftforge.network.PacketDistributor.TargetPoint;
 
-import java.util.List;
-
 
 @EventBusSubscriber
 public class PotionSync{
