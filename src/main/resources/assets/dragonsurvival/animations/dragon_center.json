@@ -19945,7 +19945,7 @@
 			}
 		},
 		"fly_land_end": {
-			"loop": false,
+			"loop": true,
 			"animation_length": 0.56,
 			"bones": {
 				"FrontLegLeft": {

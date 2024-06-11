@@ -39702,7 +39702,7 @@
 			}
 		},
 		"fly_land_end": {
-			"loop": false,
+			"loop": true,
 			"animation_length": 0.6,
 			"bones": {
 				"FrontLegLeft": {
