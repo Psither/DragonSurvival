@@ -77,14 +77,14 @@ public class DragonUIRenderComponent extends AbstractContainerEventHandler imple
 	public boolean mouseDragged(double x1, double y1, int rightClick, double x2, double y2){
 		if(isMouseOver(x1, y1)){
 			if(rightClick == 0){
-				xRot -= x2 / 5;
-				yRot -= y2 / 5;
+				xRot -= (float) (x2 / 5.0);
+				yRot -= (float) (y2 / 5.0);
 			}else if(rightClick == 1){
-				xOffset -= x2 / 5;
-				yOffset -= y2 / 5;
+				xOffset += (float) x2;
+				yOffset += (float) y2;
 
-				xOffset = Mth.clamp(xOffset, -(width / 8), width / 8);
-				yOffset = Mth.clamp(yOffset, -(height / 8), height / 8);
+				xOffset = Mth.clamp(xOffset, (float) -width / 2, (float) width / 2);
+				yOffset = Mth.clamp(yOffset, (float) -height / 2, (float) height / 2);
 			}
 
 			return true;
