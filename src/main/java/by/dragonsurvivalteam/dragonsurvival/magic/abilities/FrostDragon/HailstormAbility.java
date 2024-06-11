@@ -57,7 +57,7 @@ public class HailstormAbility extends DiveAbility {
     public static Double hailstormLevelRange = 0.5;
 
     @ConfigRange( min = 0, max = 10000 )
-    @ConfigOption( side = ConfigSide.SERVER, category = {"magic", "abilities", "frost_dragon", "actives", "hailstorm"}, key = "hailstormLevelRange", comment = "How much range the ability has, excluding level.  Increased depending on fall distance." )
+    @ConfigOption( side = ConfigSide.SERVER, category = {"magic", "abilities", "frost_dragon", "actives", "hailstorm"}, key = "hailstormBaseRange", comment = "How much range the ability has, excluding level.  Increased depending on fall distance." )
     public static Double hailstormBaseRange = 1.0;
 
     @Override
@@ -175,6 +175,7 @@ public class HailstormAbility extends DiveAbility {
         super.finishDive(player, distance);
         if (player.level.isClientSide()) {
             player.level.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.PLAYERS, 1.0f, 1.0f, false);
+            player.level.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.ANVIL_LAND, SoundSource.PLAYERS, 1.0f, 0.9f, false);
             makeParticles(player, distance, true);
         } else {
             float range = getRange() * rangeBonusFromDistance(distance);

@@ -87,6 +87,7 @@ public class BlizzardAbility extends ChargeCastAbility {
         } else if (target instanceof LivingEntity livingTarget) {
             if (!DragonUtils.isDragonSubtype(livingTarget, DragonTypes.FROST)) {
                 Vec3 randLoc = new Vec3(MathUtils.randomPointInSphere(getRange(amp) * 0.5f, source.getRandom()));
+                randLoc = randLoc.multiply(1, source.isOnGround() && randLoc.y < 0 ? -1 : 1, 1);
                 Vec3 targetPos = target.position();
                 if(target instanceof Player player)
                 {
