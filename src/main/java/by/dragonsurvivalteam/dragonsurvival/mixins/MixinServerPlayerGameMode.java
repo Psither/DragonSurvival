@@ -2,6 +2,8 @@ package by.dragonsurvivalteam.dragonsurvival.mixins;
 
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ServerPlayerGameMode;
 import net.minecraft.world.level.block.state.BlockState;
@@ -14,24 +16,14 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 
 @Mixin(ServerPlayerGameMode.class)
 public class MixinServerPlayerGameMode {
-    @Unique
-    private static final ThreadLocal<BlockState> STORED_STATE = new ThreadLocal<>();
 
-    @ModifyVariable(method = "destroyBlock", at = @At(value = "STORE", ordinal = 0))
-    public BlockState extendedHarvestCheck(final BlockState state) {
-        STORED_STATE.set(state);
-        return state;
-    }
+    @Shadow @Final protected ServerPlayer player;
 
     /** Additional check for mods which do not use the forge harvest check event */
-    @ModifyVariable(method = "destroyBlock", at = @At(value = "STORE", ordinal = 0))
-    public boolean extendedHarvestCheck(boolean originalResult) {
-        BlockState state = STORED_STATE.get();
-        STORED_STATE.remove();
-
-        if (!originalResult && state != null) {
+    @ModifyExpressionValue(method = "destroyBlock", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/block/state/BlockState;canHarvestBlock(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/player/Player;)Z"))
+    private boolean canHarvestBlock(boolean originalResult, @Local BlockState state) {
+        if (!originalResult) {
             DragonStateHandler handler = DragonUtils.getHandler(player);
-
             if (handler.isDragon()) {
                 return handler.canHarvestWithPaw(state);
             }
@@ -39,6 +31,4 @@ public class MixinServerPlayerGameMode {
 
         return originalResult;
     }
-
-    @Shadow @Final protected ServerPlayer player;
 }

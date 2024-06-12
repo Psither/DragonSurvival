@@ -1,6 +1,8 @@
 package by.dragonsurvivalteam.dragonsurvival.client.util;
 
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
+import by.dragonsurvivalteam.dragonsurvival.common.entity.DragonEntity;
+
 import com.mojang.authlib.GameProfile;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
@@ -19,6 +21,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.LazyOptional;
+import software.bernie.geckolib.core.animation.AnimationController;
+
 import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
@@ -32,6 +36,7 @@ public class FakeClientPlayer extends AbstractClientPlayer{
 	private static final ResourceLocation ALEX_SKIN_LOCATION = new ResourceLocation("textures/entity/player/slim/alex.png");
 	public DragonStateHandler handler = new DragonStateHandler();
 	public Supplier<String> animationSupplier = null;
+	public AnimationController<DragonEntity> animationController = null;
 	public Long lastAccessed;
 	public int number;
 

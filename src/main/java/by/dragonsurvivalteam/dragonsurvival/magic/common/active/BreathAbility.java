@@ -3,6 +3,7 @@ package by.dragonsurvivalteam.dragonsurvival.magic.common.active;
 import by.dragonsurvivalteam.dragonsurvival.client.handlers.KeyInputHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.handlers.DragonConfigHandler;
+import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigOption;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigRange;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigSide;
@@ -18,7 +19,10 @@ import by.dragonsurvivalteam.dragonsurvival.util.TargetingFunctions;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -37,7 +41,7 @@ import java.util.Locale;
 public abstract class BreathAbility extends ChannelingCastAbility implements ISecondAnimation {
 	@ConfigRange(min = 0, max = 10)
 	@ConfigOption(side = ConfigSide.SERVER, category = "magic", key = "baseBreathRange", comment = "The base range of the breath attack (breath range increases with dragon growth)")
-	public static Integer baseBreathRange = 4;
+	public static Integer baseBreathRange = 3;
 
 	public int currentBreathRange;
 
@@ -82,14 +86,13 @@ public abstract class BreathAbility extends ChannelingCastAbility implements ISe
 	@Override
 	public void onChanneling(final Player player, int castDuration) {
 		DragonStateHandler handler = DragonUtils.getHandler(player);
-		DragonLevel dragonLevel = DragonUtils.getDragonLevel(player);
 
-		currentBreathRange = calculateCurrentBreathRange(dragonLevel);
+		currentBreathRange = calculateCurrentBreathRange(handler.getSize());
 
 		yaw = (float) Math.toRadians(-player.getYRot());
 		pitch = (float) Math.toRadians(-player.getXRot());
-		speed = dragonLevel == DragonLevel.NEWBORN ? 0.1F : dragonLevel == DragonLevel.YOUNG ? 0.2F : 0.3F; // Changes distance
-		spread = 0.1f;
+		speed = calculateCurrentBreathSpeed(handler.getSize());
+		spread = calculateSpread(handler.getSize());
 
 		xComp = (float)(Math.sin(yaw) * Math.cos(pitch));
 		yComp = (float)Math.sin(pitch);
@@ -113,15 +116,6 @@ public abstract class BreathAbility extends ChannelingCastAbility implements ISe
 		dx = breathPos.x;
 		dy = breathPos.y;
 		dz = breathPos.z;
-
-		Vec3 delta = player.getDeltaMovement();
-
-		if (player.isFallFlying() || player.getAbilities().flying) {
-			yComp += (float) delta.y * 6;
-		}
-
-		xComp += (float) delta.x * 6;
-		zComp += (float) delta.z * 6;
 	}
 
 
@@ -235,8 +229,8 @@ public abstract class BreathAbility extends ChannelingCastAbility implements ISe
 	public ArrayList<Component> getInfo() {
 		ArrayList<Component> components = new ArrayList<>();
 
-		DragonLevel dragonLevel = DragonUtils.getDragonLevel(player);
-		int range = calculateCurrentBreathRange(dragonLevel);
+		DragonStateHandler handler = DragonUtils.getHandler(player);
+		int range = calculateCurrentBreathRange(handler.getSize());
 
 		components.add(Component.translatable("ds.skill.mana_cost", getInitManaCost()));
 		components.add(Component.translatable("ds.skill.channel_cost", getManaCost(), 2));
@@ -260,11 +254,29 @@ public abstract class BreathAbility extends ChannelingCastAbility implements ISe
 		return components;
 	}
 
-	public static int calculateCurrentBreathRange(@NotNull final DragonLevel dragonLevel) {
-		return baseBreathRange + switch (dragonLevel) {
-			case NEWBORN -> 0;
-			case YOUNG -> 2;
-			case ADULT -> 4;
-		};
+	private static float calculateSpread(double size) {
+		return (float) Math.sqrt(size / DragonLevel.ADULT.size) / 5.f + 0.05f;
+	}
+
+	public static int calculateNumberOfParticles(double size) {
+		return (int) Math.max(Math.min(100, size * 0.6), 12);
+	}
+
+	/*public static class BreathDamage extends DamageSource {
+		public BreathDamage(@NotNull final Entity entity) {
+			super(DSDamageTypes.entityDamageSource(entity.level(), DSDamageTypes.DRAGON_BREATH, entity), entity);
+			setMagic();
+		}
+	}*/
+
+	public static int calculateCurrentBreathRange(double size) {
+		float sizeFactor = Math.min((float) size / DragonLevel.ADULT.size, 1.0f);
+		float additionalBreathRange = sizeFactor * 4.0f + (float)size * 0.05f;
+		return baseBreathRange + (int) additionalBreathRange;
+	}
+
+	public static float calculateCurrentBreathSpeed(double size) {
+		float sizeFactor = Math.min((float) size / DragonLevel.ADULT.size, 1.0f);
+		return sizeFactor * 0.3f + (float)size * 0.004f;
 	}
 }

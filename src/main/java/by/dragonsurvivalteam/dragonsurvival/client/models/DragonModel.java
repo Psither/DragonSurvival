@@ -5,6 +5,7 @@ import by.dragonsurvivalteam.dragonsurvival.client.skin_editor_system.DragonEdit
 import by.dragonsurvivalteam.dragonsurvival.client.skin_editor_system.objects.SkinPreset.SkinAgeGroup;
 import by.dragonsurvivalteam.dragonsurvival.client.util.FakeClientPlayer;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
+import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonBody;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.DragonEntity;
 import by.dragonsurvivalteam.dragonsurvival.config.ClientConfig;
 import by.dragonsurvivalteam.dragonsurvival.server.handlers.ServerFlightHandler;
@@ -18,20 +19,29 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.ForgeMod;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.molang.MolangParser;
+import software.bernie.geckolib.core.animation.AnimatableManager;
+import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.model.GeoModel;
 
 import java.util.Locale;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DragonModel extends GeoModel<DragonEntity> {
 	private final ResourceLocation defaultTexture = new ResourceLocation(DragonSurvivalMod.MODID, "textures/dragon/cave_newborn.png");
 	private final ResourceLocation model = new ResourceLocation(DragonSurvivalMod.MODID, "geo/dragon_model.geo.json");
-	private final ResourceLocation animation = new ResourceLocation(DragonSurvivalMod.MODID, "animations/dragon.animations.json");
+	private ResourceLocation currentTexture;
 
-	private ResourceLocation currentTexture = defaultTexture;
+	/**TODO Body Types Update
+	Required:
+	 - tips for body types like for magic abilities
 
-	private final ConcurrentHashMap<String, ResourceLocation> cache = new ConcurrentHashMap<>();
+	 Extras:
+     - customization.json - Ability to disallow some details in the editor for some Body Types (for example, wing details are not required for wingless).
+	 - emotes.json - Ability to disallow some emotions for certain Body Types.
+	*/
 
 	@Override
 	public void applyMolangQueries(final DragonEntity dragon, double currentTick) {
@@ -45,7 +55,7 @@ public class DragonModel extends GeoModel<DragonEntity> {
 		MolangParser parser = MolangParser.INSTANCE;
 
 		Player player = dragon.getPlayer();
-		Vec3 deltaMovement = dragon.getPseudoDeltaMovement();
+		Vec3 deltaMovement = dragon.getDeltaMovement();
 		DragonStateHandler handler = DragonUtils.getHandler(player);
 
 		parser.setValue("query.delta_y", () -> deltaMovement.y);
@@ -125,7 +135,7 @@ public class DragonModel extends GeoModel<DragonEntity> {
 		dragon.tail_motion_up = query_tail_motion_up;
 		dragon.tail_motion_side = query_tail_motion_side;
 	}
-
+	
 	@Override
 	public ResourceLocation getModelResource(final DragonEntity dragon) {
 		return model;
@@ -173,8 +183,15 @@ public class DragonModel extends GeoModel<DragonEntity> {
 	}
 
 	@Override
-	public ResourceLocation getAnimationResource(final DragonEntity ignored) {
-		return new ResourceLocation(DragonSurvivalMod.MODID, "animations/dragon_centre.json");
+	public ResourceLocation getAnimationResource(final DragonEntity dragon) {
+		if (dragon.playerId != null || dragon.getPlayer() != null) {
+			DragonStateHandler handler = DragonUtils.getHandler(dragon.getPlayer());
+			AbstractDragonBody body = handler.getBody();
+			if (body != null) {
+				return new ResourceLocation(DragonSurvivalMod.MODID, String.format("animations/dragon_%s.json", body.getBodyName().toLowerCase()));
+			}
+		}
+		return new ResourceLocation(DragonSurvivalMod.MODID, "animations/dragon.animations.json");
 	}
 
 	@Override

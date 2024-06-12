@@ -143,7 +143,7 @@ public class WingObtainmentController{
 						if(!lowercase.isEmpty()){
 							executorService.schedule(() -> player.sendSystemMessage(Component.translatable("ds.dragon.grants.wings")), 2, TimeUnit.SECONDS);
 
-							dragonStateHandler.setHasWings(true);
+							dragonStateHandler.setHasFlight(true);
 							dragonStateHandler.getMovementData().spinLearned = true;
 							NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new SyncSpinStatus(player.getId(), dragonStateHandler.getMovementData().spinAttack, dragonStateHandler.getMovementData().spinCooldown, dragonStateHandler.getMovementData().spinLearned));
 							NetworkHandler.CHANNEL.send(PacketDistributor.ALL.noArg(), new CompleteDataSync(player));

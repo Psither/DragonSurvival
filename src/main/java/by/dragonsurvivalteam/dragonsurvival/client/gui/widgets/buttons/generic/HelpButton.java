@@ -1,14 +1,12 @@
 package by.dragonsurvivalteam.dragonsurvival.client.gui.widgets.buttons.generic;
 
 import by.dragonsurvivalteam.dragonsurvival.DragonSurvivalMod;
-import by.dragonsurvivalteam.dragonsurvival.client.gui.utils.TooltipRender;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -19,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class HelpButton extends ExtendedButton implements TooltipRender{
+public class HelpButton extends ExtendedButton {
 	public static final ResourceLocation texture = new ResourceLocation(DragonSurvivalMod.MODID, "textures/gui/help_button.png");
 	public String text;
 	private final List<Component> tooltip;
@@ -59,8 +57,6 @@ public class HelpButton extends ExtendedButton implements TooltipRender{
 		}
 
 		guiGraphics.pose().pushPose();
-//		guiGraphics.pose().translate(0, 0, 200);
-
 		guiGraphics.pose().translate(getX() - getX() * xSize, getY() - getY() * ySize, 0);
 		guiGraphics.pose().scale(xSize, ySize, 0);
 
@@ -73,12 +69,9 @@ public class HelpButton extends ExtendedButton implements TooltipRender{
 		guiGraphics.pose().popPose();
 	}
 
-	/** To prevent the tooltip from getting overlayed by the screen */
+	/** To prevent the tooltip from getting overlayed by the screen. See postScreenRender in ToolTipHandler.java. */
 	public void renderTooltip(final GuiGraphics guiGraphics, int mouseX, int mouseY) {
-//		guiGraphics.pose().pushPose();
-//		guiGraphics.pose().translate(0, 0, 450);
 		guiGraphics.renderComponentTooltip(Minecraft.getInstance().font, tooltip, mouseX, mouseY);
-//		guiGraphics.pose().popPose();
 	}
 
 	@Override

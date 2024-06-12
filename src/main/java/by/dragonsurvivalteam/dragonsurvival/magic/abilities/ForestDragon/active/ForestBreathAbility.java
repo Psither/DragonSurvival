@@ -239,14 +239,14 @@ public class ForestBreathAbility extends BreathAbility{
 		}
 
 		if(player.level().isClientSide()){
-			for(int i = 0; i < 24; i++){
+			for(int i = 0; i < calculateNumberOfParticles(DragonUtils.getHandler(player).getSize()); i++){
 				double xSpeed = speed * 1f * xComp;
 				double ySpeed = speed * 1f * yComp;
 				double zSpeed = speed * 1f * zComp;
 				player.level().addParticle(new LargePoisonParticleData(37, true), dx, dy, dz, xSpeed, ySpeed, zSpeed);
 			}
 
-			for(int i = 0; i < 10; i++){
+			for(int i = 0; i < calculateNumberOfParticles(DragonUtils.getHandler(player).getSize()) / 2; i++){
 				double xSpeed = speed * xComp + spread * 0.7 * (player.getRandom().nextFloat() * 2 - 1) * Math.sqrt(1 - xComp * xComp);
 				double ySpeed = speed * yComp + spread * 0.7 * (player.getRandom().nextFloat() * 2 - 1) * Math.sqrt(1 - yComp * yComp);
 				double zSpeed = speed * zComp + spread * 0.7 * (player.getRandom().nextFloat() * 2 - 1) * Math.sqrt(1 - zComp * zComp);

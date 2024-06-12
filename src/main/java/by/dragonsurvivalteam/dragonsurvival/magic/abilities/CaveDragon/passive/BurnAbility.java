@@ -50,7 +50,8 @@ public class BurnAbility extends PassiveDragonAbility{
 		return new ResourceLocation[]{new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/cave/burn_0.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/cave/burn_1.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/cave/burn_2.png"),
-		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/cave/burn_3.png")};
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/cave/burn_3.png"),
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/cave/burn_4.png")};
 	}
 
 	public int getChance(){
@@ -67,7 +68,7 @@ public class BurnAbility extends PassiveDragonAbility{
 
 	@Override
 	public int getMaxLevel(){
-		return 3;
+		return 4;
 	}
 
 	@Override

@@ -21,8 +21,8 @@ import java.util.Map;
 public class DragonConfigHandler{
 	public static List<Block> SEA_DRAGON_HYDRATION_BLOCKS = List.of();
 	public static List<Item> SEA_DRAGON_HYDRATION_USE_ALTERNATIVES = List.of();
-
 	public static List<Block> FOREST_DRAGON_BREATH_GROW_BLACKLIST = List.of();
+	public static List<Block> DRAGON_DESTRUCTIBLE_BLOCKS = List.of();
 
 	public static Map<String, List<Block>> DRAGON_SPEEDUP_BLOCKS;
 	public static Map<String, List<Block>> DRAGON_BREATH_BLOCKS;
@@ -38,6 +38,7 @@ public class DragonConfigHandler{
 			rebuildBreathBlocks();
 			rebuildManaBlocks();
 			rebuildForestDragonConfigs();
+			rebuildDestructibleBlocks();
 		}
 	}
 
@@ -72,5 +73,9 @@ public class DragonConfigHandler{
 
 	public static void rebuildForestDragonConfigs(){
 		FOREST_DRAGON_BREATH_GROW_BLACKLIST = ConfigHandler.getResourceElements(Block.class, ForestBreathAbility.forestBreathGrowBlacklist);
+	}
+
+	public static void rebuildDestructibleBlocks(){
+		DRAGON_DESTRUCTIBLE_BLOCKS = ConfigHandler.getResourceElements(Block.class, ServerConfig.destructibleBlocks);
 	}
 }

@@ -118,6 +118,7 @@ public class DragonEditorRegistry{
 
 				try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
 					savedCustomizations = gson.fromJson(reader, SavedSkinPresets.class);
+					savedCustomizations = SkinPortingSystem.upgrade(savedCustomizations);
 				} catch (IOException exception) {
 					DragonSurvivalMod.LOGGER.warn("Reader could not be closed", exception);
 				}

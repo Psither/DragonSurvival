@@ -1,7 +1,9 @@
 package by.dragonsurvivalteam.dragonsurvival.commands;
 
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
+import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonBody;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
+import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonBodies;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
 import by.dragonsurvivalteam.dragonsurvival.network.NetworkHandler;
@@ -42,7 +44,7 @@ public class DragonCommand{
 		RootCommandNode<CommandSourceStack> rootCommandNode = commandDispatcher.getRoot();
 		LiteralCommandNode<CommandSourceStack> dragon = literal("dragon").requires(commandSource -> commandSource.hasPermission(2)).executes(context -> {
 			String type = context.getArgument("dragon_type", String.class);
-			return runCommand(type, 1, false, context.getSource().getPlayerOrException());
+			return runCommand(type, "central", 1, false, context.getSource().getPlayerOrException());
 		}).build();
 
 		ArgumentCommandNode<CommandSourceStack, String> dragonType = argument("dragon_type", StringArgumentType.string()).suggests((context, builder) -> {
@@ -58,52 +60,73 @@ public class DragonCommand{
 		}).executes(context -> {
 			String type = context.getArgument("dragon_type", String.class);
 			ServerPlayer serverPlayer = context.getSource().getPlayerOrException();
-			return runCommand(type, 1, false, serverPlayer);
+			return runCommand(type, "central", 1, false, serverPlayer);
+		}).build();
+		
+		ArgumentCommandNode<CommandSourceStack, String> dragonBody = argument("dragon_body", StringArgumentType.string()).suggests((context, builder) -> {
+			SuggestionsBuilder sgBuilder = null;
+			for (String val : DragonBodies.getBodies()) {
+				sgBuilder = sgBuilder == null ? builder.suggest(val) : sgBuilder.suggest(val.toLowerCase());
+			}
+
+			return sgBuilder.buildFuture();
+			
+		}).executes(context -> {
+			String type = context.getArgument("dragon_type", String.class);
+			String body = context.getArgument("dragon_body", String.class);
+			ServerPlayer serverPlayer = context.getSource().getPlayerOrException();
+			return runCommand(type, body, 1, false, serverPlayer);
 		}).build();
 
 		ArgumentCommandNode<CommandSourceStack, Integer> dragonStage = argument("dragon_stage", IntegerArgumentType.integer(1, 4)).suggests((context, builder) -> builder.suggest(1).suggest(2).suggest(3).suggest(4).buildFuture()).executes(context -> {
 			String type = context.getArgument("dragon_type", String.class);
+			String body = context.getArgument("dragon_body", String.class);
 			int stage = context.getArgument("dragon_stage", Integer.TYPE);
 			ServerPlayer serverPlayer = context.getSource().getPlayerOrException();
-			return runCommand(type, stage, false, serverPlayer);
+			return runCommand(type, body, stage, false, serverPlayer);
 		}).build();
 
-		ArgumentCommandNode<CommandSourceStack, Boolean> giveWings = argument("wings", BoolArgumentType.bool()).executes(context -> {
+		ArgumentCommandNode<CommandSourceStack, Boolean> giveFlight = argument("flight", BoolArgumentType.bool()).executes(context -> {
 			String type = context.getArgument("dragon_type", String.class);
+			String body = context.getArgument("dragon_body", String.class);
 			int stage = context.getArgument("dragon_stage", Integer.TYPE);
-			boolean wings = context.getArgument("wings", Boolean.TYPE);
+			boolean flight = context.getArgument("flight", Boolean.TYPE);
 			ServerPlayer serverPlayer = context.getSource().getPlayerOrException();
-			return runCommand(type, stage, wings, serverPlayer);
+			return runCommand(type, body, stage, flight, serverPlayer);
 		}).build();
 
 		ArgumentCommandNode<CommandSourceStack, EntitySelector> target = argument("target", EntityArgument.players()).executes(context -> {
 			String type = context.getArgument("dragon_type", String.class);
+			String body = context.getArgument("dragon_body", String.class);
 			int stage = context.getArgument("dragon_stage", Integer.TYPE);
-			boolean wings = context.getArgument("wings", Boolean.TYPE);
+			boolean flight = context.getArgument("flight", Boolean.TYPE);
 			EntitySelector selector = context.getArgument("target", EntitySelector.class);
 			List<ServerPlayer> serverPlayers = selector.findPlayers(context.getSource());
-			serverPlayers.forEach(player -> runCommand(type, stage, wings, player));
+			serverPlayers.forEach(player -> runCommand(type, body, stage, flight, player));
 			return 1;
 		}).build();
 
 		rootCommandNode.addChild(dragon);
 		dragon.addChild(dragonType);
-		dragonType.addChild(dragonStage);
-		dragonStage.addChild(giveWings);
-		giveWings.addChild(target);
+		dragonType.addChild(dragonBody);
+		dragonBody.addChild(dragonStage);
+		dragonStage.addChild(giveFlight);
+		giveFlight.addChild(target);
 	}
 
-	private static int runCommand(String type, int stage, boolean wings, ServerPlayer player){
+	private static int runCommand(String type, String body, int stage, boolean flight, ServerPlayer player){
 		DragonStateHandler cap = DragonUtils.getHandler(player);
 		AbstractDragonType dragonType1 = type.equalsIgnoreCase("human") ? null : DragonTypes.getStaticSubtype(type);
+		AbstractDragonBody dragonBody = body.equalsIgnoreCase("none") ? null : DragonBodies.getStatic(body);
 
 		if(dragonType1 == null && cap.getType() != null){
 			reInsertClawTools(player, cap);
 		}
 
-		cap.setType(dragonType1);
-		cap.setHasWings(wings);
-		cap.getMovementData().spinLearned = wings;
+		cap.setType(dragonType1, player);
+		cap.setBody(dragonBody, player);
+		cap.setHasFlight(flight);
+		cap.getMovementData().spinLearned = flight;
 		DragonLevel dragonLevel = DragonLevel.values()[Mth.clamp(stage - 1, 0, DragonLevel.values().length-1)];
 		float size = stage == 4 ? 40f : dragonLevel.size;
 		cap.setSize(size, player);
@@ -111,10 +134,10 @@ public class DragonCommand{
 		cap.growing = true;
 
 		NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),new SyncAltarCooldown(player.getId(), Functions.secondsToTicks(ServerConfig.altarUsageCooldown)));
-		NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),new SynchronizeDragonCap(player.getId(), cap.isHiding(), cap.getType(), cap.getSize(), cap.hasWings(), 0));
+		NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),new SynchronizeDragonCap(player.getId(), cap.isHiding(), cap.getType(), cap.getBody(), cap.getSize(), cap.hasFlight(), 0));
 		NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player),new SyncSpinStatus(player.getId(), cap.getMovementData().spinAttack, cap.getMovementData().spinCooldown, cap.getMovementData().spinLearned));
 		NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new SyncSize(player.getId(), size));
-		NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new RequestClientData(cap.getType(), cap.getLevel()));
+		NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> player), new RequestClientData(cap.getType(), cap.getBody(), cap.getLevel()));
 		player.refreshDimensions();
 		return 1;
 	}

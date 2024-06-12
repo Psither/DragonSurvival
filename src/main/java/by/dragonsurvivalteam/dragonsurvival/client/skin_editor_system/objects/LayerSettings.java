@@ -14,8 +14,9 @@ public class LayerSettings implements NBTInterface{
 
 	public LayerSettings(){}
 
-	public LayerSettings(String selectedSkin){
+	public LayerSettings(String selectedSkin, float defaultHue){
 		this.selectedSkin = selectedSkin;
+		this.hue = defaultHue;
 	}
 
 	@Override

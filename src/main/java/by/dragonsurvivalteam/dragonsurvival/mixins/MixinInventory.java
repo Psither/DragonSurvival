@@ -35,18 +35,6 @@ public abstract class MixinInventory{
 
 	@Shadow public abstract ItemStack getItem(int pIndex);
 
-	// TODO :: Check if this is still needed
-	@Inject(at = @At("HEAD"), method = "getDestroySpeed", cancellable = true)
-	public void getDestroySpeed(final BlockState blockState, final CallbackInfoReturnable<Float> callback) {
-		ItemStack mainStack = player.getInventory().getSelected();
-		ItemStack breakStack = ClawToolHandler.getDragonHarvestTool(player, blockState);
-
-		if (!ItemStack.isSameItem(mainStack, breakStack) && !ToolUtils.shouldUseDragonTools(mainStack)) {
-			float tempSpeed = breakStack.getDestroySpeed(blockState);
-			callback.setReturnValue(tempSpeed);
-		}
-	}
-
 	@Inject(method = "tick", at = @At("HEAD"))
 	public void handleBlacklist(CallbackInfo ci) {
 		if (player.tickCount % 10 != 0) {

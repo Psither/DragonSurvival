@@ -40,7 +40,7 @@ public class ResourceDropdownEntry extends DropdownEntry {
 	@Override
     public void render(@NotNull final GuiGraphics guiGraphics, int index, int top, int left, int width, int height, int mouseX, int mouseY, boolean isMouseOver, float partialTicks) {
         if (button == null) {
-            button = new ExtendedButton(list.getLeft() + 3, 0, list.getWidth() - 12, height, null, null) {
+            button = new ExtendedButton(left + 3, 0, width - 12, height, null, null) {
                 private int tick = 0;
 
                 @Override
@@ -63,6 +63,7 @@ public class ResourceDropdownEntry extends DropdownEntry {
                         return;
                     }
 
+                    // TODO: Figure out how to get rid of list here
                     if (getY() + height > list.getBottom() - 3 || getY() < list.getTop() + 3) {
                         return;
                     }

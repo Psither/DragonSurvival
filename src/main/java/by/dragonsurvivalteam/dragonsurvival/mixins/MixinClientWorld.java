@@ -3,7 +3,6 @@ package by.dragonsurvivalteam.dragonsurvival.mixins;
 import by.dragonsurvivalteam.dragonsurvival.common.blocks.SourceOfMagicBlock;
 import by.dragonsurvivalteam.dragonsurvival.server.tileentity.SourceOfMagicPlaceholder;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
@@ -14,28 +13,22 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.storage.WritableLevelData;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 
 import java.util.function.Supplier;
 
 
 @Mixin( ClientLevel.class )
-public abstract class MixinClientWorld extends Level{
-	@Shadow
-	@Final
-	private LevelRenderer levelRenderer;
+public abstract class MixinClientWorld extends Level {
 
 	protected MixinClientWorld(WritableLevelData pLevelData, ResourceKey<Level> pDimension, RegistryAccess pRegistryAccess, Holder<DimensionType> pDimensionTypeRegistration, Supplier<ProfilerFiller> pProfiler, boolean pIsClientSide, boolean pIsDebug, long pBiomeZoomSeed, int pMaxChainedNeighborUpdates) {
 		super(pLevelData, pDimension, pRegistryAccess, pDimensionTypeRegistration, pProfiler, pIsClientSide, pIsDebug, pBiomeZoomSeed, pMaxChainedNeighborUpdates);
 	}
 
-	@Inject( at = @At( "HEAD" ), method = "destroyBlockProgress", cancellable = true )
-	public void destroyBlockProgress(int playerId, BlockPos pos, int progress, CallbackInfo ci){
+	@ModifyArg(method = "destroyBlockProgress", at = @At( value = "INVOKE", target = "Lnet/minecraft/client/renderer/LevelRenderer;destroyBlockProgress(ILnet/minecraft/core/BlockPos;I)V"), index = 1)
+	private BlockPos modifyDestroyBlockProgress(BlockPos pos){
 		BlockState state = getBlockState(pos);
 
 		if(state.getBlock() instanceof SourceOfMagicBlock){
@@ -47,9 +40,10 @@ public abstract class MixinClientWorld extends Level{
 					pos1 = ((SourceOfMagicPlaceholder)blockEntity).rootPos;
 				}
 
-				levelRenderer.destroyBlockProgress(playerId, pos1, progress);
-				ci.cancel();
+				return pos1;
 			}
 		}
+
+		return pos;
 	}
 }

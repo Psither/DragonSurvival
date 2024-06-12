@@ -15,7 +15,7 @@ public class NewbornEditorButton extends Button{
 	public NewbornEditorButton(DragonEditorScreen dragonEditorScreen){
 		super(dragonEditorScreen.width / 2 - 180, dragonEditorScreen.guiTop - 30, 120, 20, Component.translatable("ds.level.newborn"), btn -> {
 			dragonEditorScreen.level = DragonLevel.NEWBORN;
-			dragonEditorScreen.dragonRender.zoom = dragonEditorScreen.level.size;
+			dragonEditorScreen.dragonRender.zoom = dragonEditorScreen.level.size * 3 - 5;
 			dragonEditorScreen.handler.getSkinData().compileSkin();
 			dragonEditorScreen.update();
 		}, DEFAULT_NARRATION);

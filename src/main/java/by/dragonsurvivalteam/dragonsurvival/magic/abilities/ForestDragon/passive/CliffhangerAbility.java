@@ -48,7 +48,8 @@ public class CliffhangerAbility extends PassiveDragonAbility{
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/cliffhanger_2.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/cliffhanger_3.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/cliffhanger_4.png"),
-		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/cliffhanger_5.png")};
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/cliffhanger_5.png"),
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/cliffhanger_6.png")};
 	}
 
 	public int getHeight(){
@@ -65,7 +66,7 @@ public class CliffhangerAbility extends PassiveDragonAbility{
 
 	@Override
 	public int getMaxLevel(){
-		return 5;
+		return 6;
 	}
 
 	@Override

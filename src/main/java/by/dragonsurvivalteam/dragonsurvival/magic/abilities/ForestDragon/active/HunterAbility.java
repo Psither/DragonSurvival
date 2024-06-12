@@ -92,7 +92,7 @@ public class HunterAbility extends ChargeCastAbility{
 
 	@Override
 	public Integer[] getRequiredLevels(){
-		return new Integer[]{0, 25};
+		return new Integer[]{0, 25, 35, 55};
 	}
 
 	@Override
@@ -141,7 +141,8 @@ public class HunterAbility extends ChargeCastAbility{
 		return new ResourceLocation[]{new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/hunter_0.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/hunter_1.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/hunter_2.png"),
-		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/hunter_3.png")};
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/hunter_3.png"),
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/hunter_4.png")};
 	}
 
 
@@ -156,7 +157,7 @@ public class HunterAbility extends ChargeCastAbility{
 
 	@Override
 	public int getMaxLevel(){
-		return 2;
+		return 4;
 	}
 
 	@Override

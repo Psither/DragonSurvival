@@ -1,18 +1,22 @@
 package by.dragonsurvivalteam.dragonsurvival.common.handlers;
 
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
+import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonBody;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
 import by.dragonsurvivalteam.dragonsurvival.magic.DragonAbilities;
 import by.dragonsurvivalteam.dragonsurvival.magic.abilities.ForestDragon.passive.CliffhangerAbility;
 import by.dragonsurvivalteam.dragonsurvival.registry.DragonEffects;
+import by.dragonsurvivalteam.dragonsurvival.registry.DragonModifiers;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import net.minecraft.tags.DamageTypeTags;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Snowball;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.event.PlayLevelSoundEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingFallEvent;
@@ -84,7 +88,25 @@ public class DragonBonusHandler {
 					CliffhangerAbility ability = DragonAbilities.getSelfAbility(living, CliffhangerAbility.class);
 					distance -= ability.getHeight();
 				}
-				distance -= dragonStateHandler.getLevel().jumpHeight;
+
+				float gravity = (float) livingFallEvent.getEntity().getAttributeValue(ForgeMod.ENTITY_GRAVITY.get());
+				// TODO: Added a fudge factor of 1.5 here. Not sure why it is needed but otherwise you begin to hurt yourself at very high jump heights even though the calculation here is identical to the push force calculation.
+				float jumpHeight = (float) DragonModifiers.getJumpBonus(dragonStateHandler) * 1.5f;
+
+				// Calculating the peak of the jump
+				distance -= (float) (Math.pow(jumpHeight, 2.0) / (2 * gravity));
+
+				AbstractDragonBody body = dragonStateHandler.getBody();
+				if (body != null && body.getGravityMult() <= 1.0) {
+					if (body.getGravityMult() == 0) {
+						distance = 0;
+					} else {
+						distance *= body.getGravityMult();
+					}
+				} else if (body != null) {
+					distance *= ((body.getGravityMult() - 1) / 2) + 1;
+				}
+
 				livingFallEvent.setDistance(distance);
 			}
 		});

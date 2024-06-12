@@ -93,7 +93,7 @@ public class SeaEyesAbility extends ChargeCastAbility{
 
 	@Override
 	public Integer[] getRequiredLevels(){
-		return new Integer[]{0, 15};
+		return new Integer[]{0, 15, 45, 60};
 	}
 
 	@Override
@@ -137,7 +137,9 @@ public class SeaEyesAbility extends ChargeCastAbility{
 	public ResourceLocation[] getSkillTextures(){
 		return new ResourceLocation[]{new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/sea_eyes_0.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/sea_eyes_1.png"),
-		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/sea_eyes_2.png")};
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/sea_eyes_2.png"),
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/sea_eyes_3.png"),
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/sea_eyes_4.png")};
 	}
 
 	@Override
@@ -150,7 +152,7 @@ public class SeaEyesAbility extends ChargeCastAbility{
 
 	@Override
 	public int getMaxLevel(){
-		return 2;
+		return 4;
 	}
 
 	@Override

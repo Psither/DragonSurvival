@@ -32,7 +32,7 @@ import java.util.Objects;
 @Mod.EventBusSubscriber(Dist.CLIENT)
 public class ClientMagicHandler{
 	@ConfigOption(side = ConfigSide.CLIENT, category = "rendering", key = "particles_on_dragons", comment = "Particles (from the dragon type effects) will be rendered on dragons if this is enabled")
-	public static Boolean particlesOnDragons = true;
+	public static Boolean particlesOnDragons = false;
 
 	@SubscribeEvent
 	public static void onFovEvent(ComputeFovModifierEvent event){

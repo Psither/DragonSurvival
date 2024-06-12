@@ -96,7 +96,7 @@ public class ClientProxy {
 
     public static void requestClientData(final DragonStateHandler handler) {
         if (handler == DragonUtils.getHandler(Minecraft.getInstance().player)) {
-            ClientEvents.sendClientData(new RequestClientData(handler.getType(), handler.getLevel()));
+            ClientEvents.sendClientData(new RequestClientData(handler.getType(), handler.getBody(), handler.getLevel()));
         }
     }
 
@@ -206,7 +206,7 @@ public class ClientProxy {
                                 ClientCastingHandler.hasCast = true;
                                 ClientCastingHandler.status = ClientCastingHandler.StatusStop;
                             }
-                        }, message.castStartTime);
+                        }, message.castStartTime, message.clientTime);
                     } else {
                         ability.onKeyReleased(player);
                     }
@@ -330,10 +330,11 @@ public class ClientProxy {
 
             if (entity instanceof Player player) {
                 DragonStateProvider.getCap(player).ifPresent(handler -> {
-                    handler.setType(message.dragonType);
+                    handler.setType(message.dragonType, player);
+                    handler.setBody(message.dragonBody, player);
                     handler.setIsHiding(message.hiding);
-                    handler.setHasWings(message.hasWings);
-                    handler.setSize(message.size);
+                    handler.setHasFlight(message.hasWings);
+                    handler.setSize(message.size, player);
                     handler.setPassengerId(message.passengerId);
                 });
 

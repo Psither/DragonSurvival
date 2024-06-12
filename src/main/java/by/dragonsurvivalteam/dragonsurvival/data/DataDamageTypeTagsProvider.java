@@ -26,6 +26,8 @@ public class DataDamageTypeTagsProvider extends TagsProvider<DamageType> {
         super(output, Registries.DAMAGE_TYPE, lookupProvider.thenApply(provider -> DSRegistryProvider.BUILDER.buildPatch(RegistryAccess.fromRegistryOfRegistries(BuiltInRegistries.REGISTRY), provider)), modId, existingFileHelper);
     }
 
+
+    // TODO: I don't believe these tags are actually getting properly applied at this moment
     @Override
     protected void addTags(@NotNull final HolderLookup.Provider provider) {
         tag(DamageTypeTags.BYPASSES_ARMOR)
@@ -48,7 +50,8 @@ public class DataDamageTypeTagsProvider extends TagsProvider<DamageType> {
 
         tag(NO_KNOCKBACK)
                 .add(DSDamageTypes.CAVE_DRAGON_BURN)
-                .add(DSDamageTypes.FOREST_DRAGON_DRAIN);
+                .add(DSDamageTypes.FOREST_DRAGON_DRAIN)
+                .add(DSDamageTypes.CRUSHED);
     }
 
     private static TagKey<DamageType> createKey(@NotNull final String name) {

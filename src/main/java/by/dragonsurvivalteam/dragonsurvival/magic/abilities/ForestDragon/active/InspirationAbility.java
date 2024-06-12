@@ -56,13 +56,14 @@ public class InspirationAbility extends AoeBuffAbility{
 		return new ResourceLocation[]{new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/inspiration_0.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/inspiration_1.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/inspiration_2.png"),
-		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/inspiration_3.png")};
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/inspiration_3.png"),
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/inspiration_4.png")};
 	}
 
 
 	@Override
 	public int getMaxLevel(){
-		return 3;
+		return 4;
 	}
 
 	@Override
@@ -77,7 +78,7 @@ public class InspirationAbility extends AoeBuffAbility{
 
 	@Override
 	public Integer[] getRequiredLevels(){
-		return new Integer[]{0, 15, 35};
+		return new Integer[]{0, 15, 35, 50};
 	}
 
 	@Override

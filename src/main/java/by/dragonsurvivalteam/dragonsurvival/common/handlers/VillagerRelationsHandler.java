@@ -338,6 +338,7 @@ public class VillagerRelationsHandler{
 									knightHunter.setPos(blockPos.getX(), blockPos.getY(), blockPos.getZ());
 									knightHunter.goalSelector.addGoal(5, new FollowMobGoal(PrincesHorseEntity.class, knightHunter, 8));
 									knightHunter.finalizeSpawn(serverWorld, serverWorld.getCurrentDifficultyAt(player.blockPosition()), MobSpawnType.NATURAL, null, null);
+									serverWorld.addFreshEntity(knightHunter);
 								}
 
 								timeLeft = Functions.minutesToTicks(ServerConfig.royalSpawnDelay) + Functions.minutesToTicks(world.random.nextInt(ServerConfig.royalSpawnDelay / 2));

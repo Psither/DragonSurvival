@@ -232,24 +232,17 @@ public class ToolTipHandler{
 			y = screen.height - height - 6;
 		}
 
-		PoseStack matrix = event.getGraphics().pose();
-
 		int texWidth = 128;
 		int texHeight = 128;
 
-		matrix.pushPose();
-		matrix.translate(0, 0, 400);
+		event.getGraphics().blit(blink ? tooltip_2 : tooltip_1, x - 8 - 6, y - 8 - 6, 400, 1, 1 % texHeight, 16, 16, texWidth, texHeight);
+		event.getGraphics().blit(blink ? tooltip_2 : tooltip_1, x + width - 8 + 6, y - 8 - 6, 400,texWidth - 16 - 1, 1 % texHeight, 16, 16, texWidth, texHeight);
 
-		event.getGraphics().blit(blink ? tooltip_2 : tooltip_1, x - 8 - 6, y - 8 - 6, 1, 1 % texHeight, 16, 16, texWidth, texHeight);
-		event.getGraphics().blit(blink ? tooltip_2 : tooltip_1, x + width - 8 + 6, y - 8 - 6, texWidth - 16 - 1, 1 % texHeight, 16, 16, texWidth, texHeight);
+		event.getGraphics().blit(blink ? tooltip_2 : tooltip_1, x - 8 - 6, y + height - 8 + 6, 400,1, 1 % texHeight + 16, 16, 16, texWidth, texHeight);
+		event.getGraphics().blit(blink ? tooltip_2 : tooltip_1, x + width - 8 + 6, y + height - 8 + 6, 400,texWidth - 16 - 1, 1 % texHeight + 16, 16, 16, texWidth, texHeight);
 
-		event.getGraphics().blit(blink ? tooltip_2 : tooltip_1, x - 8 - 6, y + height - 8 + 6, 1, 1 % texHeight + 16, 16, 16, texWidth, texHeight);
-		event.getGraphics().blit(blink ? tooltip_2 : tooltip_1, x + width - 8 + 6, y + height - 8 + 6, texWidth - 16 - 1, 1 % texHeight + 16, 16, 16, texWidth, texHeight);
-
-		event.getGraphics().blit(blink ? tooltip_2 : tooltip_1, x + width / 2 - 47, y - 16, 16 + 2 * texWidth + 1, 1 % texHeight, 94, 16, texWidth, texHeight);
-		event.getGraphics().blit(blink ? tooltip_2 : tooltip_1, x + width / 2 - 47, y + height, 16 + 2 * texWidth + 1, 1 % texHeight + 16, 94, 16, texWidth, texHeight);
-
-		matrix.popPose();
+		event.getGraphics().blit(blink ? tooltip_2 : tooltip_1, x + width / 2 - 47, y - 16, 400,16 + 2 * texWidth + 1, 1 % texHeight, 94, 16, texWidth, texHeight);
+		event.getGraphics().blit(blink ? tooltip_2 : tooltip_1, x + width / 2 - 47, y + height, 400,16 + 2 * texWidth + 1, 1 % texHeight + 16, 94, 16, texWidth, texHeight);
 	}
 
 	private static boolean isHelpText(){

@@ -1,6 +1,5 @@
 package by.dragonsurvivalteam.dragonsurvival.client.gui.widgets.buttons.generic;
 
-import by.dragonsurvivalteam.dragonsurvival.client.gui.utils.TooltipRender;
 import by.dragonsurvivalteam.dragonsurvival.client.gui.widgets.MouseTooltipPositioner;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
@@ -9,7 +8,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.client.gui.widget.ExtendedButton;
 import org.jetbrains.annotations.NotNull;
 
-public class DSButton extends ExtendedButton implements TooltipRender {
+public class DSButton extends ExtendedButton {
 	public Component[] tooltips;
 
 	public DSButton(int x, int y, int width, int height, final OnPress onPress, final Component... tooltip) {

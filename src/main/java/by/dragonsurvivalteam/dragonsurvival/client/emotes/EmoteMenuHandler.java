@@ -136,12 +136,7 @@ public class EmoteMenuHandler {
 						guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), new Color(0.35F, 0.35F, 0.35F, 0.75F).getRGB());
 					}
 
-					guiGraphics.pose().pushPose();
-					guiGraphics.pose().scale(0.25F, 0.25F, 0F);
-					guiGraphics.pose().translate(getX() * 3, getY() * 3, 0);
-					guiGraphics.pose().translate(15, (float) getHeight() / 2 - 2, 0);
-					guiGraphics.blit(BUTTON_LEFT, getX(), getY(), 0, 0, 32, 32, 32, 32);
-					guiGraphics.pose().popPose();
+					guiGraphics.blit(BUTTON_LEFT, getX() + (getWidth() - 9) / 2, getY() + (getHeight() - 9) / 2, 0, 0, 9, 9, 9, 9);
 				}
 			});
 
@@ -167,13 +162,7 @@ public class EmoteMenuHandler {
 						guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + getHeight(), new Color(0.35F, 0.35F, 0.35F, 0.75F).getRGB());
 					}
 
-					RenderSystem.setShaderTexture(0, BUTTON_RIGHT);
-					guiGraphics.pose().pushPose();
-					guiGraphics.pose().scale(0.25F, 0.25F, 0F);
-					guiGraphics.pose().translate(getX() * 3, getY() * 3, 0);
-					guiGraphics.pose().translate(20, (float) getHeight() / 2 - 2, 0);
-					guiGraphics.blit(BUTTON_RIGHT, getX(), getY(), 0, 0, 32, 32, 32, 32);
-					guiGraphics.pose().popPose();
+					guiGraphics.blit(BUTTON_RIGHT, getX() + (getWidth() - 9) / 2, getY() + (getHeight() - 9) / 2, 0, 0, 9, 9, 9, 9);
 				}
 			});
 
@@ -194,19 +183,11 @@ public class EmoteMenuHandler {
 					int j = getFGColor();
 					guiGraphics.drawCenteredString(Minecraft.getInstance().font, Component.translatable("ds.emote.toggle"), getX() + width / 2, getY() + (height - 8) / 2, j | Mth.ceil(alpha * 255.0F) << 24);
 
-					guiGraphics.pose().pushPose();
-					guiGraphics.pose().scale(0.25F, 0.25F, 0F);
-					guiGraphics.pose().translate(getX() * 3, getY() * 3, 0);
-					guiGraphics.pose().translate(15, (float) height / 2, 0);
-
 					if(handler.getEmoteData().emoteMenuOpen){
-						guiGraphics.blit(BUTTON_UP, getX(), getY(), 0, 0, 32, 32, 32, 32);
+						guiGraphics.blit(BUTTON_UP, getX(), getY(), 0, 0, 9, 9, 9, 9);
 					}else{
-						RenderSystem.setShaderTexture(0, BUTTON_DOWN);
-						guiGraphics.blit(BUTTON_DOWN, getX(), getY(), 0, 0, 32, 32, 32, 32);
+						guiGraphics.blit(BUTTON_DOWN, getX(), getY(), 0, 0, 9, 9, 9, 9);
 					}
-
-					guiGraphics.pose().popPose();
 				}
 			});
 

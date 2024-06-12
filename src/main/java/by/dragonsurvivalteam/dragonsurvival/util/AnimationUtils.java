@@ -1,7 +1,10 @@
 package by.dragonsurvivalteam.dragonsurvival.util;
 
+import by.dragonsurvivalteam.dragonsurvival.mixins.AccessorAnimationController;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animation.AnimationController;
 import software.bernie.geckolib.core.animation.RawAnimation;
 
 public class AnimationUtils {
@@ -15,5 +18,23 @@ public class AnimationUtils {
         builder.then(stage.animationName(), stage.loopType());
 
         return builder;
+    }
+
+    public static <E extends GeoAnimatable> void setAnimationSpeed(double speed, double currentAnimationTick, AnimationController<E> controller) {
+
+        if(speed == controller.getAnimationSpeed()) {
+            return;
+        }
+
+        if(controller.getCurrentAnimation() != null) {
+            double distance = currentAnimationTick - ((AccessorAnimationController)controller).getTickOffset();
+            ((AccessorAnimationController) controller).setTickOffset(currentAnimationTick - distance * (controller.getAnimationSpeed() / speed));
+            controller.setAnimationSpeed(speed);
+        }
+    }
+
+    // FIXME: This is a hack since GeckoLib's state.isCurrentAnimation() doesn't work. If they ever fix that, we can remove this.
+    public static boolean isAnimationPlaying(AnimationController<?> controller, String animationName) {
+        return controller.getCurrentAnimation() != null && controller.getCurrentAnimation().animation().name().equals(animationName);
     }
 }

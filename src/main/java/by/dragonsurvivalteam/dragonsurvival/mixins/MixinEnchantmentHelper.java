@@ -4,6 +4,9 @@ import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.common.handlers.magic.ClawToolHandler;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import by.dragonsurvivalteam.dragonsurvival.util.ToolUtils;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -20,18 +23,22 @@ import java.util.List;
 
 @Mixin( EnchantmentHelper.class )
 public abstract class MixinEnchantmentHelper{
-	@Inject( at = @At( "HEAD" ), method = "hasAquaAffinity", cancellable = true )
-	private static void hasAquaAffinity(LivingEntity entity, CallbackInfoReturnable<Boolean> ci){
-		if(!(entity instanceof Player player)){
-			return;
+
+	@ModifyReturnValue(method = "hasAquaAffinity", at = @At("RETURN"))
+	private static boolean modifyHasAquaAffinityForSeaDragon(boolean original, @Local(index = 0, argsOnly = true) LivingEntity pEntity){
+		if(!(pEntity instanceof Player player)){
+			return original;
 		}
 
 		if(DragonUtils.isDragonType(player, DragonTypes.SEA)){
-			ci.setReturnValue(true);
+			return true;
 		}
+
+		return original;
 	}
 
-	@Unique
+	// FIXME: I'm 99% sure this code doesn't do anything. I disabled it for now after doing a fair bit of testing. Probably retest some more to make sure it does nothing, though.
+	/*@Unique
 	private static final List<EnchantmentCategory> IGNORED_CATEGORIES = List.of(
 		    EnchantmentCategory.ARMOR,
 		    EnchantmentCategory.ARMOR_HEAD,
@@ -50,42 +57,44 @@ public abstract class MixinEnchantmentHelper{
 	private static final List<String> IGNORED_CATEGORY_NAMES = List.of(
 			"bows",
 			"horse_armor"
-	);
+	);*/
 
-	@Inject(at = @At("HEAD"), method = "getEnchantmentLevel(Lnet/minecraft/world/item/enchantment/Enchantment;Lnet/minecraft/world/entity/LivingEntity;)I", cancellable = true)
-	private static void getEnchantmentLevel(final Enchantment enchantment, final LivingEntity entity, final CallbackInfoReturnable<Integer> callback) {
-		if (!(entity instanceof Player player)) {
-			return;
+	/*@ModifyExpressionValue(method = "getEnchantmentLevel(Lnet/minecraft/world/item/enchantment/Enchantment;Lnet/minecraft/world/entity/LivingEntity;)I", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper;getItemEnchantmentLevel(Lnet/minecraft/world/item/enchantment/Enchantment;Lnet/minecraft/world/item/ItemStack;)I"))
+	private static int modifyGetEnchantmentLevelForDragonTools(int original, Enchantment enchantment, LivingEntity pItemStack, @Local(argsOnly = true) LivingEntity entity){
+		if(!(entity instanceof Player player)){
+			return original;
 		}
 
-		if (IGNORED_CATEGORIES.contains(enchantment.category)) {
-			return;
+		if(IGNORED_CATEGORIES.contains(enchantment.category)){
+			return original;
 		}
 
-		if (IGNORED_CATEGORY_NAMES.contains(enchantment.category.name())) {
-			return;
+		if(IGNORED_CATEGORY_NAMES.contains(enchantment.category.name())){
+			return original;
 		}
 
-		if (!ToolUtils.shouldUseDragonTools(player.getMainHandItem())) {
-			return;
+		if(!ToolUtils.shouldUseDragonTools(player.getMainHandItem())){
+			return original;
 		}
 
-		if (DragonUtils.isDragon(player)) {
+		if(DragonUtils.isDragon(player)){
 			ItemStack stack = ClawToolHandler.getDragonHarvestTool(player);
 
-			if (stack == player.getMainHandItem()) {
+			if(stack == player.getMainHandItem()){
 				// No relevant tool found - get the sword
 				stack = ClawToolHandler.getDragonSword(player);
 			}
 
-			if (stack != ItemStack.EMPTY) {
+			if(stack != ItemStack.EMPTY){
 				int enchantmentLevel = stack.getEnchantmentLevel(enchantment);
 
 				// Just to be safe
-				if (enchantmentLevel > 0) {
-					callback.setReturnValue(enchantmentLevel);
+				if(enchantmentLevel > 0){
+					return enchantmentLevel;
 				}
 			}
 		}
-	}
+
+		return original;
+	}*/
 }

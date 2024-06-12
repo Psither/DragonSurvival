@@ -2,6 +2,7 @@ package by.dragonsurvivalteam.dragonsurvival.config;
 
 import by.dragonsurvivalteam.dragonsurvival.config.obj.*;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonLevel;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
@@ -14,9 +15,14 @@ import java.util.List;
 
 
 public class ServerConfig{
+	public static final Double DEFAULT_MAX_GROWTH_SIZE = 60.0;
 	ServerConfig(Builder builder){
 		ConfigHandler.addConfigs(builder, ConfigSide.SERVER);
 	}
+
+	@ConfigRange(min = -1, max = 60000)
+	@ConfigOption(side = ConfigSide.SERVER, category = "general", key = "serverSyncTime", comment = "The time in seconds between server syncs. -1 to disable. Only modify this if you know exactly what you are doing. Here be dragons!")
+	public static Integer serverSyncTime = 600;
 
 	@ConfigRange( min = 0, max = 1000 )
 	@ConfigOption( side = ConfigSide.SERVER, category = "general", key = "altarUsageCooldown", comment = "How long of a cooldown in seconds the altar has after each use." )
@@ -37,76 +43,148 @@ public class ServerConfig{
 	@ConfigOption( side = ConfigSide.SERVER, category = "general", key = "canMoveWhileCasting", comment = "If you should be able to move while casting certain skills or if player movement can be prevented." )
 	public static Boolean canMoveWhileCasting = false;
 
-	@ConfigRange( min = 0.0, max = 1000.0 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "general", key = "maxSizeVari", comment = "The maximum size variation in percentage" )
-	public static Double maxSizeVari = 10.0;
-
-	@ConfigRange( min = -1000.0, max = 0 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "general", key = "minSizeVari", comment = "The minimum size variation in percentage" )
-	public static Double minSizeVari = -10.0;
-
 	@ConfigOption( side = ConfigSide.SERVER, category = "general", key = "startWithDragonChoice", comment = "Should the dragon altar interface be opened when the player first joins the world?" )
 	public static Boolean startWithDragonChoice = true;
 
 	// Growth
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "sizeChangesHitbox", comment = "Whether the dragon size determines its hitbox size. The bigger the dragon, the bigger the hitbox. If false standard player's hitbox be used." )
+	@ConfigType(Block.class)
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "destructibleBlocks", comment = "Blocks that are destructible when block destruction is enabled. Blocks that can be harvested with an axe are also destroyable by default on whitelist mode. Formatting: block/modid:id" )
+	public static List<String> destructibleBlocks = List.of(
+			"minecraft:leaves"
+	);
+	
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "disableDefaultDestructionTags", comment = "Disable the default blocks that are destroyed (MINEABLE_WITH_AXE) when block destruction is enabled" )
+	public static Boolean disableDefaultDestructionTags = false;
+
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "useBlacklistForDestructibleBlocks", comment = "Use a blacklist for destructible blocks instead of a whitelist.")
+	public static Boolean useBlacklistForDestructibleBlocks = false;
+
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "allowLargeBlockDestruction", comment = "Allow a dragon to instantly destroy certain colliding blocks if they are above a certain size.")
+	public static Boolean allowLargeBlockDestruction = false;
+
+	@ConfigRange( min = 0.0, max = 1.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "largeBlockDestructionRemovePercentage", comment = "The percentage of blocks removed instead of destroyed when a dragon instantly destroys blocks. If a block is removed, it doesn't make a sound or particle effect. This is to minimize lag from particle VFX and audio spam.")
+	public static Double largeBlockDestructionRemovePercentage = 0.96;
+
+	@ConfigRange( min = 14.0, max = 1000000.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "largeBlockDestructionSize", comment = "The size threshold for a dragon to start instantly destroying blocks. Crouching prevents destruction from occurring.")
+	public static Double largeBlockDestructionSize = 120.0;
+
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "allowCrushing", comment = "Allow a dragon to crush entities beneath it after being above a certain size. Crouching prevents crushing from occurring.")
+	public static Boolean allowCrushing = false;
+
+	@ConfigRange( min = 14.0, max = 1000000.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "crushingSize", comment = "The size at which a dragon can begin to crush entities.")
+	public static Double crushingSize = 120.0;
+
+	@ConfigRange( min = 0.0, max = 20.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "crushingDamageScalar", comment = "The amount damage dealt per dragon size when crushing entities.")
+	public static Double crushingDamageScalar = 0.05;
+
+	@ConfigRange( min = 0, max = 20 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "crushingSize", comment = "The amount of ticks before entities can be crushed again after they were already crushed.")
+	public static Integer crushingTickDelay = 20;
+
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "allowLargeScaling", comment = "Allow a dragon's max health, damage, reach, step height, and jump height to continue to scale with growth beyond its normal limits.")
+	public static Boolean allowLargeScaling = false;
+
+	@ConfigRange( min = 1, max = 1000 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "largeMaxHealth", comment = "The maximum health when the dragon is at maximum growth size if large scaling is enabled.")
+	public static Integer largeMaxHealth = 80;
+	@ConfigRange( min = 0.0, max = 100.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "largeMovementSpeedScalar", comment = "The bonus movement speed multiplier per 60 size when the dragon is at maximum growth size if large scaling is enabled.")
+	public static Double largeMovementSpeedScalar = 0.0;
+
+	@ConfigRange( min = 0.0, max = 100.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "largeDamageBonus", comment = "The bonus damage when the dragon is at maximum growth size if large scaling is enabled.")
+	public static Double largeDamageBonus = 6.0;
+
+	@ConfigRange( min = 0.0, max = 100.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "largeReachScalar", comment = "The bonus reach given per 60 size once the dragon is above the default growth size of 60 if large scaling is enabled.")
+	public static Double largeReachScalar = 0.5;
+
+	@ConfigRange( min = 0.0, max = 100.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "largeStepHeightScalar", comment = "The bonus step height given per 60 size once the dragon is above the default growth size of 60 if large scaling is enabled.")
+	public static Double largeStepHeightScalar = 1.0;
+
+	@ConfigRange( min = 0.0, max = 100.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "largeStepHeightScalar", comment = "The bonus jump height given per 60 size once the dragon is above the default growth size of 60 if large scaling is enabled.")
+	public static Double largeJumpHeightScalar = 0.15;
+
+	@ConfigRange( min = 0.0, max = 10.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "big_dragon"}, key = "largeBlockBreakRadiusScalar", comment = "The bonus block break radius given per 60 size once the dragon is above the default growth size of 60 if large scaling is enabled. A block radius of 0 disables this feature. Crouching allows you to mine one block at a time.")
+	public static Double largeBlockBreakRadiusScalar = 0.7;
+
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "standard_dragon"}, key = "sizeChangesHitbox", comment = "Whether the dragon size determines its hitbox size. The bigger the dragon, the bigger the hitbox. If false standard player's hitbox be used." )
 	public static Boolean sizeChangesHitbox = true;
 
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "largerDragonHitbox", comment = "Whether the dragon hitbox grows past a human hitbox." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "standard_dragon"}, key = "largerDragonHitbox", comment = "Whether the dragon hitbox grows past a human hitbox." )
 	public static Boolean hitboxGrowsPastHuman = true;
 
 	@ConfigType(Item.class)
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "growNewborn", comment = "List of items to grow newborn dragon. Format: item/modid:id" )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth"}, key = "growNewborn", comment = "List of items to grow newborn dragon. Format: item/modid:id" )
 	public static List<String> growNewborn = List.of("dragonsurvival:heart_element", "dragonsurvival:weak_dragon_heart", "dragonsurvival:elder_dragon_heart");
 
 	@ConfigType(Item.class)
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "growYoung", comment = "List of items to grow young dragon. Format: item/modid:id" )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth"}, key = "growYoung", comment = "List of items to grow young dragon. Format: item/modid:id" )
 	public static List<String> growYoung = List.of("dragonsurvival:weak_dragon_heart", "dragonsurvival:elder_dragon_heart");
 
 	@ConfigType(Item.class)
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "growAdult", comment = "List of items to grow adult dragon. Format: item/modid:id" )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth"}, key = "growAdult", comment = "List of items to grow adult dragon. Format: item/modid:id" )
 	public static List<String> growAdult = List.of("dragonsurvival:elder_dragon_heart");
 
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "alternateGrowing", comment = "Defines if dragon should grow without requirement of catalyst items. Your dragon will just grow over time." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth"}, key = "alternateGrowing", comment = "If true, dragons will grow without the use of catalyst grow items. Does not broker the use of items. Just an additional type of growth." )
 	public static Boolean alternateGrowing = true;
 
 	@ConfigRange( min = 14.0, max = 1000000.0 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "maxGrowthSize", comment = "Defines the max size your dragon can grow to. Values that are too high can break your game. It is not advisable to set a number higher than 60." )
-	public static Double maxGrowthSize = 60.0;
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth"}, key = "maxGrowthSize", comment = "Defines the max size your dragon can grow to. Values that are too high can break your game. It is not advisable to set a number higher than 60." )
+	public static Double maxGrowthSize = DEFAULT_MAX_GROWTH_SIZE;
 
 	@ConfigRange( min = 0, max = 1000000.0 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "reachBonus", comment = "The bonus that is given to dragons at every 60 size. Human players have 1.0x reach and a size 60 dragon will have 1.5x distance with default value. Only applies to block mining." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "standard_dragon"}, key = "moveSpeedNewborn", comment = "The movement speed multiplier for newborn dragons. Default is 1.0.")
+	public static Double moveSpeedNewborn = 1.0;
+
+	@ConfigRange( min = 0, max = 1000000.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "standard_dragon"}, key = "moveSpeedYoung", comment = "The movement speed multiplier for young dragons. Default is 1.0.")
+	public static Double moveSpeedYoung = 1.0;
+
+	@ConfigRange( min = 0, max = 1000000.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "standard_dragon"}, key = "moveSpeedAdult", comment = "The movement speed multiplier for adult dragons. Default is 1.0.")
+	public static Double moveSpeedAdult = 1.0;
+
+	@ConfigRange( min = 0, max = 1000000.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "standard_dragon"}, key = "reachBonus", comment = "The bonus that is given to dragons at 60 size. The bonus gradually scales up to the maximum size. Human players have 1.0x reach and a size 60 dragon will have 1.5x distance with default values.")
 	public static Double reachBonus = 0.5;
-	
-	@ConfigRange( min = 0, max = 1000000.0 )
-	@ConfigOption ( side = ConfigSide.SERVER, category = "growth", key = "attackRangeBonus", comment = "The bonus that is given to dragons at every 60 size. Human players have 1.0x reach and a size 60 dragon will have 1.5x distance with default value. Only applies to combat." )
-	public static Double attackRangeBonus = 0.5;
 
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "saveGrowthStage", comment = "Should the growth stage of a dragon be saved even when you change. Does not affect the saving progress of magic (use saveAllAbilities). The author does not approve of weredragons, but if you insist..." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth"}, key = "saveGrowthStage", comment = "Should the growth stage of a dragon be saved even when you change. Does not affect the saving progress of magic (use saveAllAbilities). The author does not approve of weredragons, but if you insist..." )
 	public static Boolean saveGrowthStage = false;
 
 	@ConfigRange( min = 1, max = 100 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "minHealth", comment = "Dragon starting health. Minimum health dragons will start off with." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth"}, key = "minHealth", comment = "Dragon starting health. Minimum health dragons will start off with." )
 	public static Integer minHealth = 14;
 
 	@ConfigRange( min = 1, max = 100 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "maxHealth", comment = "Maximum health dragons can grow to." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth"}, key = "maxHealth", comment = "The maximum health when the dragon is fully grown." )
 	public static Integer maxHealth = 40;
 
+	@ConfigRange( min = 1, max = 100 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth"}, key = "maxHealthSize", comment = "The size at which the maximum health is reached." )
+	public static Integer maxHealthSize = 40;
+
 	@ConfigRange( min = 0.0, max = 1000 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "newbornGrowthModifier", comment = "A multiplier to change the growth rate from newborn to young. At 1.0 it takes about 3 hours to turn a newborn dragon into a young dragon." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "standard_dragon"}, key = "newbornGrowthModifier", comment = "A multiplier to change the growth rate from newborn to young. At 1.0 it takes about 3 hours to turn a newborn dragon into a young dragon." )
 	public static Double newbornGrowthModifier = 0.3;
 
 	@ConfigRange( min = 0.0, max = 1000 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "youngGrowthModifier", comment = "A multiplier to change the growth rate from young to adult. At 1.0 it takes about 1 day to turn a young dragon into a adult dragon." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "standard_dragon"}, key = "youngGrowthModifier", comment = "A multiplier to change the growth rate from young to adult. At 1.0 it takes about 1 day to turn a young dragon into a adult dragon." )
 	public static Double youngGrowthModifier = 0.5;
 
 	@ConfigRange( min = 0.0, max = 1000 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "adultGrowthModifier", comment = "A multiplier to change the growth rate from adult to a full sized adult. At 1.0 it takes about 3 days to become a dragon of maximum adult size." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "standard_dragon"}, key = "adultGrowthModifier", comment = "A multiplier to change the growth rate from adult to a full sized adult. At 1.0 it takes about 3 days to become a dragon of maximum adult size." )
 	public static Double adultGrowthModifier = 0.9;
 
 	@ConfigRange( min = 0.0, max = 1000 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "growth", key = "maxGrowthModifier", comment = "A multiplier to change the growth rate from full sized adult to max size. The change in growth after the maximum adult size is measured in months and years." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"growth", "standard_dragon"}, key = "maxGrowthModifier", comment = "A multiplier to change the growth rate from full sized adult to max size. The change in growth after the maximum adult size is measured in months and years." )
 	public static Double maxGrowthModifier = 1.0;
 
 	@ConfigRange( min = 0.0, max = 1.0 )
@@ -231,6 +309,19 @@ public class ServerConfig{
 	@ConfigOption( side = ConfigSide.SERVER, category = "bonuses", key = "adultJump", comment = "Jumping height for a adult dragon. Default is 2 block." )
 	public static Double adultJump = 0.15;
 
+	@ConfigRange( min = 0.0, max = 10.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = "bonuses", key = "newbornStepHeight", comment = "Step height for a newborn dragon. Default is 1 block." )
+	public static Double newbornStepHeight = 0.0;
+
+	@ConfigRange( min = 0.0, max = 10.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = "bonuses", key = "youngStepHeight", comment = "Step height for a young dragon. Default is 1.5 block." )
+	public static Double youngStepHeight = 0.5;
+
+	@ConfigRange( min = 0.0, max = 10.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = "bonuses", key = "adultStepHeight", comment = "Step height for a adult dragon. Default is 2 block." )
+	public static Double adultStepHeight = 1.0;
+
+
 	@ConfigOption( side = ConfigSide.SERVER, category = "bonuses", key = "clawsAreTools", comment = "Whether dragon claws function as tools." )
 	public static Boolean clawsAreTools = true;
 
@@ -324,29 +415,7 @@ public class ServerConfig{
 
 	@ConfigType(Block.class)
 	@ConfigOption( side = ConfigSide.SERVER, category = {"bonuses", "sea"}, key = "seaSpeedupBlocks", comment = "Blocks sea dragons gain speed when standing above. Formatting: block/modid:id" )
-	public static List<String> seaSpeedupBlocks = List.of(
-			"minecraft:ice",
-			"minecraft:impermeable",
-			"minecraft:sand",
-			"minecraft:coral_blocks",
-			"minecraft:snow",
-			"forge:sand",
-			"minecraft:dirt_path",
-			"minecraft:sandstone",
-			"minecraft:cut_sandstone",
-			"minecraft:chiseled_sandstone",
-			"minecraft:smooth_sandstone",
-			"minecraft:red_sandstone",
-			"minecraft:cut_red_sandstone",
-			"minecraft:chiseled_red_sandstone",
-			"minecraft:smooth_red_sandstone",
-			"minecraft:water",
-			"quark:permafrost",
-			"immersive_weathering:permafrost",
-			"architects_palette:polished_packed_ice",
-			"ecologics:ice_bricks",
-			"ecologics:snow_bricks"
-	);
+	public static List<String> seaSpeedupBlocks = List.of("minecraft:ice", "minecraft:impermeable", "minecraft:sand", "minecraft:mud", "minecraft:coral_blocks", "forge:sand", "minecraft:dirt_path", "minecraft:sandstone", "minecraft:cut_sandstone", "minecraft:chiseled_sandstone", "minecraft:smooth_sandstone", "minecraft:red_sandstone", "minecraft:cut_red_sandstone", "minecraft:chiseled_red_sandstone", "minecraft:smooth_red_sandstone", "minecraft:water", "quark:permafrost", "immersive_weathering:permafrost", "architects_palette:polished_packed_ice");
 
 	//Dragon Penalties
 	@ConfigOption( side = ConfigSide.SERVER, category = "penalties", key = "penalties", comment = "Set to false to toggle off all dragon penalties." )
@@ -421,7 +490,7 @@ public class ServerConfig{
 
 	@ConfigType(Block.class)
 	@ConfigOption( side = ConfigSide.SERVER, category  = {"penalties", "sea"}, key = "seaHydrationBlocks", comment = "When sea dragons stand on these blocks, hydration is restored. Format: block/modid:id" )
-	public static List<String> seaHydrationBlocks = List.of("minecraft:ice", "minecraft:snow", "minecraft:powder_snow", "minecraft:snow_block", "minecraft:muddy_mangrove_roots", "minecraft:mud", "minecraft:wet_sponge", "dragonsurvival:sea_source_of_magic", "immersive_weathering:thin_ice", "immersive_weathering:cryosol", "immersive_weathering:permafrost", "immersive_weathering:frosty_grass", "immersive_weathering:frosty_fern", "ecologics:thin_ice", "ecologics:ice_bricks", "ecologics:ice_brick_stairs", "ecologics:ice_brick_slab", "ecologics:ice_brick_wall", "ecologics:snow_bricks", "ecologics:snow_brick_stairs", "ecologics:snow_brick_slab", "ecologics:snow_brick_wall", "architects_palette:poliched_packed_ice", "architects_palette:poliched_packed_ice_slab", "architects_palette:poliched_packed_ice_vertical_slab", "architects_palette:poliched_packed_ice_stairs", "architects_palette:poliched_packed_ice_wall", "architects_palette:chiseled_packed_ice", "architects_palette:packed_ice_pillar", "architects_palette:coarse_snow", "fantasyfurniture:decorations/snowballs", "immersive_weathering:icicle", "regions_unexplored:plains_mud", "regions_unexplored:forest_mud", "naturearchitect:snow_block_0", "naturearchitect:snow_block_2", "naturearchitect:snow_cover_1", "naturearchitect:snow_cover_2", "naturearchitect:snow_cover_3", "naturearchitect:snow_block_2", "immersive_weathering:snowy_stone_brick_wall", "immersive_weathering:snowy_stone_brick_stairs", "immersive_weathering:snowy_chiseled_stone_bricks", "immersive_weathering:snowy_stone_bricks", "immersive_weathering:snowy_cobblestone_wall", "immersive_weathering:snowy_cobblestone_slab", "immersive_weathering:snowy_cobblestone_stairs", "immersive_weathering:snowy_cobblestone", "immersive_weathering:snowy_stone_wall", "immersive_weathering:snowy_stone_slab", "immersive_weathering:snowy_stone_stairs", "immersive_weathering:snowy_stone", "immersive_weathering:snow_brick_wall", "immersive_weathering:snow_brick_slab", "immersive_weathering:snow_brick_stairs", "immersive_weathering:snow_bricks", "frozenup:compacted_snow_foundation", "frozenup:compacted_snow_brick_vertical_slab", "frozenup:compacted_snow_brick_slab", "frozenup:compacted_snow_brick_stairs", "frozenup:compacted_snow_bricks", "frozenup:compacted_snow_brick_stairs");
+	public static List<String> seaHydrationBlocks = List.of("minecraft:ice", "minecraft:snow", "minecraft:powder_snow", "minecraft:snow_block", "minecraft:muddy_mangrove_roots", "minecraft:mud", "minecraft:wet_sponge", "dragonsurvival:sea_source_of_magic", "immersive_weathering:thin_ice", "immersive_weathering:cryosol", "immersive_weathering:permafrost", "immersive_weathering:frosty_grass", "immersive_weathering:frosty_fern", "ecologics:thin_ice", "ecologics:ice_bricks", "ecologics:ice_brick_stairs", "ecologics:ice_brick_slab", "ecologics:ice_brick_wall", "ecologics:snow_bricks", "ecologics:snow_brick_stairs", "ecologics:snow_brick_slab", "ecologics:snow_brick_wall", "architects_palette:poliched_packed_ice", "architects_palette:poliched_packed_ice_slab", "architects_palette:poliched_packed_ice_vertical_slab", "architects_palette:poliched_packed_ice_stairs", "architects_palette:poliched_packed_ice_wall", "architects_palette:chiseled_packed_ice", "architects_palette:packed_ice_pillar", "architects_palette:coarse_snow", "fantasyfurniture:decorations/snowballs", "immersive_weathering:icicle", "regions_unexplored:plains_mud", "regions_unexplored:silt_mud", "regions_unexplored:peat_mud", "regions_unexplored:forest_mud", "naturearchitect:snow_block_0", "naturearchitect:snow_block_2", "naturearchitect:snow_cover_1", "naturearchitect:snow_cover_2", "naturearchitect:snow_cover_3", "naturearchitect:snow_block_2", "immersive_weathering:snowy_stone_brick_wall", "immersive_weathering:snowy_stone_brick_stairs", "immersive_weathering:snowy_chiseled_stone_bricks", "immersive_weathering:snowy_stone_bricks", "immersive_weathering:snowy_cobblestone_wall", "immersive_weathering:snowy_cobblestone_slab", "immersive_weathering:snowy_cobblestone_stairs", "immersive_weathering:snowy_cobblestone", "immersive_weathering:snowy_stone_wall", "immersive_weathering:snowy_stone_slab", "immersive_weathering:snowy_stone_stairs", "immersive_weathering:snowy_stone", "immersive_weathering:snow_brick_wall", "immersive_weathering:snow_brick_slab", "immersive_weathering:snow_brick_stairs", "immersive_weathering:snow_bricks", "frozenup:compacted_snow_foundation", "frozenup:compacted_snow_brick_vertical_slab", "frozenup:compacted_snow_brick_slab", "frozenup:compacted_snow_brick_stairs", "frozenup:compacted_snow_bricks", "frozenup:compacted_snow_brick_stairs");
 
 	@ConfigOption( side = ConfigSide.SERVER, category  = {"penalties", "sea"}, key = "allowWaterBottles", comment = "Set to false to disable sea dragons using vanilla water bottles to avoid dehydration." )
 	public static Boolean seaAllowWaterBottles = true;
@@ -436,52 +505,52 @@ public class ServerConfig{
 
 	// Ore Loot
 	@ConfigRange( min = 0.0, max = 1.0 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "ore", key = "humanOreDustChance", comment = "The odds of dust dropping when a human harvests an ore." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"drops", "ore"}, key = "humanOreDustChance", comment = "The odds of dust dropping when a human harvests an ore." )
 	public static Double humanOreDustChance = 0.1;
 
 	@ConfigRange( min = 0.0, max = 1.0 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "ore", key = "dragonOreDustChance", comment = "The odds of dust dropping when a dragon harvests an ore." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"drops", "ore"}, key = "dragonOreDustChance", comment = "The odds of dust dropping when a dragon harvests an ore." )
 	public static Double dragonOreDustChance = 0.2;
 
 	@ConfigRange( min = 0.0, max = 1.0 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "ore", key = "humanOreBoneChance", comment = "The odds of a bone dropping when a human harvests an ore." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"drops", "ore"}, key = "humanOreBoneChance", comment = "The odds of a bone dropping when a human harvests an ore." )
 	public static Double humanOreBoneChance = 0.0;
 
 	@ConfigRange( min = 0.0, max = 1.0 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "ore", key = "dragonOreBoneChance", comment = "The odds of a bone dropping when a dragon harvests an ore." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"drops", "ore"}, key = "dragonOreBoneChance", comment = "The odds of a bone dropping when a dragon harvests an ore." )
 	public static Double dragonOreBoneChance = 0.01;
 
 	@ConfigType(Block.class)
-	@ConfigOption( side = ConfigSide.SERVER, category = "ore", key = "oresTag", comment = "The tag that contains all ores that can drop dust/bones when harvested. Will not drop if the ore drops another of the items in this tag. Format: modid:id" )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"drops", "ore"}, key = "oresTag", comment = "The tag that contains all ores that can drop dust/bones when harvested. Will not drop if the ore drops another of the items in this tag. Format: modid:id" )
 	public static String oresTag = "forge:ores";
 
 	@ConfigType(Item.class)
-	@ConfigOption( side = ConfigSide.SERVER, category = "food", key = "hurtfulToCaveDragon", comment = "Items which will cause damage to cave dragons when consumed. Formatting: item/modid:itemid:damage" )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"food", "cave_dragon", "other"}, key = "hurtfulToCaveDragon", comment = "Items which will cause damage to cave dragons when consumed. Formatting: item/modid:itemid:damage" )
 	public static List<String> caveDragonHurtfulItems = Arrays.asList("minecraft:potion:2", "minecraft:water_bottle:2", "minecraft:milk_bucket:2");
 
 	@ConfigType(Item.class)
-	@ConfigOption( side = ConfigSide.SERVER, category = "food", key = "hurtfulToSeaDragon", comment = "Items which will cause damage to sea dragons when consumed. Formatting: item/modid:itemid:damage" )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"food", "sea_dragon", "other"}, key = "hurtfulToSeaDragon", comment = "Items which will cause damage to sea dragons when consumed. Formatting: item/modid:itemid:damage" )
 	public static List<String> seaDragonHurtfulItems = Collections.emptyList();
 
 	@ConfigType(Item.class)
-	@ConfigOption( side = ConfigSide.SERVER, category = "food", key = "hurtfulToForestDragon", comment = "Items which will cause damage to forest dragons when consumed. Formatting: item/modid:itemid:damage" )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"food", "forest_dragon", "other"}, key = "hurtfulToForestDragon", comment = "Items which will cause damage to forest dragons when consumed. Formatting: item/modid:itemid:damage" )
 	public static List<String> forestDragonHurtfulItems = Collections.emptyList();
 
 	@ConfigRange( min = 0, max = 10000 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "food", key = "chargedSoupBuffDuration", comment = "How long in seconds should the cave fire effect from charged soup last. (Default to 5min) Set to 0 to disable." )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"food", "cave_dragon", "other"}, key = "chargedSoupBuffDuration", comment = "How long in seconds should the cave fire effect from charged soup last. (Default to 5min) Set to 0 to disable." )
 	public static Integer chargedSoupBuffDuration = 300;
 
 
 	@ConfigType(Block.class)
-	@ConfigOption( side = ConfigSide.SERVER, category = {"magic", "mana"}, key = "seaDragonManaBlocks", comment = "Blocks that will restore mana quicker when a sea dragon is standing on it. Formatting: block/modid:blockid" )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"magic", "mana", "sea_dragon_mana"}, key = "seaDragonManaBlocks", comment = "Blocks that will restore mana quicker when a sea dragon is standing on it. Formatting: block/modid:blockid" )
 	public static List<String> seaDragonManaBlocks = List.of("dragonsurvival:sea_source_of_magic", "minecraft:ice", "minecraft:snow", "minecraft:snow_block", "minecraft:powder_snow", "minecraft:water", "minecraft:wet_sponge", "minecraft:cauldron", "naturearchitect:snow_block_0", "naturearchitect:snow_block_2", "naturearchitect:snow_cover_1", "naturearchitect:snow_cover_2", "naturearchitect:snow_cover_3", "naturearchitect:snow_block_2", "immersive_weathering:snowy_stone_brick_wall", "immersive_weathering:snowy_stone_brick_stairs", "immersive_weathering:snowy_chiseled_stone_bricks", "immersive_weathering:snowy_stone_bricks", "immersive_weathering:snowy_cobblestone_wall", "immersive_weathering:snowy_cobblestone_slab", "immersive_weathering:snowy_cobblestone_stairs", "immersive_weathering:snowy_cobblestone", "immersive_weathering:snowy_stone_wall", "immersive_weathering:snowy_stone_slab", "immersive_weathering:snowy_stone_stairs", "immersive_weathering:snowy_stone", "immersive_weathering:snow_brick_wall", "immersive_weathering:snow_brick_slab", "immersive_weathering:snow_brick_stairs", "immersive_weathering:snow_bricks", "frozenup:compacted_snow_foundation", "frozenup:compacted_snow_brick_vertical_slab", "frozenup:compacted_snow_brick_slab", "frozenup:compacted_snow_brick_stairs", "frozenup:compacted_snow_bricks", "frozenup:compacted_snow_brick_stairs");
 
 	@ConfigType(Block.class)
-	@ConfigOption( side = ConfigSide.SERVER, category = {"magic", "mana"}, key = "forestDragonManaBlocks", comment = "Blocks that will restore mana quicker when a forest dragon is standing on it. Formatting: block/modid:blockid" )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"magic", "mana", "forest_dragon_mana"}, key = "forestDragonManaBlocks", comment = "Blocks that will restore mana quicker when a forest dragon is standing on it. Formatting: block/modid:blockid" )
 	public static List<String> forestDragonManaBlocks = List.of("dragonsurvival:forest_source_of_magic", "minecraft:grass_block", "minecraft:grass_block", "minecraft:small_flowers", "minecraft:flowers", "minecraft:tall_flowers", "minecraft:lily_pad", "minecraft:red_mushroom", "minecraft:brown_mushroom", "minecraft:sweet_berry_bush", "minecraft:oak_leaves", "naturearchitect:grass_cover_stairs", "naturearchitect:grass_cover_slab", "farmersdelight:brown_mushroom_colony", "farmersdelight:red_mushroom_colony", "gothic:black_mushroom", "gothic:tall_mushrooms", "gothic:cave_mushrooms", "naturearchitect:grass_carpet", "regions_unexplored:mycotoxic_mushrooms", "naturearchitect:moss_cover_3", "naturearchitect:moss_cover_2", "naturearchitect:moss_cover_1", "naturearchitect:mycelium_block_2", "naturearchitect:mycelium_cover_3", "naturearchitect:mycelium_cover_1", "naturearchitect:mycelium_cover_2", "naturearchitect:mycelium_block_1", "naturearchitect:moss_plant_1", "naturearchitect:moss_plant_2", "naturearchitect:moss_plant_3", "naturearchitect:moss_patch", "naturearchitect:moss_patch_dense", "regions_unexplored:spanish_moss", "minecraft:mycelium", "minecraft:moss_block", "minecraft:moss_carpet", "regions_unexplored:alpha_grass_block", "regions_unexplored:chalk_grass_block", "regions_unexplored:peat_grass_block", "regions_unexplored:silt_grass_block", "regions_unexplored:argillite_grass_block", "regions_unexplored:stone_grass_block", "regions_unexplored:deepslate_grass_block", "immersive_weathering:rooted_grass_block", "naturearchitect:grass_block", "naturearchitect:grass_cover", "naturearchitect:crimson_92", "naturearchitect:grass_1", "naturearchitect:grass_2", "naturearchitect:grass_3", "naturearchitect:grass_4", "naturearchitect:grass_windy", "naturearchitect:grass_stalk", "naturearchitect:grass_fern", "naturearchitect:grass_sapling", "phantasm:vivid_nihilium_grass", "vinery:grass_slab", "naturearchitect:grass_liana", "naturearchitect:grass_ivy", "naturearchitect:grass_bean_stalk");
 
 	@ConfigType(Block.class)
-	@ConfigOption( side = ConfigSide.SERVER, category = {"magic", "mana"}, key = "caveDragonManaBlocks", comment = "Blocks that will restore mana quicker when a cave dragon is standing on it. Formatting: block/modid:blockid" )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"magic", "mana", "cave_dragon_mana"}, key = "caveDragonManaBlocks", comment = "Blocks that will restore mana quicker when a cave dragon is standing on it. Formatting: block/modid:blockid" )
 	public static List<String> caveDragonManaBlocks = List.of("dragonsurvival:cave_source_of_magic", "minecraft:fire", "minecraft:campfires", "minecraft:lava", "minecraft:smoker", "minecraft:furnace", "minecraft:magma_block", "minecraft:blast_furnace", "netherdepthsupgrade:wet_lava_sponge", "regions_unexplored:brimwood_log_magma", "infernalexp:magmatic_chiseled_basalt_bricks", "infernalexp:basaltic_magma", "regions_unexplored:brimwood_log_magma", "naturearchitect:magma_inactive", "naturearchitect:magma_cracks", "netherdepthsupgrade:lava_sponge");
 
 
@@ -501,7 +570,7 @@ public class ServerConfig{
 	@ConfigOption( side = ConfigSide.SERVER, category = "magic", key = "noEXPRequirements", comment = "Disable the exp requirements for leveling up active skills" )
 	public static Boolean noEXPRequirements = false;
 
-	@ConfigOption( side = ConfigSide.SERVER, category = "magic", key = "consumeEXPAsMana", comment = "Whether to use exp instead of mana if mana is empty" )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"magic", "mana"}, key = "consumeEXPAsMana", comment = "Whether to use exp instead of mana if mana is empty" )
 	public static Boolean consumeEXPAsMana = true;
 
 	@ConfigRange( min = 0, max = 100 )
@@ -514,11 +583,11 @@ public class ServerConfig{
 
 
 	@ConfigRange( min = 1, max = 1000 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "magic", key = "favorableManaRegen", comment = "How fast in seconds should mana be recovered in favorable conditions" )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"magic", "mana"}, key = "favorableManaRegen", comment = "How fast in seconds should mana be recovered in favorable conditions" )
 	public static Integer favorableManaTicks = 1;
 
 	@ConfigRange( min = 1, max = 1000 )
-	@ConfigOption( side = ConfigSide.SERVER, category = "magic", key = "normalManaRegen", comment = "How fast in seconds should mana be recovered in normal conditions" )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"magic", "mana"}, key = "normalManaRegen", comment = "How fast in seconds should mana be recovered in normal conditions" )
 	public static Integer normalManaTicks = 10;
 
 
@@ -631,6 +700,17 @@ public class ServerConfig{
 	@ConfigRange( min = 0d, max = 20d )
 	@ConfigOption( side = ConfigSide.SERVER, category = {"dragon_hunters", "hunter"}, key = "hunterArmor", comment = "Dragon Hunter armor" )
 	public static Double hunterArmor = 0d;
+
+	@ConfigOption( side = ConfigSide.SERVER, category = {"dragon_hunters", "hunter"}, key = "hunterHasBolas", comment = "Is Dragon hunter able to throw a bolas?" )
+	public static Boolean hunterHasBolas = true;
+
+	@ConfigRange( min = 1.0, max = 60.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"dragon_hunters", "hunter"}, key = "hunterBolasFrequency", comment = "How frequently does the dragon hunter throw the bolas?" )
+	public static Double hunterBolasFrequency = 10.0;
+
+	@ConfigRange( min = 1.0, max = 60.0 )
+	@ConfigOption( side = ConfigSide.SERVER, category = {"dragon_hunters", "hunter"}, key = "hunterTrappedDebuffDuration", comment = "How long does the trapped debuff last?" )
+	public static Double hunterTrappedDebuffDuration = 5.0;
 
 	@ConfigRange( min = 10d, max = 60d )
 	@ConfigOption( side = ConfigSide.SERVER, category = {"dragon_hunters", "squire"}, key = "squireHealth", comment = "Dragon Squire health" )

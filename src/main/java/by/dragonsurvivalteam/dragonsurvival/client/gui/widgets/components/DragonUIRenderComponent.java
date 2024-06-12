@@ -3,13 +3,17 @@ package by.dragonsurvivalteam.dragonsurvival.client.gui.widgets.components;
 import by.dragonsurvivalteam.dragonsurvival.client.render.ClientDragonRender;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.DragonEntity;
 import com.google.common.collect.ImmutableList;
+import com.mojang.math.Axis;
+
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.InventoryScreen;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.joml.Quaternionf;
 import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
 
 import java.util.List;
@@ -18,7 +22,7 @@ import java.util.function.Supplier;
 public class DragonUIRenderComponent extends AbstractContainerEventHandler implements Renderable {
 	private final Screen screen;
 	private final Supplier<DragonEntity> getter;
-	public float yRot = -3, xRot = -5;
+	public float yRot = 0, xRot = 0;
 	public float xOffset = 0, yOffset = 0;
 	public float zoom = 0;
 	public int x, y, width, height;
@@ -46,9 +50,16 @@ public class DragonUIRenderComponent extends AbstractContainerEventHandler imple
 		}
 
 		float scale = zoom;
-		guiGraphics.pose().scale(scale, scale, 0);
-		ClientDragonRender.dragonModel.setCurrentTexture(null);
-		ClientDragonRender.renderEntityInInventory(getter.get(), x + width / 2, y + height - 50, scale, xRot, yRot, xOffset / 10, yOffset / 10);
+
+		// We need to translate this backwards with the poseStack as renderEntityInInventory pushes the poseStack forward
+		guiGraphics.pose().pushPose();
+		guiGraphics.pose().translate(0, 0, -200); // We chose -200 here as the background is translated -300 and we don't want to clip with it
+
+		Quaternionf quaternion = Axis.ZP.rotationDegrees(180.0F);
+		quaternion.mul(Axis.XP.rotationDegrees(yRot * 10.0F));
+		quaternion.rotateY((float)Math.toRadians(180 - xRot * 10));
+		InventoryScreen.renderEntityInInventory(guiGraphics, x + width / 2 + (int)xOffset, y + height - 30 + (int)yOffset, (int)scale, quaternion, null, getter.get());
+
 		guiGraphics.pose().popPose();
 	}
 
@@ -63,17 +74,17 @@ public class DragonUIRenderComponent extends AbstractContainerEventHandler imple
 	}
 
 	@Override
-	public boolean mouseDragged(double x1, double y1, int p_231045_5_, double x2, double y2){
+	public boolean mouseDragged(double x1, double y1, int rightClick, double x2, double y2){
 		if(isMouseOver(x1, y1)){
-			if(p_231045_5_ == 0){
-				xRot -= x2 / 5;
-				yRot -= y2 / 5;
-			}else if(p_231045_5_ == 1){
-				xOffset -= x2 / 5;
-				yOffset -= y2 / 5;
+			if(rightClick == 0){
+				xRot -= (float) (x2 / 5.0);
+				yRot -= (float) (y2 / 5.0);
+			}else if(rightClick == 1){
+				xOffset += (float) x2;
+				yOffset += (float) y2;
 
-				xOffset = Mth.clamp(xOffset, -(width / 8), width / 8);
-				yOffset = Mth.clamp(yOffset, -(height / 8), height / 8);
+				xOffset = Mth.clamp(xOffset, (float) -width / 2, (float) width / 2);
+				yOffset = Mth.clamp(yOffset, (float) -height / 2, (float) height / 2);
 			}
 
 			return true;

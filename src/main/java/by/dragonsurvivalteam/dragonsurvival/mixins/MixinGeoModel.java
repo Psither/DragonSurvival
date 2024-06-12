@@ -1,6 +1,7 @@
 package by.dragonsurvivalteam.dragonsurvival.mixins;
 
 import by.dragonsurvivalteam.dragonsurvival.common.entity.DragonEntity;
+import com.llamalad7.mixinextras.sugar.Local;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,20 +17,12 @@ import software.bernie.geckolib.util.RenderUtils;
 
 @Mixin(value = GeoModel.class, remap = false)
 public abstract class MixinGeoModel<T extends GeoAnimatable> implements CoreGeoModel<T> {
-    @Unique private T dragonSurvival$animatable;
-    @Unique private long dragonSurvival$instanceId;
 
-    @Inject(method = "handleAnimations", at = @At("HEAD"))
-    public void overrideTick(final T animatable, long instanceId, final AnimationState<T> animationState, final CallbackInfo callback) {
-        dragonSurvival$animatable = animatable;
-        dragonSurvival$instanceId = instanceId;
-        /*animationState.getData(DataTickets.TICK);*/ // TODO :: Is always 0 -> because the dragon entity does not tick?
-    }
-
+    // The dragon entity doesn't tick, so we apply the time it would've taken for it to tick in this mixin for GeckoLib to work properly
     @ModifyArg(method = "handleAnimations", at = @At(value = "INVOKE", target = "Lsoftware/bernie/geckolib/core/animation/AnimatableManager;updatedAt(D)V"))
-    private double stuff(double updateTime) {
-        if (dragonSurvival$animatable instanceof DragonEntity) {
-            AnimatableManager<GeoAnimatable> manager = dragonSurvival$animatable.getAnimatableInstanceCache().getManagerForId(dragonSurvival$instanceId);
+    private double applyDragonTickTime(double updateTime, @Local(argsOnly = true) T animatable, @Local(argsOnly = true) long instanceId) {
+        if (animatable instanceof DragonEntity) {
+            AnimatableManager<GeoAnimatable> manager = animatable.getAnimatableInstanceCache().getManagerForId(instanceId);
             return RenderUtils.getCurrentTick() - manager.getFirstTickTime();
         }
 

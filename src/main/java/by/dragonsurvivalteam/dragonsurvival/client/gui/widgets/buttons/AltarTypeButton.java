@@ -3,7 +3,6 @@ package by.dragonsurvivalteam.dragonsurvival.client.gui.widgets.buttons;
 import by.dragonsurvivalteam.dragonsurvival.DragonSurvivalMod;
 import by.dragonsurvivalteam.dragonsurvival.client.gui.DragonAltarGUI;
 import by.dragonsurvivalteam.dragonsurvival.client.gui.dragon_editor.DragonEditorScreen;
-import by.dragonsurvivalteam.dragonsurvival.client.gui.utils.TooltipRender;
 import by.dragonsurvivalteam.dragonsurvival.client.handlers.ClientEvents;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
@@ -38,7 +37,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public class AltarTypeButton extends Button implements TooltipRender{
+public class AltarTypeButton extends Button {
 	private static final ResourceLocation BACKGROUND_TEXTURE = new ResourceLocation(DragonSurvivalMod.MODID, "textures/gui/dragon_altar_icons.png");
 	private final DragonAltarGUI gui;
 	public AbstractDragonType type;
@@ -125,18 +124,19 @@ public class AltarTypeButton extends Button implements TooltipRender{
 				}
 
 				cap.setType(null);
-				cap.setSize(20F);
+				cap.setBody(null, player);
+				cap.setSize(20F, player);
 				cap.setIsHiding(false);
 
 				if (!ServerConfig.saveAllAbilities) {
 					cap.getMovementData().spinLearned = false;
-					cap.setHasWings(false);
+					cap.setHasFlight(false);
 				}
 
 				NetworkHandler.CHANNEL.sendToServer(new SyncAltarCooldown(Minecraft.getInstance().player.getId(), Functions.secondsToTicks(ServerConfig.altarUsageCooldown)));
-				NetworkHandler.CHANNEL.sendToServer(new SynchronizeDragonCap(player.getId(), cap.isHiding(), cap.getType(), cap.getSize(), cap.hasWings(), 0));
+				NetworkHandler.CHANNEL.sendToServer(new SynchronizeDragonCap(player.getId(), cap.isHiding(), cap.getType(), cap.getBody(), cap.getSize(), cap.hasFlight(), 0));
 				NetworkHandler.CHANNEL.sendToServer(new SyncSpinStatus(Minecraft.getInstance().player.getId(), cap.getMovementData().spinAttack, cap.getMovementData().spinCooldown, cap.getMovementData().spinLearned));
-				ClientEvents.sendClientData(new RequestClientData(cap.getType(), cap.getLevel()));
+				ClientEvents.sendClientData(new RequestClientData(cap.getType(), cap.getBody(), cap.getLevel()));
 			});
 			player.closeContainer();
 		}else

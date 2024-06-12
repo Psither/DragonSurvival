@@ -3,6 +3,7 @@ package by.dragonsurvivalteam.dragonsurvival.util;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.EntityStateHandler;
+import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonBody;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
 import com.google.common.base.Objects;
 import net.minecraft.world.entity.Entity;
@@ -48,6 +49,14 @@ public class DragonUtils {
 	
 	public static AbstractDragonType getDragonType(DragonStateHandler handler) {
 		return handler.getType();
+	}
+
+	public static AbstractDragonBody getDragonBody(Entity entity) {
+		return getHandler(entity).getBody();
+	}
+
+	public static AbstractDragonBody getDragonBody(DragonStateHandler handler) {
+		return handler.getBody();
 	}
 
 	public static boolean isDragonType(final Entity entity, final AbstractDragonType typeToCheck) {

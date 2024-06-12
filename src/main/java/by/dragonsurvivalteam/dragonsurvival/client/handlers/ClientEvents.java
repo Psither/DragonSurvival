@@ -4,7 +4,6 @@ package by.dragonsurvivalteam.dragonsurvival.client.handlers;
 import by.dragonsurvivalteam.dragonsurvival.DragonSurvivalMod;
 import by.dragonsurvivalteam.dragonsurvival.client.gui.DragonScreen;
 import by.dragonsurvivalteam.dragonsurvival.client.gui.widgets.buttons.TabButton;
-import by.dragonsurvivalteam.dragonsurvival.client.render.CaveLavaFluidRenderer;
 import by.dragonsurvivalteam.dragonsurvival.client.render.ClientDragonRender;
 import by.dragonsurvivalteam.dragonsurvival.client.skin_editor_system.DragonEditorRegistry;
 import by.dragonsurvivalteam.dragonsurvival.client.skin_editor_system.objects.SkinPreset;
@@ -14,7 +13,7 @@ import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.types.CaveDragonType;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.types.ForestDragonType;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.types.SeaDragonType;
-import by.dragonsurvivalteam.dragonsurvival.common.entity.projectiles.Bolas;
+import by.dragonsurvivalteam.dragonsurvival.common.handlers.DragonSizeHandler;
 import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigOption;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigSide;
@@ -50,20 +49,16 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.ai.attributes.AttributeModifier;
-import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.*;
-import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.StateHolder;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.material.FogType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RenderBlockScreenEffectEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
-import net.minecraftforge.client.event.RenderLivingEvent;
-import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.client.gui.overlay.ForgeGui;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.event.level.LevelEvent;
@@ -76,6 +71,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+
+import static by.dragonsurvivalteam.dragonsurvival.network.container.OpenDragonInventory.SendOpenDragonInventoryAndMaintainCursorPosition;
 
 @OnlyIn( Dist.CLIENT )
 @Mod.EventBusSubscriber( Dist.CLIENT )
@@ -95,8 +92,8 @@ public class ClientEvents{
 	@ConfigOption( side = ConfigSide.CLIENT, category = "inventory", key = "inventoryToggle", comment = "Should the buttons for toggeling between dragon and normaly inventory be added?" )
 	public static Boolean inventoryToggle = true;
 	private static ItemStack BOLAS;
-	private static boolean wasCaveDragon = false;
-	private static LiquidBlockRenderer prevFluidRenderer;
+	private static boolean hasUpdatedSinceChangingLavaVision = false;
+	private static boolean hasLavaVisionPrev = false;
 
 	@SubscribeEvent
 	public static void decreaseJumpDuration(TickEvent.PlayerTickEvent playerTickEvent){
@@ -157,47 +154,22 @@ public class ClientEvents{
 
 		if(sc instanceof InventoryScreen screen){
 			if(dragonTabs){
-				initGuiEvent.addListener(new TabButton(screen.getGuiLeft(), screen.getGuiTop() - 28, 0, screen){
-					@Override
-					public void renderWidget(@NotNull final GuiGraphics guiGraphics, int p_230431_2_, int p_230431_3_, float p_230431_4_){
-						super.renderWidget(guiGraphics, p_230431_2_, p_230431_3_, p_230431_4_);
-						setX(screen.getGuiLeft());
-					}
-				});
+				initGuiEvent.addListener(new TabButton(screen.getGuiLeft(), screen.getGuiTop() - 28, TabButton.TabType.INVENTORY, screen));
 
-				initGuiEvent.addListener(new TabButton(screen.getGuiLeft() + 28, screen.getGuiTop() - 26, 1, screen){
-					@Override
-					public void renderWidget(@NotNull final GuiGraphics guiGraphics, int p_230431_2_, int p_230431_3_, float p_230431_4_){
-						super.renderWidget(guiGraphics, p_230431_2_, p_230431_3_, p_230431_4_);
-						setX(screen.getGuiLeft() + 28);
-					}
-				});
+				initGuiEvent.addListener(new TabButton(screen.getGuiLeft() + 28, screen.getGuiTop() - 26, TabButton.TabType.ABILITY, screen));
 
-				initGuiEvent.addListener(new TabButton(screen.getGuiLeft() + 57, screen.getGuiTop() - 26, 2, screen){
-					@Override
-					public void renderWidget(@NotNull final GuiGraphics guiGraphics, int p_230431_2_, int p_230431_3_, float p_230431_4_){
-						super.renderWidget(guiGraphics, p_230431_2_, p_230431_3_, p_230431_4_);
-						setX(screen.getGuiLeft() + 57);
-					}
-				});
+				initGuiEvent.addListener(new TabButton(screen.getGuiLeft() + 57, screen.getGuiTop() - 26, TabButton.TabType.GITHUB_REMINDER, screen));
 
-				initGuiEvent.addListener(new TabButton(screen.getGuiLeft() + 86, screen.getGuiTop() - 26, 3, screen){
-					@Override
-					public void renderWidget(@NotNull final GuiGraphics guiGraphics, int p_230431_2_, int p_230431_3_, float p_230431_4_){
-						super.renderWidget(guiGraphics, p_230431_2_, p_230431_3_, p_230431_4_);
-						setX(screen.getGuiLeft() + 86);
-					}
-				});
+				initGuiEvent.addListener(new TabButton(screen.getGuiLeft() + 86, screen.getGuiTop() - 26, TabButton.TabType.SKINS, screen));
 			}
 
 			if(inventoryToggle){
 				initGuiEvent.addListener(new ImageButton(screen.getGuiLeft() + 128, screen.height / 2 - 22, 20, 18, 20, 0, 19, DragonScreen.INVENTORY_TOGGLE_BUTTON, p_onPress_1_ -> {
-					NetworkHandler.CHANNEL.sendToServer(new OpenDragonInventory());
+					SendOpenDragonInventoryAndMaintainCursorPosition();
 				}){
 					@Override
 					public void renderWidget(@NotNull final GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
 						super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-						setX(screen.getGuiLeft() + 128);
 
 						if(isHoveredOrFocused()){
 							ArrayList<Component> description = new ArrayList<>(List.of(Component.translatable("ds.gui.toggle_inventory.dragon")));
@@ -211,7 +183,7 @@ public class ClientEvents{
 		if (sc instanceof CreativeModeInventoryScreen screen) {
 			if (inventoryToggle) {
 				initGuiEvent.addListener(new ImageButton(screen.getGuiLeft() + 128 + 20, screen.height / 2 - 50, 20, 18, 20, 0, 19, DragonScreen.INVENTORY_TOGGLE_BUTTON, p_onPress_1_ -> {
-					NetworkHandler.CHANNEL.sendToServer(new OpenDragonInventory());
+					SendOpenDragonInventoryAndMaintainCursorPosition();
 				}) {
 					@Override
 					public void render(@NotNull final GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
@@ -246,26 +218,30 @@ public class ClientEvents{
 	@SubscribeEvent
 	public static void renderTrap(RenderLivingEvent.Pre<LivingEntity, EntityModel<LivingEntity>> postEvent){
 		LivingEntity entity = postEvent.getEntity();
-		if(!(entity instanceof Player) && entity.getAttributes().hasAttribute(Attributes.MOVEMENT_SPEED)){
-			AttributeModifier bolasTrap = new AttributeModifier(Bolas.DISABLE_MOVEMENT, "Bolas trap", -entity.getAttribute(Attributes.MOVEMENT_SPEED).getValue(), AttributeModifier.Operation.ADDITION);
-			if(entity.getAttribute(Attributes.MOVEMENT_SPEED).hasModifier(bolasTrap)){
-				int light = postEvent.getPackedLight();
-				int overlayCoords = LivingEntityRenderer.getOverlayCoords(entity, 0);
-				MultiBufferSource buffers = postEvent.getMultiBufferSource();
-				PoseStack matrixStack = postEvent.getPoseStack();
-				renderBolas(light, overlayCoords, buffers, matrixStack, entity.level());
+		if(entity.getEffect(DragonEffects.TRAPPED) != null) {
+			int light = postEvent.getPackedLight();
+			int overlayCoords = LivingEntityRenderer.getOverlayCoords(entity, 0);
+			MultiBufferSource buffers = postEvent.getMultiBufferSource();
+			PoseStack matrixStack = postEvent.getPoseStack();
+			float scale = entity.getEyeHeight();
+			if(entity instanceof Player) {
+				DragonStateHandler handler = DragonUtils.getHandler(entity);
+				if(handler != null && handler.isDragon()) {
+					scale = (float)DragonSizeHandler.calculateDragonEyeHeight(handler.getSize(), ServerConfig.hitboxGrowsPastHuman);
+				}
 			}
+			renderBolas(light, overlayCoords, buffers, matrixStack, scale);
 		}
 	}
 
-	public static void renderBolas(int light, int overlayCoords, MultiBufferSource buffers, PoseStack matrixStack, Level level){
+	public static void renderBolas(int light, int overlayCoords, MultiBufferSource buffers, PoseStack matrixStack, float eyeHeight){
 		matrixStack.pushPose();
-		matrixStack.scale(3, 3, 3);
-		matrixStack.translate(0, 0.5, 0);
+		matrixStack.translate(0, 0.9f + eyeHeight / 8.f, 0);
+		matrixStack.scale(1.6f + eyeHeight / 8.f, 1.6f + eyeHeight / 8.f, 1.6f + eyeHeight / 8.f);
 		if(BOLAS == null){
 			BOLAS = new ItemStack(DSItems.huntingNet);
 		}
-		Minecraft.getInstance().getItemRenderer().renderStatic(BOLAS, ItemDisplayContext.NONE, light, overlayCoords, matrixStack, buffers, level, 0);
+		Minecraft.getInstance().getItemRenderer().renderStatic(BOLAS, ItemDisplayContext.NONE, light, overlayCoords, matrixStack, buffers, Minecraft.getInstance().level, 0);
 		matrixStack.popPose();
 	}
 
@@ -314,6 +290,17 @@ public class ClientEvents{
 
 	@SubscribeEvent
 	@OnlyIn( Dist.CLIENT )
+	public static void onRenderFog(ViewportEvent.RenderFog event) {
+		Minecraft minecraft = Minecraft.getInstance();
+		LocalPlayer player = minecraft.player;
+
+		if(player.hasEffect(DragonEffects.LAVA_VISION) && event.getCamera().getFluidInCamera() == FogType.LAVA) {
+			event.setFarPlaneDistance(1000);
+		}
+	}
+
+	@SubscribeEvent
+	@OnlyIn( Dist.CLIENT )
 	public static void onRenderWorldLastEvent(RenderLevelStageEvent event){
 		if(event.getStage() != Stage.AFTER_PARTICLES){
 			return;
@@ -326,32 +313,28 @@ public class ClientEvents{
 			return;
 		}
 
-		DragonStateProvider.getCap(player).ifPresent(playerStateHandler -> {
-			if(playerStateHandler.isDragon() && Objects.equals(playerStateHandler.getType(), DragonTypes.CAVE) && ServerConfig.bonuses && ServerConfig.caveLavaSwimming){
-				if(!wasCaveDragon){
-					if(player.hasEffect(DragonEffects.LAVA_VISION)){
-						prevFluidRenderer = minecraft.getBlockRenderer().liquidBlockRenderer;
-						minecraft.getBlockRenderer().liquidBlockRenderer = new CaveLavaFluidRenderer();
-						minecraft.levelRenderer.allChanged();
-					}
-				}else{
-					if(!player.hasEffect(DragonEffects.LAVA_VISION)){
-						if(prevFluidRenderer != null){
-							minecraft.getBlockRenderer().liquidBlockRenderer = prevFluidRenderer;
-						}
-						minecraft.levelRenderer.allChanged();
-					}
-				}
-			}else{
-				if(wasCaveDragon){
-					if(prevFluidRenderer != null){
-						minecraft.getBlockRenderer().liquidBlockRenderer = prevFluidRenderer;
-					}
-					minecraft.levelRenderer.allChanged();
-				}
+		if(player.hasEffect(DragonEffects.LAVA_VISION)) {
+			if(!hasLavaVisionPrev) {
+				hasUpdatedSinceChangingLavaVision = false;
 			}
-			wasCaveDragon = playerStateHandler.isDragon() && Objects.equals(playerStateHandler.getType(), DragonTypes.CAVE) && player.hasEffect(DragonEffects.LAVA_VISION);
-		});
+
+			hasLavaVisionPrev = true;
+			if(!hasUpdatedSinceChangingLavaVision) {
+				hasUpdatedSinceChangingLavaVision = true;
+				event.getLevelRenderer().allChanged();
+			}
+		}
+		else {
+			if(hasLavaVisionPrev) {
+				hasUpdatedSinceChangingLavaVision = false;
+			}
+
+			hasLavaVisionPrev = false;
+			if(!hasUpdatedSinceChangingLavaVision) {
+				hasUpdatedSinceChangingLavaVision = true;
+				event.getLevelRenderer().allChanged();
+			}
+		}
 	}
 
 	public static void renderOverlay(final DragonStateHandler handler, final ForgeGui forgeGUI, final GuiGraphics guiGraphics) {

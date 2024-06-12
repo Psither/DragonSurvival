@@ -22,6 +22,6 @@ public abstract class DragonWingAbility extends InnateDragonAbility{
 
 	@Override
 	public int getLevel(){
-		return DragonStateProvider.getCap(getPlayer()).map(DragonStateHandler::hasWings).orElse(false) ? 1 : 0;
+		return DragonStateProvider.getCap(getPlayer()).map(DragonStateHandler::hasFlight).orElse(false) ? 1 : 0;
 	}
 }

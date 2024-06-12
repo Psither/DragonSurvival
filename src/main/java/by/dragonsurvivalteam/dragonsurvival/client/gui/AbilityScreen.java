@@ -15,12 +15,16 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractWidget;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import org.jetbrains.annotations.NotNull;
+import org.jline.reader.Widget;
+
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -55,8 +59,8 @@ public class AbilityScreen extends Screen{
 
 		renderBackground(guiGraphics);
 
-		int startX = guiLeft;
-		int startY = guiTop;
+		int startX = guiLeft + 10;
+		int startY = guiTop - 30;
 
 		guiGraphics.blit(BACKGROUND_TEXTURE, startX, startY, 0, 0, 256, 256);
 
@@ -67,8 +71,8 @@ public class AbilityScreen extends Screen{
 			float progress1 = Math.min(1F, Math.min(0.5F, progress) * 2F);
 			float progress2 = Math.min(1F, Math.min(0.5F, progress - 0.5F) * 2F);
 
-			guiGraphics.pose().pushPose();
-			guiGraphics.pose().translate(0.5F, 0.75F, 0F);
+			startX += 0.5F;
+			startY += 0.75F;
 			guiGraphics.blit(ClientMagicHUDHandler.widgetTextures, startX + 23 / 2, startY + 28, 0, (float) 180 / 2, 105, 3, 128, 128);
 			guiGraphics.blit(ClientMagicHUDHandler.widgetTextures, startX + 254 / 2, startY + 28, 0, (float) 180 / 2, 105, 3, 128, 128);
 			guiGraphics.blit(ClientMagicHUDHandler.widgetTextures, startX + 23 / 2, startY + 28, 0, (float) barYPos / 2, (int)(105 * progress1), 3, 128, 128);
@@ -102,8 +106,6 @@ public class AbilityScreen extends Screen{
 				}
 			}
 
-			guiGraphics.pose().popPose();
-
 			Component textComponent = Component.empty().append(Integer.toString(minecraft.player.experienceLevel)).withStyle(ChatFormatting.DARK_GRAY);
 			int xPos = startX + 117 + 1;
 			int finalXPos = (xPos - minecraft.font.width(textComponent) / 2);
@@ -112,10 +114,11 @@ public class AbilityScreen extends Screen{
 
 		super.render(guiGraphics, mouseX, mouseY, partialTick);
 
-		renderables.forEach(renderable -> {
-			if (renderable  instanceof AbilityButton button) {
-				if(button.skillType == 0 && button.dragging && button.ability != null){
-					guiGraphics.blit(button.ability.getIcon(), mouseX, mouseY, 0, 0, 18, 18, 18, 18);
+		renderables.forEach(s-> {
+			if(s instanceof AbilityButton btn){
+				if(btn.skillType == 0 && btn.dragging && btn.ability != null){
+					RenderSystem.setShaderTexture(0, btn.ability.getIcon());
+					guiGraphics.blit(btn.ability.getIcon(), mouseX, mouseY, 0, 0, 32, 32, 32, 32);
 				}
 			}
 		});
@@ -130,35 +133,37 @@ public class AbilityScreen extends Screen{
 		int startY = guiTop;
 
 		//Inventory
-		addRenderableWidget(new TabButton(startX + 5, startY - 26, 0, this));
-		addRenderableWidget(new TabButton(startX + 34, startY - 28, 1, this));
-		addRenderableWidget(new TabButton(startX + 62, startY - 26, 2, this));
-		addRenderableWidget(new TabButton(startX + 91, startY - 26, 3, this));
+		addRenderableWidget(new TabButton(startX + 5 + 10, startY - 26 - 30, TabButton.TabType.INVENTORY, this));
+		addRenderableWidget(new TabButton(startX + 34 + 10, startY - 28 - 30, TabButton.TabType.ABILITY, this));
+		addRenderableWidget(new TabButton(startX + 62 + 10, startY - 26 - 30, TabButton.TabType.GITHUB_REMINDER, this));
+		addRenderableWidget(new TabButton(startX + 91 + 10, startY - 26 - 30, TabButton.TabType.SKINS, this));
 
-		addRenderableWidget(new SkillProgressButton(guiLeft + (int)(219 / 2F), startY + 8, 4, this));
+		addRenderableWidget(new SkillProgressButton(guiLeft + 10 + (int)(219 / 2F), startY + 8 - 30, 4, this));
 
 		for(int i = 1; i <= 4; i++){
-			addRenderableWidget(new SkillProgressButton(guiLeft + (int)(219 / 2F) - i * 23, startY + 8, 4 - i, this));
-			addRenderableWidget(new SkillProgressButton(guiLeft + (int)(219 / 2F) + i * 23, startY + 8, 4 + i, this));
+			addRenderableWidget(new SkillProgressButton(guiLeft + 10 + (int)(219 / 2F) - i * 23, startY + 8 - 30, 4 - i, this));
+			addRenderableWidget(new SkillProgressButton(guiLeft + 10 + (int)(219 / 2F) + i * 23, startY + 8 - 30, 4 + i, this));
 		}
 
 		DragonStateProvider.getCap(Minecraft.getInstance().player).ifPresent(cap -> {
 			for(int num = 0; num < MagicCap.activeAbilitySlots; num++){
-				addRenderableWidget(new AbilityButton((int)(guiLeft + 90 / 2.0), guiTop + 40 + num * 23, 0, num, this));
+				addRenderableWidget(new AbilityButton((int)(guiLeft + (90+20) / 2.0), guiTop + 40 - 25 + num * 35, 0, num, this));
 			}
 
 			for(int num = 0; num < MagicCap.passiveAbilitySlots; num++){
-				addRenderableWidget(new AbilityButton(guiLeft + (int)(217 / 2F), guiTop + 40 + num * 23, 1, num, this));
-				addRenderableWidget(new IncreaseLevelButton(guiLeft + (int)(219 / 2F) + 25, guiTop + 40 + num * 23, num));
-				addRenderableWidget(new DecreaseLevelButton(guiLeft + (int)(219 / 2F) - 25, guiTop + 40 + num * 23, num));
+				addRenderableWidget(new AbilityButton(guiLeft + (int)((215 + 10) / 2F), guiTop + 40 - 25 + num * 35, 1, num, this));
+				addRenderableWidget(new IncreaseLevelButton(guiLeft + (int)(219 / 2F) + 35, guiTop + 40  - 17 + num * 35, num));
+				addRenderableWidget(new DecreaseLevelButton(guiLeft + (int)(219 / 2F) - 13, guiTop + 40  - 17 + num * 35, num));
 			}
 
 			for(int num = 0; num < MagicCap.innateAbilitySlots; num++){
-				addRenderableWidget(new AbilityButton(guiLeft + (int)(346 / 2F), guiTop + 40 + num * 23, 2, num, this));
+				addRenderableWidget(new AbilityButton(guiLeft + (int)(340 / 2F), guiTop + 40 - 25 + num * 35, 2, num, this));
 			}
 		});
 
-		addRenderableWidget(new HelpButton(startX + 218 / 2 + 3, startY + 263 / 2 + 4, 9, 9, "ds.skill.help", 0));
+		addRenderableWidget(new HelpButton(startX + 218 / 2 + 3 + 10 - 55, startY + 263 / 2 + 28, 9, 9, "ds.skill.help_1", 0));
+		addRenderableWidget(new HelpButton(startX + 218 / 2 + 3 + 10 + 2, startY + 263 / 2 + 28, 9, 9, "ds.skill.help_2", 0));
+		addRenderableWidget(new HelpButton(startX + 218 / 2 + 3 + 10 + 60, startY + 263 / 2 + 28, 9, 9, "ds.skill.help_3", 0));
 	}
 
 

@@ -1,7 +1,9 @@
 package by.dragonsurvivalteam.dragonsurvival.client.skin_editor_system.objects;
 
+import by.dragonsurvivalteam.dragonsurvival.client.skin_editor_system.DragonEditorHandler;
 import by.dragonsurvivalteam.dragonsurvival.client.skin_editor_system.DragonEditorRegistry;
 import by.dragonsurvivalteam.dragonsurvival.client.skin_editor_system.EnumSkinLayer;
+import by.dragonsurvivalteam.dragonsurvival.client.util.FakeClientPlayerUtils;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.NBTInterface;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
@@ -13,7 +15,6 @@ import java.util.HashMap;
 
 public class SkinPreset implements NBTInterface{
 	public HashMap<DragonLevel, Lazy<SkinAgeGroup>> skinAges = new HashMap<>();
-	public double sizeMul = 1.0;
 
 	public SkinPreset(){
 		for(DragonLevel level : DragonLevel.values()){
@@ -34,7 +35,6 @@ public class SkinPreset implements NBTInterface{
 	@Override
 	public CompoundTag writeNBT(){
 		CompoundTag nbt = new CompoundTag();
-		nbt.putDouble("sizeMul", sizeMul);
 
 		for(DragonLevel level : DragonLevel.values()){
 			nbt.put(level.name, skinAges.getOrDefault(level, Lazy.of(()->new SkinAgeGroup(level))).get().writeNBT());
@@ -45,8 +45,6 @@ public class SkinPreset implements NBTInterface{
 
 	@Override
 	public void readNBT(CompoundTag base){
-		sizeMul = base.getDouble("sizeMul");
-
 		for(DragonLevel level : DragonLevel.values()){
 			skinAges.put(level,
 					Lazy.of(()->{
@@ -69,7 +67,27 @@ public class SkinPreset implements NBTInterface{
 		public SkinAgeGroup(DragonLevel level, AbstractDragonType type){
 			this(level);
 			for(EnumSkinLayer layer : EnumSkinLayer.values()){
-				layerSettings.put(layer, Lazy.of(()->new LayerSettings(DragonEditorRegistry.getDefaultPart(type, level, layer))));
+				String part = DragonEditorRegistry.getDefaultPart(type, level, layer);
+				EnumSkinLayer trueLayer = EnumSkinLayer.valueOf(layer.name.toUpperCase());
+				HashMap<EnumSkinLayer, DragonEditorObject.Texture[]> hm = DragonEditorRegistry.CUSTOMIZATIONS.get(type.getTypeName().toUpperCase());
+				if (hm != null) {
+					DragonEditorObject.Texture[] texts = hm.get(trueLayer);
+					if (texts != null) {
+						for (DragonEditorObject.Texture text : texts) {
+							if (text.key.equals(part)) {
+								if (text.average_hue == null) {
+									throw new NullPointerException("Average hue for customization is null. Did you run colors.py for any new data?");
+								}
+								layerSettings.put(layer, Lazy.of(()->new LayerSettings(part, text.average_hue)));
+								break;
+							}
+						}
+					} else {
+						layerSettings.put(layer, Lazy.of(() -> new LayerSettings(part, 0.5f)));
+					}
+				} else {
+					layerSettings.put(layer, Lazy.of(()->new LayerSettings(part, 0.5f)));
+				}
 			}
 		}
 

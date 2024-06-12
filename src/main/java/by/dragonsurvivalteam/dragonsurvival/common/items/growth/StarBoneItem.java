@@ -50,7 +50,7 @@ public class StarBoneItem extends Item{
 						if (mount != null) {
 							mount.stopRiding();
 							((ServerPlayer) playerIn).connection.send(new ClientboundSetPassengersPacket(playerIn));
-							NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) playerIn), new SynchronizeDragonCap(playerIn.getId(), handler.isHiding(), handler.getType(), handler.getSize(), handler.hasWings(), 0));
+							NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> (ServerPlayer) playerIn), new SynchronizeDragonCap(playerIn.getId(), handler.isHiding(), handler.getType(), handler.getBody(), handler.getSize(), handler.hasFlight(), 0));
 						}
 					}
 				}

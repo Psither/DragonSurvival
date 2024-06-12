@@ -7,6 +7,7 @@ import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
 import by.dragonsurvivalteam.dragonsurvival.network.NetworkHandler;
 import by.dragonsurvivalteam.dragonsurvival.network.RequestClientData;
 import by.dragonsurvivalteam.dragonsurvival.network.claw.SyncDragonClawsMenu;
+import by.dragonsurvivalteam.dragonsurvival.network.dragon_editor.SyncDragonSkinSettings;
 import by.dragonsurvivalteam.dragonsurvival.network.player.SyncSize;
 import by.dragonsurvivalteam.dragonsurvival.network.syncing.CompleteDataSync;
 import by.dragonsurvivalteam.dragonsurvival.registry.DragonEffects;
@@ -24,6 +25,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 import net.minecraftforge.event.AttachCapabilitiesEvent;
+import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -65,10 +67,10 @@ public class Capabilities{
 	public static void onPlayerLoggedIn(final PlayerEvent.PlayerLoggedInEvent event) {
 		if (event.getEntity() instanceof ServerPlayer serverPlayer) {
 			DragonStateProvider.getCap(serverPlayer).ifPresent(handler -> {
-				NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new RequestClientData(handler.getType(), handler.getLevel()));
+				NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new RequestClientData(handler.getType(), handler.getBody(), handler.getLevel()));
 				NetworkHandler.CHANNEL.send(PacketDistributor.PLAYER.with(() -> serverPlayer), new SyncDragonClawsMenu(serverPlayer.getId(), handler.getClawToolData().isMenuOpen(), handler.getClawToolData().getClawsInventory()));
 			});
-
+			// TODO: Investigate whether this call to syncCapability actually results in data loss under bad network conditions
 			syncCapability(serverPlayer);
 		}
 	}
@@ -123,11 +125,12 @@ public class Capabilities{
 				player.addEffect(new MobEffectInstance(DragonEffects.ROYAL_CHASE, capOld.getVillageRelationShips().evilStatusDuration));
 			}
 
+
 			NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new CompleteDataSync(player.getId(), nbt));
 		}));
 
+		DragonModifiers.updateModifiers(player);
 		original.invalidateCaps();
-		DragonModifiers.updateModifiers(original, player);
 		player.refreshDimensions();
 	}
 

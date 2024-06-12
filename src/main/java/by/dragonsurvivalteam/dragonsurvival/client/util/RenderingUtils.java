@@ -1,13 +1,24 @@
 package by.dragonsurvivalteam.dragonsurvival.client.util;
 
+import by.dragonsurvivalteam.dragonsurvival.mixins.AccessorAnimationController;
+import com.mojang.blaze3d.platform.GlStateManager.DestFactor;
+import com.mojang.blaze3d.platform.GlStateManager.SourceFactor;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
+
+import by.dragonsurvivalteam.dragonsurvival.common.entity.DragonEntity;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
+
+import software.bernie.geckolib.core.animatable.GeoAnimatable;
+import software.bernie.geckolib.core.animation.Animation.LoopType;
+import software.bernie.geckolib.core.animation.AnimationController;
+import software.bernie.geckolib.core.animation.RawAnimation;
 
 import java.awt.*;
 
@@ -50,10 +61,9 @@ public class RenderingUtils{
 		RenderSystem.disableBlend();
 	}
 
-	// FIXME :: There is a mismatch between the dragon color and the chosen color
 	public static void renderPureColorSquare(PoseStack mStack, int x, int y, int width, int height){
 		Matrix4f mat = mStack.last().pose();
-		int zLevel = 100;
+		int zLevel = 0;
 		Tesselator tesselator = Tesselator.getInstance();
 		BufferBuilder bufferbuilder = tesselator.getBuilder();
 		RenderSystem.enableBlend();
@@ -76,7 +86,7 @@ public class RenderingUtils{
 
 	public static void renderColorSquare(@NotNull final GuiGraphics guiGraphics, int x, int y, int width, int height){
 		Matrix4f mat = guiGraphics.pose().last().pose();
-		int zLevel = 200;
+		int zLevel = 0;
 		RenderSystem.enableBlend();
 //		RenderSystem.disableTexture();
 		RenderSystem.defaultBlendFunc();
@@ -222,5 +232,46 @@ public class RenderingUtils{
 		RenderSystem.disableBlend();
 		GL11.glDisable(GL11.GL_LINE_SMOOTH);
 		tesselator.end();
+	}
+
+	public static void drawTexturedRing(PoseStack stack, double x, double y, double innerRadius, double outerRadius, double u, double v, double texInnerRadius, double texOuterRadius, int sides, double percent, double startAngle){
+		Matrix4f matrix4f = stack.last().pose();
+
+		float rad;
+		float sin;
+		float cos;
+
+		float z = 100;
+
+		RenderSystem.enableBlend();
+		RenderSystem.blendFunc(SourceFactor.SRC_ALPHA, DestFactor.ONE_MINUS_SRC_ALPHA);
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+
+		GL11.glEnable(GL11.GL_LINE_SMOOTH);
+		GL11.glHint(GL11.GL_LINE_SMOOTH_HINT, GL11.GL_NICEST);
+
+		Tesselator tesselator = Tesselator.getInstance();
+		final BufferBuilder buffer =  tesselator.getBuilder();
+		buffer.begin(Mode.TRIANGLE_STRIP, DefaultVertexFormat.POSITION_TEX);
+
+		for(int i = 0; i <= percent * sides; i++){
+			rad = (float)(PI_TWO * ((double)i / (double)sides + startAngle));
+			sin = (float)Math.sin(rad);
+			cos = (float)-Math.cos(rad);
+
+			buffer.vertex(matrix4f, (float)(x + sin * outerRadius), (float)(y + cos * outerRadius), z).uv((float)(u + sin * texOuterRadius), (float)(v + cos * texOuterRadius)).endVertex();
+			buffer.vertex(matrix4f, (float)(x + sin * innerRadius), (float)(y + cos * innerRadius), z).uv((float)(u + sin * texInnerRadius), (float)(v + cos * texInnerRadius)).endVertex();
+		}
+
+		rad = (float)(PI_TWO * (percent + startAngle));
+		sin = (float)Math.sin(rad);
+		cos = (float)-Math.cos(rad);
+
+		buffer.vertex(matrix4f, (float)(x + sin * outerRadius), (float)(y + cos * outerRadius), z).uv((float)(u + sin * texOuterRadius), (float)(v + cos * texOuterRadius)).endVertex();
+		buffer.vertex(matrix4f, (float)(x + sin * innerRadius), (float)(y + cos * innerRadius), z).uv((float)(u + sin * texInnerRadius), (float)(v + cos * texInnerRadius)).endVertex();
+
+		tesselator.end();
+		GL11.glDisable(GL11.GL_LINE_SMOOTH);
+		RenderSystem.disableBlend();
 	}
 }

@@ -23,7 +23,7 @@ public class IncreaseLevelButton extends ArrowButton {
 	private final int slot;
 
 	public IncreaseLevelButton(int x, int y, int slot){
-		super(x, y, 15, 17, true, Button::onPress);
+		super(x, y, 16, 16, true, Button::onPress);
 
 		this.slot = slot;
 	}

@@ -17,7 +17,7 @@ public class DecreaseLevelButton extends ArrowButton{
 	private PassiveDragonAbility ability;
 
 	public DecreaseLevelButton(int x, int y, int slot){
-		super(x, y, 15, 17, false, Button::onPress);
+		super(x, y, 16, 16, false, Button::onPress);
 
 		this.slot = slot;
 	}

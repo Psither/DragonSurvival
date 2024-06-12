@@ -1,7 +1,6 @@
 package by.dragonsurvivalteam.dragonsurvival.client.gui.widgets.buttons;
 
 import by.dragonsurvivalteam.dragonsurvival.DragonSurvivalMod;
-import by.dragonsurvivalteam.dragonsurvival.client.gui.utils.TooltipRender;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.subcapabilities.MagicCap;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
@@ -25,7 +24,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public class AbilityButton extends Button implements TooltipRender{
+public class AbilityButton extends Button {
 	public static final ResourceLocation BLANK_TEXTURE = new ResourceLocation(DragonSurvivalMod.MODID, "textures/blank.png");
 	public static final ResourceLocation BLANK_1_TEXTURE = new ResourceLocation(DragonSurvivalMod.MODID, "textures/blank1.png");
 	public static final ResourceLocation BLANK_2_TEXTURE = new ResourceLocation(DragonSurvivalMod.MODID, "textures/blank2.png");
@@ -39,7 +38,7 @@ public class AbilityButton extends Button implements TooltipRender{
 	public DragonAbility ability;
 
 	public AbilityButton(int x, int y, int skillType, int slot, Screen screen){
-		super(x, y, 16, 16, Component.empty(), button -> {}, DEFAULT_NARRATION);
+		super(x, y, 32, 32, Component.empty(), button -> {}, DEFAULT_NARRATION);
 		this.slot = slot;
 		this.skillType = skillType;
 		this.screen = screen;
@@ -124,11 +123,11 @@ public class AbilityButton extends Button implements TooltipRender{
 		guiGraphics.blit(isDragging ? BLANK_3_TEXTURE : ability instanceof PassiveDragonAbility ? BLANK_2_TEXTURE : BLANK_1_TEXTURE, getX() - 1, getY() - 1, 0, 0, 20, 20, 20, 20);
 
 		if(ability != null && !dragging){
-			guiGraphics.blit(ability.getIcon(), getX(), getY(), 0, 0, 18, 18, 18, 18);
+			guiGraphics.blit(ability.getIcon(), getX(), getY(), 0, 0, 32, 32, 32, 32);
 
 			if(ability.isDisabled()){
 				RenderSystem.enableBlend();
-				guiGraphics.blit(MagicDragonRender.INVALID_ICON, getX(), getY(), 0, 0, 18, 18, 18, 18);
+				guiGraphics.blit(MagicDragonRender.INVALID_ICON, getX(), getY(), 0, 0, 32, 32, 32, 32);
 				RenderSystem.disableBlend();
 			}
 		}

@@ -49,7 +49,9 @@ public class WaterAbility extends PassiveDragonAbility{
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/water_2.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/water_3.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/water_4.png"),
-		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/water_5.png")};
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/water_5.png"),
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/water_6.png"),
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/water_7.png")};
 	}
 
 
@@ -67,7 +69,7 @@ public class WaterAbility extends PassiveDragonAbility{
 
 	@Override
 	public int getMaxLevel(){
-		return 6;
+		return 7;
 	}
 
 	@Override

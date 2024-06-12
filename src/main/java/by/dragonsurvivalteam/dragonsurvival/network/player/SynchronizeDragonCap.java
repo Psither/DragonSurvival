@@ -2,7 +2,9 @@ package by.dragonsurvivalteam.dragonsurvival.network.player;
 
 import by.dragonsurvivalteam.dragonsurvival.commands.DragonCommand;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
+import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonBody;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
+import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonBodies;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.network.IMessage;
 import by.dragonsurvivalteam.dragonsurvival.network.NetworkHandler;
@@ -19,16 +21,18 @@ public class SynchronizeDragonCap implements IMessage<SynchronizeDragonCap> {
 	public int playerId;
 	public boolean hiding;
 	public AbstractDragonType dragonType;
+	public AbstractDragonBody dragonBody;
 	public double size;
 	public boolean hasWings;
 	public int passengerId;
 
 	public SynchronizeDragonCap() { /* Nothing to do */ }
 
-	public SynchronizeDragonCap(int playerId, boolean hiding, final AbstractDragonType dragonType, double size, boolean hasWings, int passengerId) {
+	public SynchronizeDragonCap(int playerId, boolean hiding, final AbstractDragonType dragonType, final AbstractDragonBody dragonBody, double size, boolean hasWings, int passengerId) {
 		this.playerId = playerId;
 		this.hiding = hiding;
 		this.dragonType = dragonType;
+		this.dragonBody = dragonBody;
 		this.size = size;
 		this.hasWings = hasWings;
 		this.passengerId = passengerId;
@@ -38,6 +42,7 @@ public class SynchronizeDragonCap implements IMessage<SynchronizeDragonCap> {
 	public void encode(final SynchronizeDragonCap message, final FriendlyByteBuf buffer) {
 		buffer.writeInt(message.playerId);
 		buffer.writeUtf(message.dragonType != null ? message.dragonType.getSubtypeName() : "none");
+		buffer.writeUtf(message.dragonBody != null ? message.dragonBody.getBodyName() : "none");
 		buffer.writeBoolean(message.hiding);
 		buffer.writeDouble(message.size);
 		buffer.writeBoolean(message.hasWings);
@@ -48,12 +53,14 @@ public class SynchronizeDragonCap implements IMessage<SynchronizeDragonCap> {
 	public SynchronizeDragonCap decode(final FriendlyByteBuf buffer) {
 		int id = buffer.readInt();
 		String typeS = buffer.readUtf();
-		AbstractDragonType type = typeS.equals("none") ? null :  DragonTypes.getStaticSubtype(typeS);
+		String typeB = buffer.readUtf();
+		AbstractDragonType type = typeS.equals("none") ? null : DragonTypes.getStaticSubtype(typeS);
+		AbstractDragonBody body = typeB.equals("none") ? null : DragonBodies.getStatic(typeB);
 		boolean hiding = buffer.readBoolean();
 		double size = buffer.readDouble();
 		boolean hasWings = buffer.readBoolean();
 		int passengerId = buffer.readInt();
-		return new SynchronizeDragonCap(id, hiding, type, size, hasWings, passengerId);
+		return new SynchronizeDragonCap(id, hiding, type, body, size, hasWings, passengerId);
 	}
 
 	@Override
@@ -73,9 +80,10 @@ public class SynchronizeDragonCap implements IMessage<SynchronizeDragonCap> {
 					}
 
 					handler.setIsHiding(message.hiding);
-					handler.setType(message.dragonType);
+					handler.setType(message.dragonType, sender);
+					handler.setBody(message.dragonBody, sender);
 					handler.setSize(message.size, sender);
-					handler.setHasWings(message.hasWings);
+					handler.setHasFlight(message.hasWings);
 					handler.setPassengerId(message.passengerId);
 				});
 			});

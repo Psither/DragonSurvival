@@ -74,7 +74,7 @@ public class LavaVisionAbility extends ChargeCastAbility {
 
 	@Override
 	public Integer[] getRequiredLevels(){
-		return new Integer[]{0, 25};
+		return new Integer[]{0, 25, 45, 60};
 	}
 
 	@Override
@@ -113,7 +113,9 @@ public class LavaVisionAbility extends ChargeCastAbility {
 	public ResourceLocation[] getSkillTextures(){
 		return new ResourceLocation[]{new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/cave/lava_vision_0.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/cave/lava_vision_1.png"),
-		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/cave/lava_vision_2.png")};
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/cave/lava_vision_2.png"),
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/cave/lava_vision_3.png"),
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/cave/lava_vision_4.png")};
 	}
 
 	@Override
@@ -126,7 +128,7 @@ public class LavaVisionAbility extends ChargeCastAbility {
 
 	@Override
 	public int getMaxLevel(){
-		return 2;
+		return 4;
 	}
 
 	@Override

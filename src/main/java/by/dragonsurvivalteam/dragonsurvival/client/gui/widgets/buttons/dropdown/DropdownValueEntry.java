@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Locale;
 import java.util.function.Consumer;
 
 public class DropdownValueEntry extends DropdownEntry{
@@ -37,31 +36,30 @@ public class DropdownValueEntry extends DropdownEntry{
 	}
 
 	@Override
-	public void render(@NotNull final GuiGraphics guiGraphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks){
-		if(button == null){
-			if(list != null)
-				button = new ExtendedButton(list.getLeft() + 3, 0, list.getWidth() - 12, pHeight + 1, null, null){
-					@Override
-					public Component getMessage(){
-						return message;
-					}
+	public List<? extends NarratableEntry> narratables(){
+		return Collections.emptyList();
+	}
 
-					@Override
-					public void onPress(){
-						source.current = value;
-						source.onPress();
-						setter.accept(value);
-					}
-				};
+	@Override
+	public void render(@NotNull GuiGraphics guiGraphics, int pIndex, int pTop, int pLeft, int pWidth, int pHeight, int pMouseX, int pMouseY, boolean pIsMouseOver, float pPartialTicks) {
+		if(button == null){
+			button = new ExtendedButton(pLeft + 3, 0, pWidth - 12, pHeight + 1, null, null){
+				@Override
+				public Component getMessage(){
+					return message;
+				}
+
+				@Override
+				public void onPress(){
+					source.current = value;
+					source.onPress();
+					setter.accept(value);
+				}
+			};
 		}else{
 			button.setY(pTop);
 			button.visible = source.visible;
 			button.render(guiGraphics, pMouseX, pMouseY, pPartialTicks);
 		}
-	}
-
-	@Override
-	public List<? extends NarratableEntry> narratables(){
-		return Collections.emptyList();
 	}
 }

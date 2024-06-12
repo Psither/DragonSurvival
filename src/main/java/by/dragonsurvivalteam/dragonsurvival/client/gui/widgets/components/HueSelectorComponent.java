@@ -5,9 +5,14 @@ import by.dragonsurvivalteam.dragonsurvival.client.gui.settings.ResetSettingsBut
 import by.dragonsurvivalteam.dragonsurvival.client.gui.widgets.buttons.dropdown.DropdownList;
 import by.dragonsurvivalteam.dragonsurvival.client.gui.widgets.buttons.generic.DSSlider;
 import by.dragonsurvivalteam.dragonsurvival.client.gui.widgets.buttons.generic.ExtendedCheckbox;
+import by.dragonsurvivalteam.dragonsurvival.client.skin_editor_system.DragonEditorHandler;
+import by.dragonsurvivalteam.dragonsurvival.client.skin_editor_system.DragonEditorRegistry;
 import by.dragonsurvivalteam.dragonsurvival.client.skin_editor_system.EnumSkinLayer;
+import by.dragonsurvivalteam.dragonsurvival.client.skin_editor_system.objects.DragonEditorObject;
 import by.dragonsurvivalteam.dragonsurvival.client.skin_editor_system.objects.LayerSettings;
+import by.dragonsurvivalteam.dragonsurvival.client.util.FakeClientPlayerUtils;
 import by.dragonsurvivalteam.dragonsurvival.client.util.RenderingUtils;
+import by.dragonsurvivalteam.dragonsurvival.util.Functions;
 import com.google.common.collect.ImmutableList;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Checkbox;
@@ -47,40 +52,38 @@ public class HueSelectorComponent extends AbstractContainerEventHandler implemen
 
 		settings = () -> screen.preset.skinAges.get(screen.level).get().layerSettings.get(layer).get();
 		LayerSettings set = settings.get();
+		DragonEditorObject.Texture text = DragonEditorHandler.getSkin(FakeClientPlayerUtils.getFakePlayer(0, screen.handler), layer, set.selectedSkin, screen.handler.getType());
 
 		glowing = new ExtendedCheckbox(x + 3, y, xSize - 5, 10, 10, Component.translatable("ds.gui.dragon_editor.glowing"), set.glowing, s -> {
 			settings.get().glowing = s.selected();
 			screen.handler.getSkinData().compileSkin();
 		});
 
-		hueReset = new ExtendedButton(x + 3 + xSize - 26, y + 12, 20, 20, Component.empty(), button -> hueSlider.setValue(0.0)) {
-			@Override
-			public void renderWidget(@NotNull final GuiGraphics guiGraphics, int mouseX, int mouseY, float partial){
-				super.renderWidget(guiGraphics, mouseX, mouseY, partial);
-				guiGraphics.blit(ResetSettingsButton.texture, getX() + 2, getY() + 2, 0, 0, 16, 16, 16, 16);
-			}
-		};
-
 		float[] hsb = new float[]{set.hue, set.saturation, set.brightness};
 
-		if(!set.modifiedColor){
-			hsb[0] = 0;
+		if(text == null){
+			hsb[0] = 0.5f;
 			hsb[1] = 0.5f;
+			hsb[2] = 0.5f;
+		} else if (!set.modifiedColor) {
+			hsb[0] = text.average_hue;
+			hsb[1] = 0.5f;
+			hsb[2] = 0.5f;
 		}
 
-		hueSlider = new DSSlider(x + 3, y + 12, xSize - 26, 20, Component.empty(), Component.empty(), -180, 180, set.modifiedColor ? Math.round(hsb[0] * 360 - 180) : 0, true){
+		hueSlider = new DSSlider(x + 3, y + 12, xSize - 26, 20, Component.empty(), Component.empty(), 0, 360, hsb[0] * 360.0f, true){
 			@Override
 			protected void applyValue(){
 				super.applyValue();
 
-				float value = (hueSlider.getValueInt() + 180) / 360f;
-				float value1 = (saturationSlider.getValueInt() + 180) / 360f;
-				float value2 = (brightnessSlider.getValueInt() + 180) / 360f;
+				float value = (hueSlider.getValueInt()) / 360f;
+				float value1 = (saturationSlider.getValueInt()) / 360f;
+				float value2 = (brightnessSlider.getValueInt()) / 360f;
 
 				settings.get().hue = value;
 				settings.get().saturation = value1;
 				settings.get().brightness = value2;
-				settings.get().modifiedColor = true;
+                settings.get().modifiedColor = text != null && (Float.compare(Math.round(value * 360), Math.round(text.average_hue * 360)) != 0 || !(Math.abs(value1 - 0.5f) < 0.05) || !(Math.abs(value2 - 0.5f) < 0.05));
 
 				DragonEditorScreen.handler.getSkinData().compileSkin();
 				screen.update();
@@ -91,23 +94,33 @@ public class HueSelectorComponent extends AbstractContainerEventHandler implemen
 				if(visible){
 					this.isHovered = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + getWidth() && mouseY < getY() + getHeight();
 					RenderingUtils.renderPureColorSquare(guiGraphics.pose(), getX(), getY(), getWidth(), getHeight());
+					guiGraphics.blitWithBorder(SLIDER_LOCATION, this.getX() + (int)(this.value * (double)(this.width - 8)), this.getY(), 0, this.getHandleTextureY(), 8, this.height, 200, 20, 2, 3, 2, 2);
 				}
 			}
 		};
 
-		saturationSlider = new DSSlider(x + 3, y + 22 + 12, xSize - 26, 20, Component.empty(), Component.empty(), -180, 180, set.modifiedColor ? Math.round(hsb[1] * 360 - 180) : 0, true){
+		hueReset = new ExtendedButton(x + 3 + xSize - 26, y + 12, 20, 20, Component.empty(), button -> hueSlider.setValue(text != null ? Math.round(text.average_hue * 360f) : 180)) {
+			@Override
+			public void renderWidget(@NotNull final GuiGraphics guiGraphics, int mouseX, int mouseY, float partial){
+				super.renderWidget(guiGraphics, mouseX, mouseY, partial);
+				guiGraphics.blit(ResetSettingsButton.texture, getX() + 2, getY() + 2, 0, 0, 16, 16, 16, 16);
+			}
+		};
+
+		saturationSlider = new DSSlider(x + 3, y + 22 + 12, xSize - 26, 20, Component.empty(), Component.empty(), 0, 360, hsb[1] * 360, true){
 			@Override
 			protected void applyValue(){
 				super.applyValue();
 
-				float value = (hueSlider.getValueInt() + 180) / 360f;
-				float value1 = (saturationSlider.getValueInt() + 180) / 360f;
-				float value2 = (brightnessSlider.getValueInt() + 180) / 360f;
+				float value = (hueSlider.getValueInt()) / 360f;
+				float value1 = (saturationSlider.getValueInt()) / 360f;
+				float value2 = (brightnessSlider.getValueInt()) / 360f;
 
 				settings.get().hue = value;
 				settings.get().saturation = value1;
 				settings.get().brightness = value2;
-				settings.get().modifiedColor = true;
+
+				settings.get().modifiedColor = text != null && (Float.compare(Math.round(value * 360), Math.round(text.average_hue * 360)) != 0 || !(Math.abs(value1 - 0.5f) < 0.05) || !(Math.abs(value2 - 0.5f) < 0.05));
 
 				DragonEditorScreen.handler.getSkinData().compileSkin();
 				screen.update();
@@ -117,17 +130,18 @@ public class HueSelectorComponent extends AbstractContainerEventHandler implemen
 			public void renderWidget(@NotNull final GuiGraphics guiGraphics, int mouseX, int mouseY, float partial){
 				if(visible){
 					this.isHovered = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + getWidth() && mouseY < getY() + getHeight();
-					float value1 = (hueSlider.getValueInt() + 180) / 360f;
+					float value1 = (hueSlider.getValueInt()) / 360f;
 
 					int col1 = Color.getHSBColor(value1, 0f, 1f).getRGB();
 					int col2 = Color.getHSBColor(value1, 1f, 1f).getRGB();
 
-					RenderingUtils.drawGradientRect(guiGraphics.pose().last().pose(), 200, getX(), getY(), getX() + getWidth(), getY() + getHeight(), new int[]{col2, col1, col1, col2});
+					RenderingUtils.drawGradientRect(guiGraphics.pose().last().pose(), 0, getX(), getY(), getX() + getWidth(), getY() + getHeight(), new int[]{col2, col1, col1, col2});
+					guiGraphics.blitWithBorder(SLIDER_LOCATION, this.getX() + (int)(this.value * (double)(this.width - 8)), this.getY(), 0, this.getHandleTextureY(), 8, this.height, 200, 20, 2, 3, 2, 2);
 				}
 			}
 		};
 
-		saturationReset = new ExtendedButton(x + 3 + xSize - 26, y + 22 + 12, 20, 20, Component.empty(), button -> saturationSlider.setValue(0.0)) {
+		saturationReset = new ExtendedButton(x + 3 + xSize - 26, y + 22 + 12, 20, 20, Component.empty(), button -> saturationSlider.setValue(180)) {
 			@Override
 			public void renderWidget(@NotNull final GuiGraphics guiGraphics, int mouseX, int mouseY, float partial){
 				super.renderWidget(guiGraphics, mouseX, mouseY, partial);
@@ -135,7 +149,7 @@ public class HueSelectorComponent extends AbstractContainerEventHandler implemen
 			}
 		};
 
-		brightnessReset = new ExtendedButton(x + 3 + xSize - 26, y + 44 + 12, 20, 20, Component.empty(), button -> brightnessSlider.setValue(0.0)) {
+		brightnessReset = new ExtendedButton(x + 3 + xSize - 26, y + 44 + 12, 20, 20, Component.empty(), button -> brightnessSlider.setValue(180)) {
 			@Override
 			public void renderWidget(@NotNull final GuiGraphics guiGraphics, int mouseX, int mouseY, float partial){
 				super.renderWidget(guiGraphics, mouseX, mouseY, partial);
@@ -143,19 +157,19 @@ public class HueSelectorComponent extends AbstractContainerEventHandler implemen
 			}
 		};
 
-		brightnessSlider = new DSSlider(x + 3, y + 44 + 12, xSize - 26, 20, Component.empty(), Component.empty(), -180, 180, set.modifiedColor ? Math.round(hsb[2] * 360 - 180) : 0, true){
+		brightnessSlider = new DSSlider(x + 3, y + 44 + 12, xSize - 26, 20, Component.empty(), Component.empty(), 0, 360, hsb[2] * 360, true){
 			@Override
 			protected void applyValue(){
 				super.applyValue();
 
-				float value = (hueSlider.getValueInt() + 180) / 360f;
-				float value1 = (saturationSlider.getValueInt() + 180) / 360f;
-				float value2 = (brightnessSlider.getValueInt() + 180) / 360f;
+				float value = (hueSlider.getValueInt()) / 360f;
+				float value1 = (saturationSlider.getValueInt()) / 360f;
+				float value2 = (brightnessSlider.getValueInt()) / 360f;
 
 				settings.get().hue = value;
 				settings.get().saturation = value1;
 				settings.get().brightness = value2;
-				settings.get().modifiedColor = true;
+				settings.get().modifiedColor = text != null && (Float.compare(Math.round(value * 360), Math.round(text.average_hue * 360)) != 0 || !(Math.abs(value1 - 0.5f) < 0.05) || !(Math.abs(value2 - 0.5f) < 0.05));
 
 				DragonEditorScreen.handler.getSkinData().compileSkin();
 				screen.update();
@@ -165,12 +179,13 @@ public class HueSelectorComponent extends AbstractContainerEventHandler implemen
 			public void renderWidget(@NotNull final GuiGraphics guiGraphics, int mouseX, int mouseY, float partial){
 				if(visible){
 					this.isHovered = mouseX >= getX() && mouseY >= getY() && mouseX < getX() + getWidth() && mouseY < getY() + getHeight();
-					float value1 = (hueSlider.getValueInt() + 180) / 360f;
+					float value1 = (hueSlider.getValueInt()) / 360f;
 
 					int col1 = Color.getHSBColor(value1, 1f, 0f).getRGB();
 					int col2 = Color.getHSBColor(value1, 1f, 1f).getRGB();
 
-					RenderingUtils.drawGradientRect(guiGraphics.pose().last().pose(), 200, getX(), getY(), getX() + getWidth(), getY() + getHeight(), new int[]{col2, col1, col1, col2});
+					RenderingUtils.drawGradientRect(guiGraphics.pose().last().pose(), 0, getX(), getY(), getX() + getWidth(), getY() + getHeight(), new int[]{col2, col1, col1, col2});
+					guiGraphics.blitWithBorder(SLIDER_LOCATION, this.getX() + (int)(this.value * (double)(this.width - 8)), this.getY(), 0, this.getHandleTextureY(), 8, this.height, 200, 20, 2, 3, 2, 2);
 				}
 			}
 		};

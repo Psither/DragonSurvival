@@ -8,6 +8,10 @@ public class DragonMovementData{
 	public double headYawLastTick;
 	public double headPitchLastTick;
 	public double bodyYawLastTick;
+	
+	public float prevXRot;
+	public float prevZRot;
+	public float rotLastTick;
 
 	public boolean bite;
 	public boolean dig;

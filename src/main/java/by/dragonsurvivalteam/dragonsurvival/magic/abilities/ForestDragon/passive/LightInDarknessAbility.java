@@ -50,7 +50,9 @@ public class LightInDarknessAbility extends PassiveDragonAbility{
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/light_in_darkness_3.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/light_in_darkness_4.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/light_in_darkness_5.png"),
-		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/light_in_darkness_6.png")};
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/light_in_darkness_6.png"),
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/light_in_darkness_7.png"),
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/forest/light_in_darkness_8.png")};
 	}
 
 	public int getDuration(){
@@ -67,7 +69,7 @@ public class LightInDarknessAbility extends PassiveDragonAbility{
 
 	@Override
 	public int getMaxLevel(){
-		return 6;
+		return 8;
 	}
 
 	@Override

@@ -21,6 +21,7 @@ public class DragonEditorObject{
 		public String texture;
 		public boolean colorable = true;
 		public String defaultColor;
+		public Float average_hue;
 
 		public boolean random = true;
 		public boolean randomHue = true;

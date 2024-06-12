@@ -24,6 +24,8 @@ public class DSDamageTypes {
     public static final ResourceKey<DamageType> SEA_DRAGON_BREATH = createKey("sea_dragon_breath");
     public static final ResourceKey<DamageType> FOREST_DRAGON_DRAIN = createKey("forest_dragon_drain"); // TODO 1.20 :: tags -> setMagic()
     public static final ResourceKey<DamageType> CAVE_DRAGON_BURN = createKey("cave_dragon_burn");
+    public static final ResourceKey<DamageType> DRAGON_BALL_LIGHTNING = createKey("dragon_ball_lightning");
+    public static final ResourceKey<DamageType> CRUSHED = createKey("crushed");
 
     public static void bootstrap(final BootstapContext<DamageType> context) {
         context.register(WATER_BURN, new DamageType("dragonsurvival.water_burn", 0.1F));
@@ -36,6 +38,8 @@ public class DSDamageTypes {
         context.register(SEA_DRAGON_BREATH, new DamageType("sea_dragon_breath", 0.1F));
         context.register(FOREST_DRAGON_DRAIN, new DamageType("dragonsurvival.forest_dragon_drain", 0.1F));
         context.register(CAVE_DRAGON_BURN, new DamageType("dragonsurvival.cave_dragon_burn", 0.1F));
+        context.register(DRAGON_BALL_LIGHTNING, new DamageType("dragonsurvival.dragon_ball_lightning", 0.1F));
+        context.register(CRUSHED, new DamageType("dragonsurvival.crushed", 0.1F));
     }
 
     public static DamageSource damageSource(final Level level, final ResourceKey<DamageType> damageType) {

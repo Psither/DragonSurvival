@@ -20,6 +20,7 @@ public class SyncAbilityCasting implements IMessage<SyncAbilityCasting> {
 	public int abilitySlot;
 	public CompoundTag nbt;
 	public long castStartTime;
+	public long clientTime;
 
 	public SyncAbilityCasting() { /* Nothing to do */ }
 
@@ -29,12 +30,13 @@ public class SyncAbilityCasting implements IMessage<SyncAbilityCasting> {
 //		this.nbt = nbt;
 //	}
 	
-	public SyncAbilityCasting(int playerId, boolean isCasting, int abilitySlot, final CompoundTag nbt, long castStartTime) {
+	public SyncAbilityCasting(int playerId, boolean isCasting, int abilitySlot, final CompoundTag nbt, long castStartTime, long clientTime) {
 		this.playerId = playerId;
 		this.isCasting = isCasting;
 		this.abilitySlot = abilitySlot;
 		this.nbt = nbt;
 		this.castStartTime = castStartTime;
+		this.clientTime = clientTime;
 	}
 
 	@Override
@@ -44,12 +46,13 @@ public class SyncAbilityCasting implements IMessage<SyncAbilityCasting> {
 		buffer.writeInt(message.abilitySlot);
 		buffer.writeNbt(message.nbt);
 		buffer.writeLong(message.castStartTime);
+		buffer.writeLong(message.clientTime);
 	}
 
 	@Override
 	public SyncAbilityCasting decode(final FriendlyByteBuf buffer) {
 		int playerId = buffer.readInt();
-		return new SyncAbilityCasting(playerId, buffer.readBoolean(), buffer.readInt(), buffer.readNbt(), buffer.readLong());
+		return new SyncAbilityCasting(playerId, buffer.readBoolean(), buffer.readInt(), buffer.readNbt(), buffer.readLong(), buffer.readLong());
 	}
 
 	@Override
@@ -68,13 +71,13 @@ public class SyncAbilityCasting implements IMessage<SyncAbilityCasting> {
 					handler.getMagicData().isCasting = message.isCasting;
 
 					if (message.isCasting) {
-						ability.onKeyPressed(sender, () -> {}, message.castStartTime);
+						ability.onKeyPressed(sender, () -> {}, message.castStartTime, message.clientTime);
 					} else {
 						ability.onKeyReleased(sender);
 					}
 				});
 
-				NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> sender), new SyncAbilityCasting(sender.getId(), message.isCasting, message.abilitySlot, message.nbt, message.castStartTime));
+				NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> sender), new SyncAbilityCasting(sender.getId(), message.isCasting, message.abilitySlot, message.nbt, message.castStartTime, message.clientTime));
 			});
 		}
 

@@ -14,7 +14,7 @@
 ***
 
 <p align="center">
-  <img src="https://media.discordapp.net/attachments/615961261925990429/1064785740556410910/2022-12-30_01.32.25.png?width=1201&height=676" />
+  <img src="https://github.com/DragonSurvivalTeam/DragonSurvival/assets/43911230/d8ae8006-de1f-4efb-a8f8-18e3c9c3f615" />
 </p>
 
 ***
@@ -30,10 +30,11 @@
 ***
 
 <p align="center">
-  <img src="https://media.discordapp.net/attachments/615961261925990429/1064785741009399879/2022-12-25_19.50.38.png?width=1201&height=676" />
+  <img src="https://github.com/DragonSurvivalTeam/DragonSurvival/assets/43911230/850db1d4-2e20-4bf0-8357-6176654bd91b" />
 </p>
 
 ***
+
 
 # Contribution rules
 
@@ -55,8 +56,9 @@
 
 ***
 
+
 <p align="center">
-  <img src="https://media.discordapp.net/attachments/615961261925990429/1062618941916200970/2022-12-28_20.35.32.png?width=1275&height=676" />
+  <img src="https://github.com/DragonSurvivalTeam/DragonSurvival/assets/43911230/9dd48f1c-3e42-435d-bbe3-67e05360d222" />
 </p>
 
 ***

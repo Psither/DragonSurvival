@@ -15,17 +15,16 @@ public abstract class ChargeCastAbility extends ActiveDragonAbility {
 	public abstract int getSkillCastingTime();
 	
 	@Override
-	public void onKeyPressed(Player player, Runnable onFinish, long castStartTime){
+	public void onKeyPressed(Player player, Runnable onFinish, long castStartTime, long clientTime){
 		if (castFinished)
 			return;
 
-		long curTime = player.level().getGameTime();
-		castTime = (int) (curTime - castStartTime);
+		castTime = (int) (clientTime - castStartTime);
 
 		if(castTime >= getSkillCastingTime() && castStartTime != -1 && !castFinished){
 			castingComplete(player);
 			startCooldown();
-			castStartTime = curTime;
+			castStartTime = clientTime;
 			castFinished = true;
 
 			ManaHandler.consumeMana(player, getManaCost());

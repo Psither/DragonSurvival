@@ -49,7 +49,7 @@ public class DSEntities {
 	public static RegistryObject<EntityType<DragonEntity>> DRAGON_ARMOR = ENTITY_TYPES.register("dragon_armor", () -> new EntityType<>(DragonEntity::new, MobCategory.MISC, true, false, false, false, ImmutableSet.of(), EntityDimensions.fixed(0.9f, 1.9f), 0, 0, FeatureFlagSet.of(FeatureFlags.VANILLA)));
 
 	// Fake entities
-	public static RegistryObject<EntityType<Bolas>> BOLAS_ENTITY = null /*ENTITY_TYPES.register("bolas", () -> EntityType.Builder.of((entity, level) -> new Bolas(level), MobCategory.MISC).sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10).build("bolas"))*/;
+	public static RegistryObject<EntityType<Bolas>> BOLAS_ENTITY = ENTITY_TYPES.register("bolas", () -> EntityType.Builder.<Bolas>of((entity, level) -> new Bolas(level), MobCategory.MISC).sized(0.25F, 0.25F).clientTrackingRange(4).updateInterval(10).build("bolas"));
 	public static RegistryObject<EntityType<DragonSpikeEntity>> DRAGON_SPIKE = ENTITY_TYPES.register("dragon_spike", () -> EntityType.Builder.<DragonSpikeEntity>of(DragonSpikeEntity::new, MobCategory.MISC).sized(0.5F, 0.5F).clientTrackingRange(4).updateInterval(1).build("dragon_spike"));
 	public static RegistryObject<EntityType<BallLightningEntity>> BALL_LIGHTNING = ENTITY_TYPES.register("ball_lightning", () -> EntityType.Builder.<BallLightningEntity>of(BallLightningEntity::new, MobCategory.MISC).sized(1F, 1F).clientTrackingRange(4).updateInterval(1).build("ball_lightning"));
 	public static RegistryObject<EntityType<FireBallEntity>> FIREBALL = ENTITY_TYPES.register("fireball", () -> EntityType.Builder.<FireBallEntity>of(FireBallEntity::new, MobCategory.MISC).sized(1F, 1F).clientTrackingRange(4).updateInterval(1).build("fireball"));

@@ -74,6 +74,12 @@ public class DropdownList extends AbstractSelectionList<DropdownEntry> {
 		return getItemCount() * itemHeight + headerHeight + itemHeight / 4;
 	}
 
+	// For some reason the parent function for this returns a constant of 220 instead of width
+	@Override
+	public int getRowWidth() {
+		return width;
+	}
+
 	@Override
 	public void render(@NotNull final GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		if (!visible) {

@@ -87,7 +87,7 @@ public class DragonEditorConfirmComponent extends AbstractContainerEventHandler 
 		String key = "ds.gui.dragon_editor.confirm." + (!ServerConfig.saveAllAbilities && !ServerConfig.saveGrowthStage ? "all" : ServerConfig.saveAllAbilities && !ServerConfig.saveGrowthStage ? "ability" : !ServerConfig.saveAllAbilities && ServerConfig.saveGrowthStage ? "growth" : "");
 		String text = Component.translatable(key).getString();
 		guiGraphics.blit(BACKGROUND_TEXTURE, x, y, 0, 0, xSize, ySize);
-		TextRenderUtil.drawCenteredScaledTextSplit(guiGraphics, x + xSize / 2, y + 42, 1f, text, DyeColor.WHITE.getTextColor(), xSize - 10, 0);
+		TextRenderUtil.drawCenteredScaledTextSplit(guiGraphics, x + xSize / 2, y + 42, 1f, text, DyeColor.WHITE.getTextColor(), xSize - 10, 150);
 
 		btn1.render(guiGraphics, pMouseX, pMouseY, pPartialTicks);
 		btn2.render(guiGraphics, pMouseX, pMouseY, pPartialTicks);

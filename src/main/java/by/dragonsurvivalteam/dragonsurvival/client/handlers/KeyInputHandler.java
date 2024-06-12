@@ -64,23 +64,23 @@ public class KeyInputHandler{
 		PREV_ABILITY.setKeyConflictContext(KeyConflictContext.IN_GAME);
 		evt.register(PREV_ABILITY);
 
-		ABILITY1 = new KeyMapping("ds.keybind.ability1", GLFW.GLFW_KEY_UNKNOWN, "ds.keybind.category");
+		ABILITY1 = new KeyMapping("ds.keybind.ability1", GLFW.GLFW_KEY_KP_1, "ds.keybind.category");
 		ABILITY1.setKeyConflictContext(KeyConflictContext.IN_GAME);
 		evt.register(ABILITY1);
 
-		ABILITY2 = new KeyMapping("ds.keybind.ability2", GLFW.GLFW_KEY_UNKNOWN, "ds.keybind.category");
+		ABILITY2 = new KeyMapping("ds.keybind.ability2", GLFW.GLFW_KEY_KP_2, "ds.keybind.category");
 		ABILITY2.setKeyConflictContext(KeyConflictContext.IN_GAME);
 		evt.register(ABILITY2);
 
-		ABILITY3 = new KeyMapping("ds.keybind.ability3", GLFW.GLFW_KEY_UNKNOWN, "ds.keybind.category");
+		ABILITY3 = new KeyMapping("ds.keybind.ability3", GLFW.GLFW_KEY_KP_3, "ds.keybind.category");
 		ABILITY3.setKeyConflictContext(KeyConflictContext.IN_GAME);
 		evt.register(ABILITY3);
 
-		ABILITY4 = new KeyMapping("ds.keybind.ability4", GLFW.GLFW_KEY_UNKNOWN, "ds.keybind.category");
+		ABILITY4 = new KeyMapping("ds.keybind.ability4", GLFW.GLFW_KEY_KP_4, "ds.keybind.category");
 		ABILITY4.setKeyConflictContext(KeyConflictContext.IN_GAME);
 		evt.register(ABILITY4);
 
-		SPIN_ABILITY = new KeyMapping("ds.keybind.spin", Type.MOUSE, GLFW.GLFW_MOUSE_BUTTON_RIGHT, "ds.keybind.category");
+		SPIN_ABILITY = new KeyMapping("ds.keybind.spin", GLFW.GLFW_KEY_V, "ds.keybind.category");
 		SPIN_ABILITY.setKeyConflictContext(KeyConflictContext.GUI);
 		evt.register(SPIN_ABILITY);
 

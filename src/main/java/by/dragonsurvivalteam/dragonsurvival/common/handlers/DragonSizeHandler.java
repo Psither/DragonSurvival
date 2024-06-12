@@ -1,6 +1,5 @@
 package by.dragonsurvivalteam.dragonsurvival.common.handlers;
 
-import by.dragonsurvivalteam.dragonsurvival.common.capability.Capabilities;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
@@ -43,16 +42,34 @@ public class DragonSizeHandler{
 		double height = calculateDragonHeight(size, ServerConfig.hitboxGrowsPastHuman);
 		double width = calculateDragonWidth(size, ServerConfig.hitboxGrowsPastHuman);
 		double eyeHeight = calculateDragonEyeHeight(size, ServerConfig.hitboxGrowsPastHuman);
+		boolean squish = false;
+		if (handler.getBody() != null) {
+			squish = handler.getBody().isSquish();
+			height *= handler.getBody().getHeightMult();
+			eyeHeight *= handler.getBody().getEyeHeightMult();
+		}
 		// Handle Pose stuff
 		if(ServerConfig.sizeChangesHitbox){
 			Pose overridePose = overridePose(player);
-			height = calculateModifiedHeight(height, overridePose, true);
-			eyeHeight = calculateModifiedEyeHeight(eyeHeight, overridePose);
+			height = calculateModifiedHeight(height, overridePose, true, squish);
+			eyeHeight = calculateModifiedEyeHeight(eyeHeight, overridePose, squish);
 			// Apply changes
 			event.setNewEyeHeight((float)eyeHeight);
 			// Rounding solves floating point issues that caused the dragon to get stuck inside a block at times.
 			event.setNewSize(calculateDimensions(width, height));
 		}
+	}
+	
+	public static double getDragonHeight(Player player) {
+		DragonStateHandler handler = DragonUtils.getHandler(player);
+		double height = calculateDragonHeight(handler.getSize(), ServerConfig.hitboxGrowsPastHuman);
+		boolean squish = false;
+		if (handler.getBody() != null) {
+			height *= handler.getBody().getHeightMult();
+			squish = handler.getBody().isSquish();
+		}
+		Pose overridePose = overridePose(player);
+		return calculateModifiedHeight(height, overridePose, true, squish);
 	}
 
 	public static double calculateDragonHeight(double size, boolean growsPastHuman){
@@ -79,9 +96,11 @@ public class DragonSizeHandler{
 		return eyeHeight;
 	}
 
-	public static double calculateModifiedEyeHeight(double eyeHeight, Pose pose){
-		if(pose == Pose.CROUCHING){
+	public static double calculateModifiedEyeHeight(double eyeHeight, Pose pose, boolean squish){
+		if(pose == Pose.CROUCHING && !squish){
 			eyeHeight *= 5.0D / 6.0D;
+		}else if(pose == Pose.CROUCHING) {
+			eyeHeight *= 3.0D / 6.0D;
 		}else if(pose == Pose.SWIMMING || pose == Pose.FALL_FLYING || pose == Pose.SPIN_ATTACK){
 			eyeHeight *= 7.0D / 12.0D;
 		}
@@ -136,17 +155,20 @@ public class DragonSizeHandler{
 		if (!capability.isPresent()){
 			return false;
 		}
-
+		
 		double size = capability.orElseThrow(() -> new IllegalStateException("Dragon State was not valid")).getSize();
-		double height = calculateModifiedHeight(calculateDragonHeight((float)size, ServerConfig.hitboxGrowsPastHuman), pose, ServerConfig.sizeChangesHitbox);
+		boolean squish = DragonUtils.getDragonBody(player) != null ? DragonUtils.getDragonBody(player).isSquish() : false;
+		double height = calculateModifiedHeight(calculateDragonHeight((float)size, ServerConfig.hitboxGrowsPastHuman), pose, ServerConfig.sizeChangesHitbox, squish);
 		double width = calculateDragonWidth((float)size, ServerConfig.hitboxGrowsPastHuman);
 		return player.level().noCollision(calculateDimensions(width,height).makeBoundingBox(player.position()));
 	}
 
-	public static double calculateModifiedHeight(double height, Pose pose, boolean sizeChangesHitbox){
+	public static double calculateModifiedHeight(double height, Pose pose, boolean sizeChangesHitbox, boolean squish){
 		if(pose == Pose.CROUCHING){
-			if(sizeChangesHitbox){
+			if(sizeChangesHitbox && !squish){
 				height *= 5.0D / 6.0D;
+			}else if (sizeChangesHitbox) {
+				height *= 3.0D / 6.0D;
 			}else{
 				height = 1.5D;
 			}

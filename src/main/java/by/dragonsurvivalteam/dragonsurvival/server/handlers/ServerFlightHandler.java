@@ -47,8 +47,8 @@ public class ServerFlightHandler{
 	@ConfigOption( side = ConfigSide.SERVER, category = "wings", key = "maxFlightSpeed", comment = "Maximum acceleration fly speed up and down. Take into account the chunk load speed. A speed of 0.3 is optimal." )
 	public static Double maxFlightSpeed = 0.3;
 
-	@ConfigOption( side = ConfigSide.SERVER, category = "wings", key = "startWithWings", comment = "Whether dragons born with wings." )
-	public static Boolean startWithWings = true;
+	@ConfigOption( side = ConfigSide.SERVER, category = "wings", key = "startWithLevitation", comment = "Whether dragons can use levitation magic from birth." )
+	public static Boolean startWithLevitation = true;
 
 	@ConfigOption( side = ConfigSide.SERVER, category = "wings", key = "enderDragonGrantsSpin", comment = "Whether you should be able to obtain the spin ability from the ender dragon or take special item." )
 	public static Boolean enderDragonGrantsSpin = true;
@@ -95,7 +95,7 @@ public class ServerFlightHandler{
 		double flightSpeed = event.getDistance();
 
 		DragonStateProvider.getCap(livingEntity).ifPresent(dragonStateHandler -> {
-			if(dragonStateHandler.isDragon() && dragonStateHandler.hasWings()){
+			if(dragonStateHandler.isDragon() && dragonStateHandler.hasFlight()){
 				try{
 					if (!enableFlightFallDamage) {
 						event.setCanceled(true);
@@ -167,7 +167,7 @@ public class ServerFlightHandler{
 
 	public static boolean isFlying(LivingEntity player){
 		DragonStateHandler dragonStateHandler = DragonUtils.getHandler(player);
-		return dragonStateHandler.hasWings() && dragonStateHandler.isWingsSpread() && !player.onGround() && !player.isInWater() && !player.isInLava();
+		return dragonStateHandler.hasFlight() && dragonStateHandler.isWingsSpread() && !player.onGround() && !player.isInWater() && !player.isInLava();
 	}
 
 	@SubscribeEvent
@@ -274,7 +274,7 @@ public class ServerFlightHandler{
 	public static boolean canSwimSpin(LivingEntity player){
 		DragonStateHandler dragonStateHandler = DragonUtils.getHandler(player);
 		boolean validSwim = (Objects.equals(dragonStateHandler.getType(), DragonTypes.SEA) || Objects.equals(dragonStateHandler.getType(), DragonTypes.FOREST)) && player.isInWater() || player.isInLava() && Objects.equals(dragonStateHandler.getType(), DragonTypes.CAVE);
-		return validSwim && dragonStateHandler.hasWings() && !player.onGround();
+		return validSwim && dragonStateHandler.hasFlight() && !player.onGround();
 	}
 
 	@ConfigRange(min = 1, max = 60 * 60 * 20)
@@ -315,6 +315,10 @@ public class ServerFlightHandler{
 							float moveSpeedReq = 1.0F;
 							float minFoodReq = l / 10f;
 							float drain = Math.max(minFoodReq, (float)(Math.min(1.0, Math.max(0, Math.max(moveSpeedReq - moveSpeed, 0) / moveSpeedReq)) * l));
+							if (dragonStateHandler.getBody() != null) {
+								drain *= dragonStateHandler.getBody().getFlightStaminaMult();
+							}
+							
 
 							player.causeFoodExhaustion(drain);
 						}
@@ -330,20 +334,10 @@ public class ServerFlightHandler{
 		return hasFood && player.isSprinting() && isFlying(player);
 	}
 
-	public static double getLandTime(final Player player, double goalTime, final Vec3 deltaMovement) {
-		if (isFlying(player)) {
-			BlockPos blockHeight = player.level().getHeightmapPos(Types.MOTION_BLOCKING, player.blockPosition());
-			int height = blockHeight.getY();
-			double aboveGround = Math.max(0, player.position().y - height);
-			double timeToGround = aboveGround / Math.abs(deltaMovement.y);
-
-			if (player.fallDistance > 5 && deltaMovement.y < 0) {
-				if (aboveGround < 20 && timeToGround <= goalTime) {
-					return timeToGround;
-				}
-			}
-		}
-
-		return -1;
+	public static double distanceFromGround(Player player){
+		BlockPos blockHeight = player.level().getHeightmapPos(Types.MOTION_BLOCKING, player.blockPosition());
+		int height = blockHeight.getY();
+		double aboveGround = Math.max(0, player.position().y - height);
+		return aboveGround;
 	}
 }

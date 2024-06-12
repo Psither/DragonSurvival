@@ -1,6 +1,8 @@
 package by.dragonsurvivalteam.dragonsurvival.mixins;
 
 import by.dragonsurvivalteam.dragonsurvival.client.handlers.ClientEvents;
+import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.level.material.FluidState;
@@ -11,10 +13,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(ItemBlockRenderTypes.class)
 public class MixinItemBlockRenderTypes {
-    @Inject(at = @At("TAIL"), cancellable = true, method = "getRenderLayer(Lnet/minecraft/world/level/material/FluidState;)Lnet/minecraft/client/renderer/RenderType;")
-    private static void getRenderLayer(FluidState fluidState, CallbackInfoReturnable<RenderType> cir) {
-        RenderType renderType = ClientEvents.onRenderFluidLayer(fluidState);
-        if (renderType != null)
-            cir.setReturnValue(renderType);
+    @ModifyReturnValue(method = "getRenderLayer", at = @At(value = "RETURN"))
+    private static RenderType getRenderLayerReturnValue(RenderType renderType, @Local(argsOnly = true) FluidState fluidState) {
+        RenderType modifiedRenderType = ClientEvents.onRenderFluidLayer(fluidState);
+        return modifiedRenderType != null ? modifiedRenderType : renderType;
     }
 }

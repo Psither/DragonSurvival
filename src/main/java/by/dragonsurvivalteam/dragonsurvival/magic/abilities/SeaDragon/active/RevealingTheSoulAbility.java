@@ -67,12 +67,13 @@ public class RevealingTheSoulAbility extends AoeBuffAbility{
 		return new ResourceLocation[]{new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/revealing_the_soul_0.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/revealing_the_soul_1.png"),
 		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/revealing_the_soul_2.png"),
-		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/revealing_the_soul_3.png"),};
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/revealing_the_soul_3.png"),
+		                              new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/sea/revealing_the_soul_4.png"),};
 	}
 
 	@Override
 	public int getMaxLevel(){
-		return 3;
+		return 4;
 	}
 
 	@Override
@@ -87,7 +88,7 @@ public class RevealingTheSoulAbility extends AoeBuffAbility{
 
 	@Override
 	public Integer[] getRequiredLevels(){
-		return new Integer[]{0, 25, 40};
+		return new Integer[]{0, 25, 40, 60};
 	}
 
 	@Override

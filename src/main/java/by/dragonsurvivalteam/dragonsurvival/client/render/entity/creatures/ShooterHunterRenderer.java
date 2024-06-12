@@ -7,6 +7,7 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
 import net.minecraft.client.renderer.entity.layers.CustomHeadLayer;
+import net.minecraft.client.renderer.entity.layers.ItemInHandLayer;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
 
@@ -16,6 +17,7 @@ public class ShooterHunterRenderer extends MobRenderer<Shooter, HunterModel<Shoo
 	public ShooterHunterRenderer(EntityRendererProvider.Context rendererManager){
 		super(rendererManager, new HunterModel<>(rendererManager.bakeLayer(ModelLayers.EVOKER)), 0.5F);
 		addLayer(new CustomHeadLayer<>(this, rendererManager.getModelSet(), rendererManager.getItemInHandRenderer()));
+		addLayer(new ItemInHandLayer<>(this, rendererManager.getItemInHandRenderer()));
 	}
 
 	@Override
