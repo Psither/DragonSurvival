@@ -237,7 +237,7 @@ public class SkinsScreen extends Screen{
 		// Button to enable / disable rendering of the young dragon skin
 		addRenderableWidget(new Button(startX + 128, startY + 45 + 23, imageWidth, 20, Component.translatable("ds.level.young"), button -> {
 			DragonStateHandler handler = DragonUtils.getHandler(player);
-			boolean newValue = !handler.getSkinData().renderNewborn;
+			boolean newValue = !handler.getSkinData().renderYoung;
 
 			handler.getSkinData().renderYoung = newValue;
 			renderYoung = newValue;
