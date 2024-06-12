@@ -15,9 +15,7 @@ import by.dragonsurvivalteam.dragonsurvival.common.handlers.DragonFoodHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.handlers.WingObtainmentController;
 import by.dragonsurvivalteam.dragonsurvival.common.handlers.magic.ClawToolHandler.Event_busHandler;
 import by.dragonsurvivalteam.dragonsurvival.config.ConfigHandler;
-import by.dragonsurvivalteam.dragonsurvival.data.loot.DragonHeartLootModifier;
 import by.dragonsurvivalteam.dragonsurvival.data.loot.DragonHeartLootModifierSerializer;
-import by.dragonsurvivalteam.dragonsurvival.data.loot.DragonOreLootModifier;
 import by.dragonsurvivalteam.dragonsurvival.data.loot.DragonOreLootModifierSerializer;
 import by.dragonsurvivalteam.dragonsurvival.magic.DragonAbilities;
 import by.dragonsurvivalteam.dragonsurvival.network.NetworkHandler;
@@ -26,15 +24,15 @@ import by.dragonsurvivalteam.dragonsurvival.registry.DSEntities;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.serialization.Codec;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.data.DataProvider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.repository.Pack;
+import net.minecraft.server.packs.repository.PackSource;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.RegisterCapabilitiesEvent;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
-import net.minecraftforge.common.loot.LootModifier;
 import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.event.AddPackFindersEvent;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -48,10 +46,12 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
+import net.minecraftforge.forgespi.locating.IModFile;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.minecraftforge.resource.PathPackResources;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import software.bernie.geckolib.GeckoLib;
@@ -144,48 +144,23 @@ public class DragonSurvivalMod{
 	}
 
 	private static void registerBuiltinResourcePack(AddPackFindersEvent event, MutableComponent name, String folder) {
-		LOGGER.info("Registering " + name);
-		/*try(PathPackResources pack = new PathPackResources(path, true, file.findResource("resourcepacks/" + folder));) {
-			
-		} catch (IOException e) {
-			if (!DatagenModLoader.isRunningDataGen())
-				e.printStackTrace();
-			
-			
-		}*/
-		
-		/*event.addRepositorySource((constructor) -> {
+		event.addRepositorySource((constructor) -> {
 			String path = res(folder).toString();
 			IModFile file = ModList.get().getModFileById(MODID).getFile();
-			try(PathPackResources pack = new PathPackResources(path, true, file.findResource("resourcepacks/" + folder));) {
-				constructor.create(
+			try(PathPackResources pack = new PathPackResources(path, true, file.findResource("resourcepacks/" + folder))) {
+				constructor.accept(Pack.create(
 					res(folder).toString(),
 					name,
 					false,
-					() -> pack,
-					pack.getMetadataSection(PackMetadataSection.TYPE),
+					(none) -> pack,
+                        Objects.requireNonNull(Pack.readPackInfo(MODID, (pId) -> pack)),
+					PackType.CLIENT_RESOURCES,
 					Pack.Position.TOP,
-					PackSource.BUILT_IN,
-					false);
-			};
-		});*/ // -> {
-			/*String path = res(folder).toString();
-			IModFile file = ModList.get().getModFileById(MODID).getFile();
-			try(PathPackResources pack = new PathPackResources(path, true, file.findResource("resourcepacks/" + folder));) {
-				consumer.accept(constructor.create(
-					res(folder).toString(),
-					name,
 					false,
-					() -> pack,
-					pack.getMetadataSection(PackMetadataSection.SERIALIZER),
-					Pack.Position.TOP,
-					PackSource.BUILT_IN,
-					false));
-			} catch (IOException e) {
-				if (!DatagenModLoader.isRunningDataGen())
-					e.printStackTrace();
+					PackSource.BUILT_IN)
+				);
 			}
-		});*/
+        });
 	}
 
 	@SubscribeEvent
