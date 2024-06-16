@@ -8,8 +8,6 @@ import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.DragonEntity;
 import by.dragonsurvivalteam.dragonsurvival.common.handlers.DragonSizeHandler;
 import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
-import by.dragonsurvivalteam.dragonsurvival.network.NetworkHandler;
-import by.dragonsurvivalteam.dragonsurvival.network.player.PacketSyncCapabilityMovement;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import by.dragonsurvivalteam.dragonsurvival.util.ResourceHelper;
 
@@ -26,6 +24,7 @@ import net.minecraft.world.phys.Vec3;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
@@ -73,11 +72,12 @@ public abstract class MixinEntity extends net.minecraftforge.common.capabilities
 	@Inject(method = "onPassengerTurned(Lnet/minecraft/world/entity/Entity;)V", at = @At("HEAD"))
 	private void onPassengerTurned(Entity passenger, CallbackInfo callbackInfo) {
 		if (passenger instanceof Player player && player.getVehicle() != null && DragonUtils.getHandler(player.getVehicle()).isDragon() && player.level.isClientSide()) {
-			this.clampRotation(passenger);
+			this.dragonSurvival$clampRotation(passenger);
 		}
 	}
 	
-	private void clampRotation(Entity passenger) {
+	@Unique
+	private void dragonSurvival$clampRotation(Entity passenger) {
 		Entity self = (Entity)(Object) this;
 		DragonStateHandler selfHandler = DragonUtils.getHandler(self);
 		DragonMovementData selfmd = selfHandler.getMovementData();
