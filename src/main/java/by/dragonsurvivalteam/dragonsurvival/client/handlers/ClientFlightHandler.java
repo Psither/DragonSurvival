@@ -57,8 +57,8 @@ import java.util.concurrent.TimeUnit;
 @Mod.EventBusSubscriber(Dist.CLIENT)
 @SuppressWarnings("unused")
 public class ClientFlightHandler {
-	@ConfigOption(side = ConfigSide.SERVER, category = "wings", key = "dragonAreRockets", comment = "Adds thruster propulsion to dragon flight.  Not intended to be balanced.")
-	public static Boolean dragonsAreRockets = false;
+	@ConfigOption(side = ConfigSide.SERVER, category = "wings", key = "unlimitedFlightAcceleration", comment = "Old flight physics with infinite acceleration (bug). Can cause server lags and feel too fast.")
+	public static Boolean unlimitedFlightAcceleration = false;
 
 	@ConfigRange(min = 0, max = 60)
 	@ConfigOption(side = ConfigSide.SERVER, category = "wings", key = "levitationAfterEffect", comment = "For how many seconds wings are disabled after the levitation effect has ended")
@@ -399,7 +399,7 @@ public class ClientFlightHandler {
 									if (ServerFlightHandler.isGliding(player)) {
 										if (viewVector.y < 0) {
 											deltaMovement = deltaMovement.add(ax, 0, az);
-										} else if (Math.abs(horizontalMovement) > 0.4 || dragonsAreRockets) {
+										} else if (Math.abs(horizontalMovement) > 0.4 || unlimitedFlightAcceleration) {
 											deltaMovement = deltaMovement.add(ax, ay, az);
 										} else {
 											deltaMovement = deltaMovement.add(ax, ay * horizontalMovement, az);
