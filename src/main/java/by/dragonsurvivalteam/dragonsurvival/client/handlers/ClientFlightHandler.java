@@ -6,7 +6,6 @@ import by.dragonsurvivalteam.dragonsurvival.client.sounds.FastGlideSound;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
-import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonBody;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigOption;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigRange;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigSide;
@@ -58,10 +57,12 @@ import java.util.concurrent.TimeUnit;
 @Mod.EventBusSubscriber(Dist.CLIENT)
 @SuppressWarnings("unused")
 public class ClientFlightHandler {
+	@ConfigOption(side = ConfigSide.SERVER, category = "wings", key = "unlimitedFlightAcceleration", comment = "Old flight physics with infinite acceleration (bug). Can cause server lags and feel too fast.")
+	public static Boolean unlimitedFlightAcceleration = false;
+
 	@ConfigRange(min = 0, max = 60)
 	@ConfigOption(side = ConfigSide.SERVER, category = "wings", key = "levitationAfterEffect", comment = "For how many seconds wings are disabled after the levitation effect has ended")
 	public static Integer levitationAfterEffect = 3;
-
 
 	@ConfigOption(side = ConfigSide.CLIENT, category = "flight", key = "notifyWingStatus", comment = "Notifies of wing status in chat message")
 	public static Boolean notifyWingStatus = false;
@@ -398,7 +399,7 @@ public class ClientFlightHandler {
 									if (ServerFlightHandler.isGliding(player)) {
 										if (viewVector.y < 0) {
 											deltaMovement = deltaMovement.add(ax, 0, az);
-										} else if (Math.abs(horizontalMovement) > 0.4) {
+										} else if (Math.abs(horizontalMovement) > 0.4 || unlimitedFlightAcceleration) {
 											deltaMovement = deltaMovement.add(ax, ay, az);
 										} else {
 											deltaMovement = deltaMovement.add(ax, ay * horizontalMovement, az);
