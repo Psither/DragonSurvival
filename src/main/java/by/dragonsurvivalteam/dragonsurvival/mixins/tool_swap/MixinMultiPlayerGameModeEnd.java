@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 @Mixin(value = MultiPlayerGameMode.class, priority = 10_000)
 public class MixinMultiPlayerGameModeEnd {
-    @Inject(method = "continueDestroyBlock", at = @At("RETURN"))
+    @Inject(method = { "startDestroyBlock", "continueDestroyBlock" }, at = @At("RETURN"))
     private void finishSwap(final BlockPos blockPosition, final Direction directionFacing, final CallbackInfoReturnable<Boolean> callback) {
         ToolUtils.swapFinish(Minecraft.getInstance().player);
     }
