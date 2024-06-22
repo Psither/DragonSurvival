@@ -38,8 +38,6 @@ public class BolasEntityRenderer extends EntityRenderer<Bolas>{
 			Minecraft.getInstance().getItemRenderer().renderStatic(new ItemStack(DSItems.huntingNet), ItemDisplayContext.GROUND, p_225623_6_, OverlayTexture.NO_OVERLAY, stack, bufferSource, bolas.level(), 0);
 			stack.popPose();
 		}
-
-		super.render(bolas, p_225623_2_, p_225623_3_, stack, bufferSource, p_225623_6_);
 	}
 
 	@Override
