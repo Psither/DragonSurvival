@@ -4,6 +4,7 @@ import by.dragonsurvivalteam.dragonsurvival.DragonSurvival;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.DragonEntity;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.creatures.*;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.projectiles.BallLightningEntity;
+import by.dragonsurvivalteam.dragonsurvival.common.entity.projectiles.BlizzardSpikeEntity;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.projectiles.Bolas;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.projectiles.DragonSpikeEntity;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.projectiles.FireBallEntity;
@@ -52,6 +53,14 @@ public class DSEntities {
                     .clientTrackingRange(4)
                     .updateInterval(1)
                     .build("dragon_spike"));
+
+    public static DeferredHolder<EntityType<?>, EntityType<BlizzardSpikeEntity>> BLIZZARD_SPIKE = DS_ENTITY_TYPES.register(
+        "blizzard_spike",
+        () -> EntityType.Builder.<BlizzardSpikeEntity>of(BlizzardSpikeEntity::new, MobCategory.MISC)
+                .sized(0.5F, 0.5F)
+                .clientTrackingRange(4)
+                .updateInterval(1)
+                .build("blizzard_spike"));
     public static DeferredHolder<EntityType<?>, EntityType<BallLightningEntity>> BALL_LIGHTNING = DS_ENTITY_TYPES.register(
             "ball_lightning",
             () -> EntityType.Builder.<BallLightningEntity>of(BallLightningEntity::new, MobCategory.MISC)
