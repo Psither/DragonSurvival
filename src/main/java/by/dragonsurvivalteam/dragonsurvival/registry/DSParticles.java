@@ -3,6 +3,7 @@ package by.dragonsurvivalteam.dragonsurvival.registry;
 import by.dragonsurvivalteam.dragonsurvival.DragonSurvival;
 import by.dragonsurvivalteam.dragonsurvival.client.particles.BeaconParticle;
 import by.dragonsurvivalteam.dragonsurvival.client.particles.SeaSweepParticle;
+import by.dragonsurvivalteam.dragonsurvival.client.particles.SnowflakeParticle;
 import by.dragonsurvivalteam.dragonsurvival.client.particles.TreasureParticle;
 import by.dragonsurvivalteam.dragonsurvival.client.particles.dragon.CaveDragon.LargeFireParticle;
 import by.dragonsurvivalteam.dragonsurvival.client.particles.dragon.CaveDragon.SmallFireParticle;
@@ -49,6 +50,8 @@ public class DSParticles {
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> MAGIC_BEACON_PARTICLE = DS_PARTICLES.register("diamond_particle", () -> new SimpleParticleType(false));
     public static final DeferredHolder<ParticleType<?>, SimpleParticleType> PEACE_BEACON_PARTICLE = DS_PARTICLES.register("gold_particle", () -> new SimpleParticleType(false));
 
+    public static final DeferredHolder<ParticleType<?>, SimpleParticleType> SNOWFLAKE = DS_PARTICLES.register("snowflake", () -> new SimpleParticleType(false));
+
     private static <T extends ParticleOptions> DeferredHolder<ParticleType<?>, ParticleType<T>> register(final String name, final Supplier<MapCodec<T>> codecSupplier, final Supplier<StreamCodec<? super RegistryFriendlyByteBuf, T>> streamCodecSupplier) {
         return DS_PARTICLES.register(name, () -> new ParticleType<>(false) {
             @Override
@@ -76,5 +79,6 @@ public class DSParticles {
         event.registerSpriteSet(DSParticles.FIRE_BEACON_PARTICLE.get(), BeaconParticle.FireFactory::new);
         event.registerSpriteSet(DSParticles.MAGIC_BEACON_PARTICLE.get(), BeaconParticle.MagicFactory::new);
         event.registerSpriteSet(DSParticles.PEACE_BEACON_PARTICLE.get(), BeaconParticle.PeaceFactory::new);
+        event.registerSpriteSet(DSParticles.SNOWFLAKE.get(), SnowflakeParticle.Factory::new);
     }
 }

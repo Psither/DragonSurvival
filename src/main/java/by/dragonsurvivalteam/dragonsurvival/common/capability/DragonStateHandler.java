@@ -91,7 +91,7 @@ public class DragonStateHandler extends EntityStateHandler {
     private AbstractDragonBody dragonBody;
 
     private int passengerId = -1;
-    private boolean isHiding;
+    private boolean isDiving;
     private boolean hasFlight;
     private boolean areWingsSpread;
     private double size;
@@ -494,8 +494,8 @@ public class DragonStateHandler extends EntityStateHandler {
         this.hasFlight = hasFlight;
     }
 
-    public void setIsHiding(boolean isHiding) {
-        this.isHiding = isHiding;
+    public void setIsDiving(boolean isDiving) {
+        this.isDiving = isDiving;
     }
 
     public MagicCap getMagicData() {
@@ -538,8 +538,8 @@ public class DragonStateHandler extends EntityStateHandler {
         return hasFlight && areWingsSpread;
     }
 
-    public boolean isHiding() {
-        return isHiding;
+    public boolean isDiving() {
+        return isDiving;
     }
 
     public ClawInventory getClawToolData() {
@@ -563,7 +563,7 @@ public class DragonStateHandler extends EntityStateHandler {
             tag.putBoolean("bite", movementData.bite);
             tag.putBoolean("dig", movementData.dig);
 
-            tag.putBoolean("isHiding", isHiding());
+            tag.putBoolean("isDiving", isDiving());
 
             //Spin attack
             tag.putInt("spinCooldown", movementData.spinCooldown);
@@ -648,7 +648,7 @@ public class DragonStateHandler extends EntityStateHandler {
             getMovementData().headYawLastFrame = getMovementData().headYaw;
             getMovementData().bodyYawLastFrame = getMovementData().bodyYaw;
             getMovementData().headPitchLastFrame = getMovementData().headPitch;
-            setIsHiding(tag.getBoolean("isHiding"));
+            setIsDiving(tag.getBoolean("isDiving"));
             getMovementData().dig = tag.getBoolean("dig");
 
             setWingsSpread(tag.getBoolean("isFlying"));
@@ -735,7 +735,7 @@ public class DragonStateHandler extends EntityStateHandler {
         this.setType(null);
         this.setBody(null, player);
         this.setSize(20F, player);
-        this.setIsHiding(false);
+        this.setIsDiving(false);
 
         if (!ServerConfig.saveAllAbilities) {
             this.getMovementData().spinLearned = false;

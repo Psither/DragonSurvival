@@ -72,6 +72,30 @@ public class DragonUtils {
         return Objects.equal(playerType.getTypeName(), typeToCheck.getTypeName());
     }
 
+    public static boolean isDragonSubtype(final Entity entity, final AbstractDragonType typeToCheck) {
+        if (!(entity instanceof Player player)) {
+            return false;
+        }
+
+        return isDragonSubtype(DragonStateProvider.getData(player), typeToCheck);
+    }
+
+    public static boolean isDragonSubtype(final DragonStateHandler data, final AbstractDragonType typeToCheck) {
+        if (data == null || typeToCheck == null || data.getType() == null) {
+            return false;
+        }
+
+        return isDragonSubtype(data.getType(), typeToCheck);
+    }
+
+    public static boolean isDragonSubtype(final AbstractDragonType playerType, final AbstractDragonType typeToCheck) {
+        if (playerType == null || typeToCheck == null) {
+            return false;
+        }
+
+        return Objects.equal(playerType.getSubtypeName(), typeToCheck.getSubtypeName());
+    }
+
     public static DragonLevel getDragonLevel(Player entity) {
         return DragonStateProvider.getData(entity).getLevel();
     }

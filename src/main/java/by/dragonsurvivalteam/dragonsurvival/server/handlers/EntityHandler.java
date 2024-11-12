@@ -2,10 +2,13 @@ package by.dragonsurvivalteam.dragonsurvival.server.handlers;
 
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
+import by.dragonsurvivalteam.dragonsurvival.common.entity.goals.FreezeSolidGoal;
 import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
 import by.dragonsurvivalteam.dragonsurvival.registry.DSEffects;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.tags.DSEntityTypeTags;
 import net.minecraft.world.entity.EntitySelector;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.AvoidEntityGoal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
@@ -26,6 +29,12 @@ public class EntityHandler {
                 DragonStateHandler data = DragonStateProvider.getData((Player) entity);
                 return data.isDragon() && !data.hasMaxHunterStacks();
             }, 20, 1.3F, 1.5F, EntitySelector.NO_CREATIVE_OR_SPECTATOR::test));
+        }
+    }
+
+    public static void attachFreezeSolidGoal(final EntityJoinLevelEvent event) {
+        if (event.getEntity() instanceof Mob mob) {
+            mob.goalSelector.addGoal(Integer.MIN_VALUE, new FreezeSolidGoal(mob));
         }
     }
 }

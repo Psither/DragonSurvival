@@ -46,6 +46,7 @@ public class DSEntities {
                     .clientTrackingRange(4)
                     .updateInterval(10)
                     .build("bolas"));
+
     public static DeferredHolder<EntityType<?>, EntityType<DragonSpikeEntity>> DRAGON_SPIKE = DS_ENTITY_TYPES.register(
             "dragon_spike",
             () -> EntityType.Builder.<DragonSpikeEntity>of(DragonSpikeEntity::new, MobCategory.MISC)
@@ -61,6 +62,7 @@ public class DSEntities {
                 .clientTrackingRange(4)
                 .updateInterval(1)
                 .build("blizzard_spike"));
+
     public static DeferredHolder<EntityType<?>, EntityType<BallLightningEntity>> BALL_LIGHTNING = DS_ENTITY_TYPES.register(
             "ball_lightning",
             () -> EntityType.Builder.<BallLightningEntity>of(BallLightningEntity::new, MobCategory.MISC)
@@ -68,6 +70,7 @@ public class DSEntities {
                     .clientTrackingRange(4)
                     .updateInterval(1)
                     .build("ball_lightning"));
+
     public static DeferredHolder<EntityType<?>, EntityType<FireBallEntity>> FIREBALL = DS_ENTITY_TYPES.register(
             "fireball",
             () -> EntityType.Builder.<FireBallEntity>of(FireBallEntity::new, MobCategory.MISC)

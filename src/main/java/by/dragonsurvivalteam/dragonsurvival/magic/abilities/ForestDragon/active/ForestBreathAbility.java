@@ -26,6 +26,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.AreaEffectCloud;
 import net.minecraft.world.entity.EntityType;
@@ -356,5 +357,9 @@ public class ForestBreathAbility extends BreathAbility {
     @SuppressWarnings("RedundantMethodOverride")
     public boolean requiresStationaryCasting() {
         return false;
+    }
+
+    public static TagKey<Block> getDestructibleBlocks() {
+        return DSBlockTags.FOREST_BREATH_DESTRUCTIBLE;
     }
 }

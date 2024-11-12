@@ -7,6 +7,8 @@ import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigOption;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigRange;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigSide;
+import by.dragonsurvivalteam.dragonsurvival.magic.common.active.ActiveDragonAbility;
+import by.dragonsurvivalteam.dragonsurvival.magic.common.active.DiveAbility;
 import by.dragonsurvivalteam.dragonsurvival.network.flight.SyncFlyingStatus;
 import by.dragonsurvivalteam.dragonsurvival.network.flight.SyncSpinStatus;
 import by.dragonsurvivalteam.dragonsurvival.registry.DSAttributes;
@@ -184,15 +186,18 @@ public class ServerFlightHandler {
 
             if (!handler.isDragon() || !handler.isWingsSpread()) {
                 if (player.hasEffect(DSEffects.sea_wings)) {
-                    player.resetFallDistance();
+                    if (!handler.isDiving())
+                        player.resetFallDistance();
                     player.removeEffect(DSEffects.sea_wings);
                 }
                 if (player.hasEffect(DSEffects.cave_wings)) {
-                    player.resetFallDistance();
+                    if (!handler.isDiving())
+                        player.resetFallDistance();
                     player.removeEffect(DSEffects.cave_wings);
                 }
                 if (player.hasEffect(DSEffects.forest_wings)) {
-                    player.resetFallDistance();
+                    if (!handler.isDiving())
+                        player.resetFallDistance();
                     player.removeEffect(DSEffects.forest_wings);
                 }
             }
@@ -314,5 +319,51 @@ public class ServerFlightHandler {
         BlockPos blockHeight = player.level().getHeightmapPos(Types.MOTION_BLOCKING, player.blockPosition());
         int height = blockHeight.getY();
         return Math.max(0, player.position().y - height);
+    }
+
+
+    @SubscribeEvent
+    public static boolean doDivingContinuous(PlayerTickEvent.Pre event) {
+        Player player = event.getEntity();
+        if (DragonStateProvider.isDragon(player) && DragonStateProvider.getData(player).isDiving()) {
+            DragonStateHandler handler = DragonStateProvider.getData(player);
+            handler.setWingsSpread(false);
+
+            for (ActiveDragonAbility ability : handler.getMagicData().getActiveAbilities()) {
+                if (ability instanceof DiveAbility dive) {
+                    if (player.onGround() && player.isCreative())
+                        dive.finishDive(player, player.fallDistance);
+                    else
+                        dive.continueDive(player, player.fallDistance);
+                }
+            }
+            return true;
+        }
+        return player.onGround();
+    }
+
+    public static boolean doDiving(LivingFallEvent event) {
+        LivingEntity livingEntity = event.getEntity();
+        if (livingEntity instanceof Player player && DragonStateProvider.isDragon(player) && DragonStateProvider.getData(player).isDiving()) {
+            DragonStateHandler handler = DragonStateProvider.getData(player);
+            if (!enableFlightFallDamage)
+                event.setCanceled(true);
+
+            MobEffectInstance effectinstance = livingEntity.getEffect(MobEffects.JUMP);
+            float f = effectinstance == null ? 0.0F : (float) (effectinstance.getAmplifier() + 1);
+            float oldDistance = event.getDistance();
+
+            double damage = Mth.clamp(event.getDistance() * 0.4f, 0, livingEntity.getHealth() - (lethalFlight ? 0 : 1));
+            event.setDistance((float) Math.floor((damage + 3.0F + f) * event.getDamageMultiplier() * 0.5f));
+
+            handler.setIsDiving(false);
+            for (ActiveDragonAbility ability : handler.getMagicData().getActiveAbilities()) {
+                if (ability instanceof DiveAbility dive) {
+                    dive.finishDive(player, oldDistance);
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }

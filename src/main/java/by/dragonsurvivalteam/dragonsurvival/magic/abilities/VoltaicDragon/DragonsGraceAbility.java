@@ -1,6 +1,6 @@
 package by.dragonsurvivalteam.dragonsurvival.magic.abilities.VoltaicDragon;
 
-import by.dragonsurvivalteam.dragonsurvival.DragonSurvivalMod;
+import by.dragonsurvivalteam.dragonsurvival.DragonSurvival;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.magic.common.RegisterDragonAbility;
@@ -61,11 +61,11 @@ public class DragonsGraceAbility extends AoeBuffAbility {
     @Override
     public ResourceLocation[] getSkillTextures() {
         return new ResourceLocation[] {
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/voltaic/dragons_grace_0.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/voltaic/dragons_grace_1.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/voltaic/dragons_grace_2.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/voltaic/dragons_grace_3.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/voltaic/dragons_grace_4.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/voltaic/dragons_grace_0.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/voltaic/dragons_grace_1.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/voltaic/dragons_grace_2.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/voltaic/dragons_grace_3.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/voltaic/dragons_grace_4.png"),
         };
     }
 

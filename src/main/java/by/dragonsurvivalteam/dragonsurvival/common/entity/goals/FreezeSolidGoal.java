@@ -1,6 +1,6 @@
 package by.dragonsurvivalteam.dragonsurvival.common.entity.goals;
 
-import by.dragonsurvivalteam.dragonsurvival.registry.DragonEffects;
+import by.dragonsurvivalteam.dragonsurvival.registry.DSEffects;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.goal.Goal;
 
@@ -15,6 +15,6 @@ public class FreezeSolidGoal extends Goal {
 
     @Override
     public boolean canUse() {
-        return mob.hasEffect(DragonEffects.FULLY_FROZEN);
+        return mob.hasEffect(DSEffects.FULLY_FROZEN);
     }
 }

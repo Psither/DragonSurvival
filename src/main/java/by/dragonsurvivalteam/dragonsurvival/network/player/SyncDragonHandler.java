@@ -33,7 +33,7 @@ public class SyncDragonHandler implements IMessage<SyncDragonHandler.Data> {
                     DragonCommand.reInsertClawTools(sender, cap);
                 }
 
-                cap.setIsHiding(message.hiding);
+                cap.setIsDiving(message.diving);
                 cap.setType(message.dragonType, sender);
                 cap.setBody(message.dragonBody, sender);
                 cap.setSize(message.size, sender);
@@ -43,7 +43,7 @@ public class SyncDragonHandler implements IMessage<SyncDragonHandler.Data> {
         }).thenRun(() -> PacketDistributor.sendToPlayersTrackingEntityAndSelf(context.player(), message));
     }
 
-    public record Data(int playerId, boolean hiding, AbstractDragonType dragonType, AbstractDragonBody dragonBody,
+    public record Data(int playerId, boolean diving, AbstractDragonType dragonType, AbstractDragonBody dragonBody,
                     double size, boolean hasWings, int passengerId) implements CustomPacketPayload {
         public static final Type<Data> TYPE = new Type<>(ResourceLocation.fromNamespaceAndPath(MODID, "dragon_cap"));
 
@@ -53,7 +53,7 @@ public class SyncDragonHandler implements IMessage<SyncDragonHandler.Data> {
                 pBuffer.writeInt(pValue.playerId);
                 Utf8String.write(pBuffer, pValue.dragonType != null ? pValue.dragonType.getSubtypeName() : "none", 32);
                 Utf8String.write(pBuffer, pValue.dragonBody != null ? pValue.dragonBody.getBodyName() : "none", 32);
-                pBuffer.writeBoolean(pValue.hiding);
+                pBuffer.writeBoolean(pValue.diving);
                 pBuffer.writeDouble(pValue.size);
                 pBuffer.writeBoolean(pValue.hasWings);
                 pBuffer.writeInt(pValue.passengerId);
@@ -66,11 +66,11 @@ public class SyncDragonHandler implements IMessage<SyncDragonHandler.Data> {
                 String typeB = Utf8String.read(pBuffer, 32);
                 AbstractDragonType type = typeS.equals("none") ? null : DragonTypes.getStaticSubtype(typeS);
                 AbstractDragonBody body = typeB.equals("none") ? null : DragonBodies.getStatic(typeB);
-                boolean hiding = pBuffer.readBoolean();
+                boolean diving = pBuffer.readBoolean();
                 double size = pBuffer.readDouble();
                 boolean hasWings = pBuffer.readBoolean();
                 int passengerId = pBuffer.readInt();
-                return new Data(id, hiding, type, body, size, hasWings, passengerId);
+                return new Data(id, diving, type, body, size, hasWings, passengerId);
             }
         };
 

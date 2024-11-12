@@ -1,6 +1,6 @@
 package by.dragonsurvivalteam.dragonsurvival.client.render.entity.projectiles;
 
-import by.dragonsurvivalteam.dragonsurvival.DragonSurvivalMod;
+import by.dragonsurvivalteam.dragonsurvival.DragonSurvival;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.projectiles.BlizzardSpikeEntity;
 import net.minecraft.client.renderer.entity.ArrowRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
@@ -11,6 +11,6 @@ public class BlizzardSpikeRenderer extends ArrowRenderer<BlizzardSpikeEntity> {
 
     @Override
     public ResourceLocation getTextureLocation(BlizzardSpikeEntity entity){
-        return new ResourceLocation(DragonSurvivalMod.MODID, "textures/entity/blizzard_" + entity.getArrow_level() + ".png");
+        return ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/entity/blizzard_" + entity.getArrow_level() + ".png");
     }
 }

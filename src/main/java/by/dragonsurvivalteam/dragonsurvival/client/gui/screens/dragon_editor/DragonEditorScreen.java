@@ -833,7 +833,7 @@ public class DragonEditorScreen extends Screen {
                 }
 
                 cap.setHasFlight(ServerConfig.saveGrowthStage ? cap.hasFlight() || ServerFlightHandler.startWithLevitation : ServerFlightHandler.startWithLevitation);
-                cap.setIsHiding(false);
+                cap.setIsDiving(false);
                 cap.getMovementData().spinLearned = ServerConfig.saveGrowthStage && cap.getMovementData().spinLearned;
 
                 HANDLER.getSkinData().skinPreset = save();

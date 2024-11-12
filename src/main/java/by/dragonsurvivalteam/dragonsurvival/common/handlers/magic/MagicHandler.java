@@ -1,6 +1,7 @@
 package by.dragonsurvivalteam.dragonsurvival.common.handlers.magic;
 
 import by.dragonsurvivalteam.dragonsurvival.DragonSurvival;
+import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.EntityStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.subcapabilities.MagicCap;
@@ -9,7 +10,6 @@ import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.common.particles.SeaSweepParticleOption;
 import by.dragonsurvivalteam.dragonsurvival.magic.DragonAbilities;
 import by.dragonsurvivalteam.dragonsurvival.magic.abilities.CaveDragon.passive.BurnAbility;
-import by.dragonsurvivalteam.dragonsurvival.magic.abilities.ForestDragon.active.HunterAbility;
 import by.dragonsurvivalteam.dragonsurvival.magic.abilities.FrostDragon.BlizzardAbility;
 import by.dragonsurvivalteam.dragonsurvival.magic.abilities.FrostDragon.HealingColdAbility;
 import by.dragonsurvivalteam.dragonsurvival.magic.abilities.SeaDragon.active.RevealingTheSoulAbility;
@@ -22,11 +22,7 @@ import by.dragonsurvivalteam.dragonsurvival.registry.DSEffects;
 import by.dragonsurvivalteam.dragonsurvival.registry.DSEnchantments;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.tags.DSDamageTypeTags;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.tags.DSEffectTags;
-import by.dragonsurvivalteam.dragonsurvival.magic.common.active.BreathAbility.BreathDamage;
-import by.dragonsurvivalteam.dragonsurvival.network.NetworkHandler;
 import by.dragonsurvivalteam.dragonsurvival.network.flight.SyncFlyingStatus;
-import by.dragonsurvivalteam.dragonsurvival.registry.DragonEffects;
-import by.dragonsurvivalteam.dragonsurvival.util.DragonLevel;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import by.dragonsurvivalteam.dragonsurvival.util.EnchantmentUtils;
 import by.dragonsurvivalteam.dragonsurvival.util.Functions;
@@ -34,13 +30,18 @@ import by.dragonsurvivalteam.dragonsurvival.util.TargetingFunctions;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -52,16 +53,18 @@ import net.neoforged.neoforge.event.entity.living.LivingExperienceDropEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 import java.util.Optional;
 
+import static by.dragonsurvivalteam.dragonsurvival.DragonSurvival.MODID;
+
 @EventBusSubscriber
 public class MagicHandler {
-	private static final UUID DRAGON_PASSIVE_MOVEMENT_SPEED = UUID.fromString("cdc3be6e-e17d-4efa-90f4-9dd838e9b000");
-	private static final UUID FULLY_FROZEN_MOVEMENT_SPEED = UUID.fromString("775e0084-d8fc-492c-b6d4-d683e3b425bf");
-	private static final UUID FULLY_FROZEN_SWIM_SPEED = UUID.fromString("e96d08b3-2f9b-48b3-a7e9-e4cb9d345f30");
+	private static final ResourceLocation FULLY_FROZEN_MOVEMENT_SPEED = ResourceLocation.fromNamespaceAndPath(MODID, "fully_frozen_movement_speed");
+	private static final ResourceLocation FULLY_FROZEN_SWIM_SPEED = ResourceLocation.fromNamespaceAndPath(MODID, "fully_frozen_movement_speed");
 
     @SubscribeEvent // TODO :: is this needed?
     public static void setPlayerForAbilities(PlayerTickEvent.Pre event) {
@@ -104,55 +107,55 @@ public class MagicHandler {
         if(event.getEntity() instanceof LivingEntity entity) {
             EntityStateHandler data = entity.getData(DragonSurvival.ENTITY_HANDLER);
 
-            if(entity.hasEffect(DragonEffects.BURN)){
+            if(entity.hasEffect(DSEffects.BURN)){
                 if(entity.isEyeInFluid(FluidTags.WATER) || entity.isInWaterRainOrBubble()){
-                    entity.removeEffect(DragonEffects.BURN);
+                    entity.removeEffect(DSEffects.BURN);
                 }
-                if (entity.hasEffect(DragonEffects.FROSTED)) {
-                    entity.removeEffect(DragonEffects.FROSTED);
-                    entity.removeEffect(DragonEffects.BURN);
+                if (entity.hasEffect(DSEffects.FROSTED)) {
+                    entity.removeEffect(DSEffects.FROSTED);
+                    entity.removeEffect(DSEffects.BURN);
                     entity.setTicksFrozen(0);
-                } if (entity.hasEffect(DragonEffects.HEALING_COLD)) {
-                    entity.removeEffect(DragonEffects.HEALING_COLD);
-                    entity.removeEffect(DragonEffects.BURN);
+                } if (entity.hasEffect(DSEffects.HEALING_COLD)) {
+                    entity.removeEffect(DSEffects.HEALING_COLD);
+                    entity.removeEffect(DSEffects.BURN);
                     entity.setTicksFrozen(0);
                 }
             }
     
-            if (!entity.level.isClientSide()) {
+            if (!entity.level().isClientSide()) {
                 if (entity.isOnFire()) {
-                    if (entity.hasEffect(DragonEffects.FROSTED))
-                        entity.removeEffect(DragonEffects.FROSTED);
-                    if (entity.hasEffect(DragonEffects.HEALING_COLD))
-                        entity.removeEffect(DragonEffects.HEALING_COLD);
+                    if (entity.hasEffect(DSEffects.FROSTED))
+                        entity.removeEffect(DSEffects.FROSTED);
+                    if (entity.hasEffect(DSEffects.HEALING_COLD))
+                        entity.removeEffect(DSEffects.HEALING_COLD);
                 }
-                if (entity.hasEffect(DragonEffects.FROSTED)) {
+                if (entity.hasEffect(DSEffects.FROSTED)) {
                     entity.setTicksFrozen(entity.getTicksFrozen() + 2);
                     if (entity.isFullyFrozen()) {
-                        entity.addEffect(new MobEffectInstance(DragonEffects.FULLY_FROZEN, entity.getEffect(DragonEffects.FROSTED).getDuration(), 0));
-                        if (entity.hasEffect(DragonEffects.BRITTLE)) {
-                            entity.addEffect(new MobEffectInstance(DragonEffects.BRITTLE, 20, entity.getEffect(DragonEffects.BRITTLE).getAmplifier()));
+                        entity.addEffect(new MobEffectInstance(DSEffects.FULLY_FROZEN, entity.getEffect(DSEffects.FROSTED).getDuration(), 0));
+                        if (entity.hasEffect(DSEffects.BRITTLE)) {
+                            entity.addEffect(new MobEffectInstance(DSEffects.BRITTLE, 20, entity.getEffect(DSEffects.BRITTLE).getAmplifier()));
                         }
                     }
                 }
-                if (entity.hasEffect(DragonEffects.HEALING_COLD)) {
-                    entity.addEffect(new MobEffectInstance(DragonEffects.FULLY_FROZEN, entity.getEffect(DragonEffects.HEALING_COLD).getDuration(), 0));
-                    entity.heal((float) (HealingColdAbility.healingColdHealStrength / 20.0f * (entity.getEffect(DragonEffects.HEALING_COLD).getAmplifier() + 1)));
+                if (entity.hasEffect(DSEffects.HEALING_COLD)) {
+                    entity.addEffect(new MobEffectInstance(DSEffects.FULLY_FROZEN, entity.getEffect(DSEffects.HEALING_COLD).getDuration(), 0));
+                    entity.heal((float) (HealingColdAbility.healingColdHealStrength / 20.0f * (entity.getEffect(DSEffects.HEALING_COLD).getAmplifier() + 1)));
                 }
                 AttributeInstance moveSpeed = entity.getAttribute(Attributes.MOVEMENT_SPEED);
-                AttributeInstance swimSpeed = entity.getAttribute(ForgeMod.SWIM_SPEED.get());
+                AttributeInstance swimSpeed = entity.getAttribute(NeoForgeMod.SWIM_SPEED);
     
-                if (entity.hasEffect(DragonEffects.FULLY_FROZEN)){
+                if (entity.hasEffect(DSEffects.FULLY_FROZEN)){
                     if (moveSpeed != null && moveSpeed.getModifier(FULLY_FROZEN_MOVEMENT_SPEED) == null)
-                        moveSpeed.addTransientModifier(new AttributeModifier(FULLY_FROZEN_MOVEMENT_SPEED, "FULLY_FROZEN_MOVE_SPEED", -1.0f, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                        moveSpeed.addTransientModifier(new AttributeModifier(FULLY_FROZEN_MOVEMENT_SPEED, -1.0f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
                     if (swimSpeed != null && swimSpeed.getModifier(FULLY_FROZEN_SWIM_SPEED) == null)
-                        swimSpeed.addTransientModifier(new AttributeModifier(FULLY_FROZEN_SWIM_SPEED, "FULLY_FROZEN_SWIM_SPEED", -1.0f, AttributeModifier.Operation.MULTIPLY_TOTAL));
+                        swimSpeed.addTransientModifier(new AttributeModifier(FULLY_FROZEN_SWIM_SPEED, -1.0f, AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL));
     
                     if (entity instanceof Player player) {
-                        DragonStateHandler handler = DragonUtils.getHandler(player);
+                        DragonStateHandler handler = DragonStateProvider.getData(player);
                         if (handler.isDragon()) {
                             handler.setWingsSpread(false);
-                            NetworkHandler.CHANNEL.send(PacketDistributor.TRACKING_ENTITY_AND_SELF.with(() -> player), new SyncFlyingStatus(player.getId(), false));
+                            PacketDistributor.sendToPlayersTrackingEntityAndSelf(player, new SyncFlyingStatus.Data(player.getId(), false));
                         }
                     }
                 } else {
@@ -163,7 +166,7 @@ public class MagicHandler {
                 }
             }
     
-            MobEffectInstance blizzardEffect = entity.getEffect(DragonEffects.BLIZZARD);
+            MobEffectInstance blizzardEffect = entity.getEffect(DSEffects.BLIZZARD);
             if (blizzardEffect != null) {
                 BlizzardAbility.inflictDamageOnNearbyEntities(entity, blizzardEffect.getAmplifier());
             }

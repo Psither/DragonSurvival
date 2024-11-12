@@ -198,14 +198,9 @@ public abstract class BreathAbility extends ChannelingCastAbility implements ISe
                         BlockState state = player.level().getBlockState(mutablePosition);
 
                         if (state.getBlock() != Blocks.AIR) {
-                            TagKey<Block> destructibleBlocks = switch (this) {
-                                case NetherBreathAbility ignored -> DSBlockTags.NETHER_BREATH_DESTRUCTIBLE;
-                                case StormBreathAbility ignored -> DSBlockTags.STORM_BREATH_DESTRUCTIBLE;
-                                case ForestBreathAbility ignored -> DSBlockTags.FOREST_BREATH_DESTRUCTIBLE;
-                                default -> throw new IllegalStateException("Invalid breath type [" + this.getClass().getName() + "]");
-                            };
+                            TagKey<Block> destructibleBlocks = getDestructibleBlocks();
 
-                            if (state.is(destructibleBlocks)) {
+                            if (destructibleBlocks != null && state.is(destructibleBlocks)) {
                                 if (!player.level().isClientSide()) {
                                     if (player.getRandom().nextFloat() * 100 <= blockBreakChance()) {
                                         player.level().destroyBlock(mutablePosition, false, player);
@@ -286,5 +281,9 @@ public abstract class BreathAbility extends ChannelingCastAbility implements ISe
     public static float calculateCurrentBreathSpeed(double size) {
         float sizeFactor = Math.min((float) size / DragonLevel.ADULT.size, 1.0f);
         return sizeFactor * 0.3f + (float) size * 0.004f;
+    }
+
+    public static TagKey<Block> getDestructibleBlocks() {
+        return null;
     }
 }

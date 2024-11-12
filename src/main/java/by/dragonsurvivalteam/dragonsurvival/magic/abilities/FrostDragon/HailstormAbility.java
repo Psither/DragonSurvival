@@ -1,7 +1,6 @@
 package by.dragonsurvivalteam.dragonsurvival.magic.abilities.FrostDragon;
 
-import by.dragonsurvivalteam.dragonsurvival.DragonSurvivalMod;
-import by.dragonsurvivalteam.dragonsurvival.client.particles.DSParticles;
+import by.dragonsurvivalteam.dragonsurvival.DragonSurvival;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigOption;
@@ -9,14 +8,14 @@ import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigRange;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigSide;
 import by.dragonsurvivalteam.dragonsurvival.magic.common.RegisterDragonAbility;
 import by.dragonsurvivalteam.dragonsurvival.magic.common.active.DiveAbility;
-import by.dragonsurvivalteam.dragonsurvival.registry.DragonEffects;
+import by.dragonsurvivalteam.dragonsurvival.registry.DSEffects;
+import by.dragonsurvivalteam.dragonsurvival.registry.DSParticles;
 import by.dragonsurvivalteam.dragonsurvival.util.Functions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.damagesource.EntityDamageSource;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -66,7 +65,7 @@ public class HailstormAbility extends DiveAbility {
     }
 
     public boolean canCastSkill(Player player) {
-        return super.canCastSkill(player) && !player.level.getFluidState(player.blockPosition()).is(Fluids.WATER);
+        return super.canCastSkill(player) && !player.level().getFluidState(player.blockPosition()).is(Fluids.WATER);
     }
 
     @Override
@@ -100,11 +99,11 @@ public class HailstormAbility extends DiveAbility {
 
     @Override
     public ResourceLocation[] getSkillTextures() {
-        return new ResourceLocation[]{new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/hail_storm_0.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/hail_storm_1.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/hail_storm_2.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/hail_storm_3.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/hail_storm_4.png")};
+        return new ResourceLocation[]{ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/hail_storm_0.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/hail_storm_1.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/hail_storm_2.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/hail_storm_3.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/hail_storm_4.png")};
     }
 
     @Override
@@ -152,16 +151,16 @@ public class HailstormAbility extends DiveAbility {
 
     public void continueDive(Player player, float distance) {
         float r = getRange() * rangeBonusFromDistance(player.fallDistance);
-        if (player.level.isClientSide()) {
+        if (player.level().isClientSide()) {
             makeParticles(player, 0, false);
         } else {
             for (int x = (int) -r; x < (int) r; x++) {
                 for (int z = (int) -r; z < (int) r; z++) {
                     if (player.distanceToSqr(new Vec3(player.getX() + x, player.getY(), player.getZ() + z)) < r * r) {
                         for (int y = 0; y < 4; y++) {
-                            BlockPos blockPos = new BlockPos(player.getX() + x, player.getY(), player.getZ() + z);
-                            if (player.level.getFluidState(blockPos.below(y)).is(Fluids.WATER) && player.level.getBlockState(blockPos.below(y)).getMaterial().isLiquid()) {
-                                player.level.setBlockAndUpdate(blockPos.below(y), Blocks.FROSTED_ICE.defaultBlockState());
+                            BlockPos blockPos = new BlockPos((int) (player.getX() + x), (int) player.getY(), (int) (player.getZ() + z));
+                            if (player.level().getFluidState(blockPos.below(y)).is(Fluids.WATER)) {
+                                player.level().setBlockAndUpdate(blockPos.below(y), Blocks.FROSTED_ICE.defaultBlockState());
                             }
                         }
                     }
@@ -173,13 +172,13 @@ public class HailstormAbility extends DiveAbility {
     @Override
     public void finishDive(Player player, float distance) {
         super.finishDive(player, distance);
-        if (player.level.isClientSide()) {
-            player.level.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.PLAYERS, 1.0f, 1.0f, false);
-            player.level.playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.ANVIL_LAND, SoundSource.PLAYERS, 1.0f, 0.9f, false);
+        if (player.level().isClientSide()) {
+            player.level().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.PLAYERS, 1.0f, 1.0f, false);
+            //player.level().playLocalSound(player.getX(), player.getY(), player.getZ(), SoundEvents.ANVIL_LAND, SoundSource.PLAYERS, 1.0f, 0.9f, false);
             makeParticles(player, distance, true);
         } else {
             float range = getRange() * rangeBonusFromDistance(distance);
-            List<LivingEntity> list1 = player.level.getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(range));
+            List<LivingEntity> list1 = player.level().getEntitiesOfClass(LivingEntity.class, player.getBoundingBox().inflate(range));
             if(!list1.isEmpty())
                 for(LivingEntity livingEntity : list1){
                     if (livingEntity.equals(player))
@@ -190,13 +189,13 @@ public class HailstormAbility extends DiveAbility {
                     double d3 = d0 * d0 + d1 * d1 + d2 * d2;
 
                     if(d3 <= (double)(range * range)){
-                        livingEntity.addEffect(new MobEffectInstance(DragonEffects.FROSTED, getDuration()));
-                        livingEntity.addEffect(new MobEffectInstance(DragonEffects.BRITTLE, getDuration()));
+                        livingEntity.addEffect(new MobEffectInstance(DSEffects.FROSTED, getDuration()));
+                        livingEntity.addEffect(new MobEffectInstance(DSEffects.BRITTLE, getDuration()));
                         if (livingEntity.canFreeze()) {
-                            if (livingEntity.isFullyFrozen() && livingEntity.hasEffect(DragonEffects.FROSTED)) {
-                                livingEntity.hurt(new EntityDamageSource("freeze", player), getDamage() * 3 * getLevel() * damageBonusFromDistance(distance));
+                            if (livingEntity.isFullyFrozen() && livingEntity.hasEffect(DSEffects.FROSTED)) {
+                                livingEntity.hurt(livingEntity.damageSources().freeze(), getDamage() * 3 * getLevel() * damageBonusFromDistance(distance));
                             } else {
-                                livingEntity.hurt(new EntityDamageSource("freeze", player), getDamage() * getLevel() * damageBonusFromDistance(distance));
+                                livingEntity.hurt(livingEntity.damageSources().freeze(), getDamage() * getLevel() * damageBonusFromDistance(distance));
                                 livingEntity.setTicksFrozen(livingEntity.getTicksRequiredToFreeze() + 2);
                             }
                         }
@@ -230,6 +229,6 @@ public class HailstormAbility extends DiveAbility {
 
     @Override
     public ParticleOptions getParticle() {
-        return DSParticles.snowflake;
+        return DSParticles.SNOWFLAKE.get();
     }
 }

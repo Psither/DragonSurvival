@@ -1,8 +1,7 @@
 package by.dragonsurvivalteam.dragonsurvival.util;
 
-import com.mojang.math.Vector3f;
-
 import net.minecraft.util.RandomSource;
+import org.joml.Vector3f;
 
 public class MathUtils {
 	public static Vector3f randomPointInSphere (float radius, RandomSource random) {

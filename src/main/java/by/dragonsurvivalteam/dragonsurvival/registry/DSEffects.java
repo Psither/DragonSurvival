@@ -232,6 +232,32 @@ public class DSEffects {
                     .addAttributeModifier(Attributes.ARMOR, TOUGH_SKIN, ToughSkinAbility.toughSkinArmorValue, Operation.ADD_VALUE)
     );
 
+
+    public static Holder<MobEffect> FROSTED = DS_MOB_EFFECTS.register(
+            "frosted",
+            () -> new ModifiableMobEffect(MobEffectCategory.HARMFUL, 0x0, false)
+    );
+
+    public static Holder<MobEffect> BRITTLE = DS_MOB_EFFECTS.register(
+            "brittle",
+            () -> new ModifiableMobEffect(MobEffectCategory.HARMFUL, 0x0, false)
+    );
+
+    public static Holder<MobEffect> FULLY_FROZEN = DS_MOB_EFFECTS.register(
+            "fully_frozen",
+            () -> new ModifiableMobEffect(MobEffectCategory.HARMFUL, 0x0, false)
+    );
+
+    public static Holder<MobEffect> HEALING_COLD = DS_MOB_EFFECTS.register(
+            "healing_cold",
+            () -> new ModifiableMobEffect(MobEffectCategory.BENEFICIAL, 0x0, false)
+    );
+
+    public static Holder<MobEffect> BLIZZARD = DS_MOB_EFFECTS.register(
+            "blizzard",
+            () -> new ModifiableMobEffect(MobEffectCategory.BENEFICIAL, 0x0, false)
+    );
+
     public static Holder<MobEffect> BLOOD_SIPHON = DS_MOB_EFFECTS.register(
             "blood_siphon",
             () -> new ModifiableMobEffect(MobEffectCategory.HARMFUL, 0x0, false)

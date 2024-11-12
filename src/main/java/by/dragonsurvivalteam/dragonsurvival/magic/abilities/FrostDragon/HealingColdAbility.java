@@ -1,7 +1,6 @@
 package by.dragonsurvivalteam.dragonsurvival.magic.abilities.FrostDragon;
 
-import by.dragonsurvivalteam.dragonsurvival.DragonSurvivalMod;
-import by.dragonsurvivalteam.dragonsurvival.client.particles.DSParticles;
+import by.dragonsurvivalteam.dragonsurvival.DragonSurvival;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigOption;
@@ -9,7 +8,8 @@ import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigRange;
 import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigSide;
 import by.dragonsurvivalteam.dragonsurvival.magic.common.RegisterDragonAbility;
 import by.dragonsurvivalteam.dragonsurvival.magic.common.active.AoeBuffAbility;
-import by.dragonsurvivalteam.dragonsurvival.registry.DragonEffects;
+import by.dragonsurvivalteam.dragonsurvival.registry.DSEffects;
+import by.dragonsurvivalteam.dragonsurvival.registry.DSParticles;
 import by.dragonsurvivalteam.dragonsurvival.util.Functions;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.resources.ResourceLocation;
@@ -52,12 +52,12 @@ public class HealingColdAbility extends AoeBuffAbility {
 
     @Override
     public ParticleOptions getParticleEffect() {
-        return DSParticles.snowflake;
+        return DSParticles.SNOWFLAKE.get();
     }
 
     @Override
     public MobEffectInstance getEffect() {
-        return new MobEffectInstance(DragonEffects.HEALING_COLD, getDuration(), getLevel());
+        return new MobEffectInstance(DSEffects.HEALING_COLD, getDuration(), getLevel());
     }
 
     public int getDuration() {
@@ -96,11 +96,11 @@ public class HealingColdAbility extends AoeBuffAbility {
 
     @Override
     public ResourceLocation[] getSkillTextures() {
-        return new ResourceLocation[]{new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/frost_breath_0.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/frost_breath_1.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/frost_breath_2.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/frost_breath_3.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/frost_breath_4.png")};
+        return new ResourceLocation[]{ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/frost_breath_0.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/frost_breath_1.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/frost_breath_2.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/frost_breath_3.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/frost_breath_4.png")};
     }
 
     @Override

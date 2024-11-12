@@ -11,6 +11,7 @@ import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigSide;
 import by.dragonsurvivalteam.dragonsurvival.input.Keybind;
 import by.dragonsurvivalteam.dragonsurvival.network.flight.SyncFlyingStatus;
 import by.dragonsurvivalteam.dragonsurvival.network.flight.SyncSpinStatus;
+import by.dragonsurvivalteam.dragonsurvival.network.player.SyncDragonHandler;
 import by.dragonsurvivalteam.dragonsurvival.registry.DSEffects;
 import by.dragonsurvivalteam.dragonsurvival.server.handlers.ServerFlightHandler;
 import by.dragonsurvivalteam.dragonsurvival.util.ActionWithTimedCooldown;
@@ -262,6 +263,16 @@ public class ClientFlightHandler {
             } else {
                 DragonStateProvider.getOptional(player).ifPresent(handler -> {
                     if (handler.isDragon()) {
+                        if (handler.isDragon()) {
+                            if (player.input.jumping && handler.isDiving()) {
+                                handler.setIsDiving(false);
+                            }
+                            if (handler.isDiving()) {
+                                player.setDeltaMovement(player.getDeltaMovement().add(0.0f, -0.1f, 0.0f));
+                                handler.setWingsSpread(handler.hasFlight());
+                                return;
+                            }
+                        }
                         Double flightMult = 1.0;
                         if (DragonUtils.getDragonBody(handler) != null) {
                             flightMult = DragonUtils.getDragonBody(handler).getFlightMult();

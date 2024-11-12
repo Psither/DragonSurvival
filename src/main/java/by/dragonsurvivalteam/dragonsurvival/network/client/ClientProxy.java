@@ -372,7 +372,7 @@ public class ClientProxy {
                 DragonStateProvider.getOptional(player).ifPresent(handler -> {
                     handler.setType(message.dragonType(), player);
                     handler.setBody(message.dragonBody(), player);
-                    handler.setIsHiding(message.hiding());
+                    handler.setIsDiving(message.diving());
                     handler.setHasFlight(message.hasWings());
                     handler.setSize(message.size(), player);
                     handler.setPassengerId(message.passengerId());

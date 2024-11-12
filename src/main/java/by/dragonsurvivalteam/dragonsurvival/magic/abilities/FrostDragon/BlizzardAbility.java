@@ -1,6 +1,6 @@
 package by.dragonsurvivalteam.dragonsurvival.magic.abilities.FrostDragon;
 
-import by.dragonsurvivalteam.dragonsurvival.DragonSurvivalMod;
+import by.dragonsurvivalteam.dragonsurvival.DragonSurvival;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
@@ -14,7 +14,7 @@ import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigSide;
 import by.dragonsurvivalteam.dragonsurvival.magic.common.AbilityAnimation;
 import by.dragonsurvivalteam.dragonsurvival.magic.common.RegisterDragonAbility;
 import by.dragonsurvivalteam.dragonsurvival.magic.common.active.ChargeCastAbility;
-import by.dragonsurvivalteam.dragonsurvival.registry.DragonEffects;
+import by.dragonsurvivalteam.dragonsurvival.registry.DSEffects;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import by.dragonsurvivalteam.dragonsurvival.util.Functions;
 import by.dragonsurvivalteam.dragonsurvival.util.MathUtils;
@@ -64,7 +64,7 @@ public class BlizzardAbility extends ChargeCastAbility {
 
     public static void inflictDamageOnNearbyEntities(LivingEntity entity, int amp) {
         int range = (int) getRange(amp);
-        List<Entity> entities = entity.level.getEntities(null, new AABB(entity.position().x - range, entity.position().y - range, entity.position().z - range, entity.position().x + range, entity.position().y + range, entity.position().z + range));
+        List<Entity> entities = entity.level().getEntities(null, new AABB(entity.position().x - range, entity.position().y - range, entity.position().z - range, entity.position().x + range, entity.position().y + range, entity.position().z + range));
         entities.removeIf(e -> e.distanceTo(entity) > range);
         entities.removeIf(e -> !(e instanceof LivingEntity));
         entities.removeIf(e -> (e instanceof LivingEntity en && en.getHealth() <= 0));
@@ -77,26 +77,26 @@ public class BlizzardAbility extends ChargeCastAbility {
     public static void attackTarget(LivingEntity source, Entity target, int amp) {
         if (source.tickCount % 5 != 0)
             return;
-        ClipContext cc = new ClipContext(source.getPosition(0), target.getPosition(0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, null);
-        if (target.level.clip(cc).getType() == HitResult.Type.BLOCK) {
+        ClipContext cc = new ClipContext(source.getPosition(0), target.getPosition(0), ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, source);
+        if (target.level().clip(cc).getType() == HitResult.Type.BLOCK) {
             return;
         }
 
-        if (source.level.isClientSide()) {
+        if (source.level().isClientSide()) {
             // Do something here?
         } else if (target instanceof LivingEntity livingTarget) {
             if (!DragonUtils.isDragonSubtype(livingTarget, DragonTypes.FROST)) {
                 Vec3 randLoc = new Vec3(MathUtils.randomPointInSphere(getRange(amp) * 0.5f, source.getRandom()));
-                randLoc = randLoc.multiply(1, source.isOnGround() && randLoc.y < 0 ? -1 : 1, 1);
+                randLoc = randLoc.multiply(1, source.onGround() && randLoc.y < 0 ? -1 : 1, 1);
                 Vec3 targetPos = target.position();
                 if(target instanceof Player player)
                 {
-                    DragonStateHandler handler = DragonStateProvider.getHandler(player);
+                    DragonStateHandler handler = DragonStateProvider.getData(player);
 
-                    if (handler == null || !handler.isDragon()) {
+                    if (!handler.isDragon()) {
                         targetPos = targetPos.add(0, player.getEyeHeight(), 0);
                     } else {
-                        targetPos = targetPos.add(0, DragonSizeHandler.calculateDragonEyeHeight(handler.getSize(), ServerConfig.hitboxGrowsPastHuman), 0);
+                        targetPos = targetPos.add(0, DragonSizeHandler.calculateDragonEyeHeight(handler, player), 0);
                     }
                 }
                 Vec3 shootPosition = source.position().add(randLoc);
@@ -108,14 +108,14 @@ public class BlizzardAbility extends ChargeCastAbility {
 
                 Vec3 shootDirection = targetPos.subtract(shootPosition).normalize();
 
-                BlizzardSpikeEntity bse = new BlizzardSpikeEntity(source.level);
+                BlizzardSpikeEntity bse = new BlizzardSpikeEntity(source.level());
                 bse.setOwner(source);
                 bse.setPos(shootPosition);
                 bse.setArrow_level(amp + 1);
                 bse.setBaseDamage(getDamage(amp));
                 bse.pickup = AbstractArrow.Pickup.DISALLOWED;
                 bse.shoot(shootDirection.x, shootDirection.y, shootDirection.z, 1.6f, 0.98f);
-                source.level.addFreshEntity(bse);
+                source.level().addFreshEntity(bse);
 
                 /*float damage = getDamage(amp);
                 if (TargetingFunctions.attackTargets(source, entity -> entity.hurt(DamageSource.FREEZE, damage), target)) {
@@ -145,8 +145,8 @@ public class BlizzardAbility extends ChargeCastAbility {
 
     @Override
     public void castingComplete(Player player){
-        player.addEffect(new MobEffectInstance(DragonEffects.BLIZZARD, getDuration(), getLevel() - 1));
-        player.level.playLocalSound(player.position().x, player.position().y + 0.5, player.position().z, SoundEvents.UI_TOAST_IN, SoundSource.PLAYERS, 5F, 0.1F, true);
+        player.addEffect(new MobEffectInstance(DSEffects.BLIZZARD, getDuration(), getLevel() - 1));
+        player.level().playLocalSound(player.position().x, player.position().y + 0.5, player.position().z, SoundEvents.UI_TOAST_IN, SoundSource.PLAYERS, 5F, 0.1F, true);
     }
 
     public int getDuration() {
@@ -192,11 +192,11 @@ public class BlizzardAbility extends ChargeCastAbility {
 
     @Override
     public ResourceLocation[] getSkillTextures() {
-        return new ResourceLocation[]{new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/frost_breath_0.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/frost_breath_1.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/frost_breath_2.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/frost_breath_3.png"),
-                new ResourceLocation(DragonSurvivalMod.MODID, "textures/skills/frost/frost_breath_4.png")};
+        return new ResourceLocation[]{ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/frost_breath_0.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/frost_breath_1.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/frost_breath_2.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/frost_breath_3.png"),
+                ResourceLocation.fromNamespaceAndPath(DragonSurvival.MODID, "textures/skills/frost/frost_breath_4.png")};
     }
 
     @Override

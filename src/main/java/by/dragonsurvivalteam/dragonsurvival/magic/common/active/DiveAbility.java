@@ -1,7 +1,7 @@
 package by.dragonsurvivalteam.dragonsurvival.magic.common.active;
 
-import by.dragonsurvivalteam.dragonsurvival.client.handlers.magic.ClientMagicHUDHandler;
-import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
+import by.dragonsurvivalteam.dragonsurvival.client.gui.hud.MagicHUD;
+import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.network.chat.Component;
@@ -11,7 +11,8 @@ import net.minecraft.world.entity.player.Player;
 public abstract class DiveAbility extends ChargeCastAbility {
     @Override
     public void castingComplete(Player player) {
-        DragonUtils.getHandler(player).setIsDiving(true);
+        DragonStateProvider.getData(player).setWingsSpread(false);
+        DragonStateProvider.getData(player).setIsDiving(true);
         player.resetFallDistance();
     }
 
@@ -22,14 +23,13 @@ public abstract class DiveAbility extends ChargeCastAbility {
 
     public abstract float getRange();
 
-    public void continueDive(Player player, float distance) {
-
-    }
+    public void continueDive(Player player, float distance) { }
 
     public void finishDive(Player player, float distance) {
-        DragonUtils.getHandler(player).setWingsSpread(false);
-        DragonUtils.getHandler(player).setIsDiving(false);
+        DragonStateProvider.getData(player).setWingsSpread(false);
+        DragonStateProvider.getData(player).setIsDiving(false);
     }
+
     public abstract ParticleOptions getParticle();
 
     public float rangeBonusFromDistance(float distance) {
@@ -50,14 +50,14 @@ public abstract class DiveAbility extends ChargeCastAbility {
                 float f7 = Mth.sqrt(player.getRandom().nextFloat()) * getRange() * rangeBonusFromDistance(distance);
                 float f8 = Mth.cos(f6) * f7;
                 float f9 = Mth.sin(f6) * f7;
-                player.level.addAlwaysVisibleParticle(getParticle(), player.getX() + f8, player.getY(), player.getZ() + f9, ((player.getRandom().nextFloat() * 0.5) - 0.5) * 0.01f, distance * 0.01f, ((player.getRandom().nextFloat() * 0.5) - 0.5) * 0.01f);
+                player.level().addAlwaysVisibleParticle(getParticle(), player.getX() + f8, player.getY(), player.getZ() + f9, ((player.getRandom().nextFloat() * 0.5) - 0.5) * 0.01f, distance * 0.01f, ((player.getRandom().nextFloat() * 0.5) - 0.5) * 0.01f);
             }
     }
 
     @Override
     public boolean canCastSkill(Player player) {
-        if (player.isOnGround()) {
-            ClientMagicHUDHandler.castingError(Component.translatable("ds.skill.must_fly_failure"));
+        if (player.onGround()) {
+            MagicHUD.castingError(Component.translatable("ds.skill.must_fly_failure"));
             return false;
         }
 
@@ -67,12 +67,12 @@ public abstract class DiveAbility extends ChargeCastAbility {
         //DragonStateHandler handler = DragonUtils.getHandler(player);
 
         if(!canConsumeMana(player)){
-            ClientMagicHUDHandler.castingError(Component.translatable("ds.skill_mana_check_failure"));
+            MagicHUD.castingError(Component.translatable("ds.skill_mana_check_failure"));
             return false;
         }
 
         if(getCurrentCooldown() != 0){
-            ClientMagicHUDHandler.castingError(Component.translatable("ds.skill_cooldown_check_failure", nf.format(getCurrentCooldown() / 20F) + "s").withStyle(ChatFormatting.RED));
+            MagicHUD.castingError(Component.translatable("ds.skill_cooldown_check_failure", nf.format(getCurrentCooldown() / 20F) + "s").withStyle(ChatFormatting.RED));
             return false;
         }
 
