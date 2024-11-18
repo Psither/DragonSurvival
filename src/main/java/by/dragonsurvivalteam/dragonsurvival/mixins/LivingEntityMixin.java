@@ -253,11 +253,11 @@ public abstract class LivingEntityMixin extends Entity {
     @Inject(method = "onAttributeUpdated", at = @At("TAIL"))
     private void updateSafeFallDistanceIfGravityIsModified(CallbackInfo ci, @Local(argsOnly = true) Holder<Attribute> attribute) {
         if ((Object) this instanceof Player player) {
-            DragonStateProvider.getOptional(player).ifPresent(data -> {
-                if (attribute.is(Attributes.GRAVITY)) {
+            if (attribute.is(Attributes.GRAVITY)) {
+                if(DragonStateProvider.isDragon(player)) {
                     DSModifiers.updateSafeFallDistanceModifiers(player);
                 }
-            });
+            }
         }
     }
 

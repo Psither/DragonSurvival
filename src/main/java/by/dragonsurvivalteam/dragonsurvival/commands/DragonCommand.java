@@ -38,7 +38,7 @@ public class DragonCommand {
         RootCommandNode<CommandSourceStack> rootCommandNode = commandDispatcher.getRoot();
         LiteralCommandNode<CommandSourceStack> dragon = literal("dragon").requires(commandSource -> commandSource.hasPermission(2)).executes(context -> {
             String type = context.getArgument("dragon_type", String.class);
-            return runCommand(type, "center", 1, true, context.getSource().getPlayerOrException());
+            return runCommand(type, "center", 1, false, context.getSource().getPlayerOrException());
         }).build();
 
         ArgumentCommandNode<CommandSourceStack, String> dragonType = argument("dragon_type", StringArgumentType.string()).suggests((context, builder) -> {
@@ -54,7 +54,7 @@ public class DragonCommand {
         }).executes(context -> {
             String type = context.getArgument("dragon_type", String.class);
             ServerPlayer serverPlayer = context.getSource().getPlayerOrException();
-            return runCommand(type, "center", 1, true, serverPlayer);
+            return runCommand(type, "center", 1, false, serverPlayer);
         }).build();
 
         ArgumentCommandNode<CommandSourceStack, String> dragonBody = argument("dragon_body", StringArgumentType.string()).suggests((context, builder) -> {
@@ -69,7 +69,7 @@ public class DragonCommand {
             String type = context.getArgument("dragon_type", String.class);
             String body = context.getArgument("dragon_body", String.class);
             ServerPlayer serverPlayer = context.getSource().getPlayerOrException();
-            return runCommand(type, body, 1, true, serverPlayer);
+            return runCommand(type, body, 1, false, serverPlayer);
         }).build();
 
         ArgumentCommandNode<CommandSourceStack, Integer> dragonStage = argument("dragon_stage", IntegerArgumentType.integer(1, 4)).suggests((context, builder) -> builder.suggest(1).suggest(2).suggest(3).suggest(4).buildFuture()).executes(context -> {
@@ -77,7 +77,7 @@ public class DragonCommand {
             String body = context.getArgument("dragon_body", String.class);
             int stage = context.getArgument("dragon_stage", Integer.TYPE);
             ServerPlayer serverPlayer = context.getSource().getPlayerOrException();
-            return runCommand(type, body, stage, true, serverPlayer);
+            return runCommand(type, body, stage, false, serverPlayer);
         }).build();
 
         ArgumentCommandNode<CommandSourceStack, Boolean> giveFlight = argument("flight", BoolArgumentType.bool()).executes(context -> {

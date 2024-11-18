@@ -829,6 +829,16 @@ public class DSBlocks {
             )
     );
 
+    @Translation(type = Translation.Type.BLOCK, comments = "Primordial Anchor")
+    public static final DeferredHolder<Block, PrimordialAnchorBlock> PRIMORDIAL_ANCHOR = register("primordial_anchor",
+            () -> new PrimordialAnchorBlock(BlockBehaviour.Properties.of()
+                    .mapColor(MapColor.COLOR_BLACK)
+                    .instrument(NoteBlockInstrument.BASEDRUM)
+                    .strength(-1.0F, 3600000.0F)
+                    .lightLevel(state -> state.getValue(PrimordialAnchorBlock.CHARGED) ? 15 : 0)
+            )
+    );
+
     public static final DeferredHolder<Item, BlockItem> DRAGON_RIDER_WORKBENCH_ITEM = DS_ITEMS.register("dragon_rider_workbench",
             () -> new BlockItem(DRAGON_RIDER_WORKBENCH.get(), new Item.Properties()) {
                 @Translation(type = Translation.Type.MISC, comments = "■§7 A work station for a villager who sells useful dragon enchantments. Knows the secrets to getting into the draconic vaults.")

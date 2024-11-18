@@ -69,7 +69,7 @@ public class DragonStateHandler extends EntityStateHandler {
     public boolean hasUsedAltar;
     public boolean isInAltar;
     public boolean refreshBody;
-    public boolean isJumping = false;
+    public boolean isJumping;
 
     /** Last timestamp the server synchronized the player */
     public int lastSync = 0;
@@ -123,7 +123,7 @@ public class DragonStateHandler extends EntityStateHandler {
         movementData.desiredMoveVec = desiredMoveVec;
     }
 
-    public void setMovementData(double bodyYaw, double headYaw, double headPitch, Vec3 deltaMovement, double realTimeDeltaTick) {
+    public void setMovementData(double bodyYaw, double headYaw, double headPitch, Vec3 deltaMovement) {
         movementData.headYawLastFrame = movementData.headYaw;
         movementData.bodyYawLastFrame = movementData.bodyYaw;
         movementData.headPitchLastFrame = movementData.headPitch;
@@ -133,7 +133,6 @@ public class DragonStateHandler extends EntityStateHandler {
         movementData.headYaw = headYaw;
         movementData.headPitch = headPitch;
         movementData.deltaMovement = deltaMovement;
-        movementData.realtimeDeltaTick = realTimeDeltaTick;
     }
 
     /** Only used for rendering related code - to properly set the size (and update modifiers) use {@link DragonStateHandler#setSize(double, Player)} */

@@ -183,6 +183,19 @@ public class DragonAbilities {
         return hasAbility(player, abilityClass, DragonStateProvider.getData(player).getType());
     }
 
+    public static <T extends DragonAbility> Optional<T> getAbility(DragonStateHandler handler, Class<T> abilityClass) {
+        //noinspection unchecked -> cast is okay
+        return (Optional<T>) handler.getMagicData().abilities.values().stream().filter(ability -> {
+            if (handler.getType() == null || ability.getClass() != abilityClass && !ability.getClass().isAssignableFrom(abilityClass) && !abilityClass.isAssignableFrom(ability.getClass())) {
+                return false;
+            }
+
+            // FIXME :: has ability checks the subtype, this doesnt - what is the expected behaviour?
+
+            return DragonUtils.isDragonType(handler.getType(), ability.getDragonType());
+        }).findAny();
+    }
+
     public static <T extends DragonAbility> Optional<T> getAbility(Player player, Class<T> abilityClass, @Nullable AbstractDragonType dragonType) {
         DragonStateHandler data = DragonStateProvider.getData(player);
 

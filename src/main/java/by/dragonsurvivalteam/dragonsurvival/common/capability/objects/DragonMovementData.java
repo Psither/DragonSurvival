@@ -4,10 +4,6 @@ import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 public class DragonMovementData {
-    // Animations are authored with 60 FPS as a reference, and 1 tick is 1/20th of a second
-    public static final double REFERENCE_REALTIME_TICK = 1.0 / 3.0;
-    public double realtimeDeltaTick = 0;
-
     public double headYaw = 0;
     public double headPitch = 0;
     public double bodyYaw = 0;
@@ -36,10 +32,5 @@ public class DragonMovementData {
     public int spinCooldown;
     public int spinAttack;
 
-    public double getTickFactor() {
-        return realtimeDeltaTick == 0 ? 1 : REFERENCE_REALTIME_TICK / realtimeDeltaTick;
-    }
-
-    public DragonMovementData() {
-    }
+    public DragonMovementData() {}
 }

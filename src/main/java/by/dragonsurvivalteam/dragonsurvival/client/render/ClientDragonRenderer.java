@@ -456,7 +456,7 @@ public class ClientDragonRenderer {
             var newAngles = BodyAngles.calculateNext(player, playerStateHandler, realtimeDeltaTick);
 
             // Update the movement data
-            playerStateHandler.setMovementData(newAngles.bodyYaw, newAngles.headYaw, newAngles.headPitch, moveVector, realtimeDeltaTick);
+            playerStateHandler.setMovementData(newAngles.bodyYaw, newAngles.headYaw, newAngles.headPitch, moveVector);
         });
     }
 

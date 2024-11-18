@@ -30,9 +30,9 @@ import static by.dragonsurvivalteam.dragonsurvival.DragonSurvival.MODID;
 public class DSModifiers {
 
     private record ModifierBuilder(ResourceLocation modifier, Holder<Attribute> attribute, Operation operation,
-                                Function<Player, Double> calculator) {
-        private AttributeModifier buildModifier(Player player) {
-            return new AttributeModifier(modifier, calculator.apply(player), operation);
+                                Function<DragonStateHandler, Double> calculator) {
+        private AttributeModifier buildModifier(DragonStateHandler handler) {
+            return new AttributeModifier(modifier, calculator.apply(handler), operation);
         }
 
         public void updateModifier(Player player) {
@@ -50,7 +50,7 @@ public class DSModifiers {
 
             DragonStateHandler handler = DragonStateProvider.getData(player);
             if (handler.isDragon()) {
-                AttributeModifier builtModifier = buildModifier(player);
+                AttributeModifier builtModifier = buildModifier(handler);
                 instance.addPermanentModifier(builtModifier);
                 if (attribute == Attributes.MAX_HEALTH) {
                     float newHealth = Math.min(player.getMaxHealth(), player.getHealth() * player.getMaxHealth() / oldMax);
@@ -111,30 +111,28 @@ public class DSModifiers {
             new ModifierBuilder(DRAGON_REACH_MODIFIER, Attributes.BLOCK_INTERACTION_RANGE, Operation.ADD_MULTIPLIED_BASE, DSModifiers::buildReachMod),
             new ModifierBuilder(DRAGON_STEP_HEIGHT_MODIFIER, Attributes.STEP_HEIGHT, Operation.ADD_VALUE, DSModifiers::buildStepHeightMod),
             new ModifierBuilder(DRAGON_MOVEMENT_SPEED_MODIFIER, Attributes.MOVEMENT_SPEED, Operation.ADD_MULTIPLIED_TOTAL, DSModifiers::buildMovementSpeedMod),
-            new ModifierBuilder(DRAGON_JUMP_BONUS, Attributes.JUMP_STRENGTH, Operation.ADD_VALUE, DSModifiers::buildJumpMod),
-            new ModifierBuilder(DRAGON_SAFE_FALL_DISTANCE, Attributes.SAFE_FALL_DISTANCE, Operation.ADD_VALUE, DSModifiers::buildJumpMod)
+            new ModifierBuilder(DRAGON_JUMP_BONUS, Attributes.JUMP_STRENGTH, Operation.ADD_VALUE, DSModifiers::buildJumpMod)
     );
 
     private static final List<ModifierBuilder> BODY_MODIFIER_BUILDERS = List.of(
-            new ModifierBuilder(DRAGON_BODY_MOVEMENT_SPEED, Attributes.MOVEMENT_SPEED, Operation.ADD_MULTIPLIED_TOTAL, player ->  DragonStateProvider.getData(player).getBody().getRunMult() - 1),
-            new ModifierBuilder(DRAGON_BODY_ARMOR, Attributes.ARMOR, Operation.ADD_VALUE, player ->  DragonStateProvider.getData(player).getBody().getArmorBonus()),
-            new ModifierBuilder(DRAGON_BODY_STRENGTH, Attributes.ATTACK_DAMAGE, Operation.ADD_VALUE, player ->  DragonStateProvider.getData(player).getBody().getDamageBonus()),
-            new ModifierBuilder(DRAGON_BODY_STRENGTH_MULT, Attributes.ATTACK_DAMAGE, Operation.ADD_MULTIPLIED_TOTAL, player ->  DragonStateProvider.getData(player).getBody().getDamageMult() - 1),
-            new ModifierBuilder(DRAGON_BODY_KNOCKBACK_BONUS, Attributes.ATTACK_KNOCKBACK, Operation.ADD_VALUE, player ->  DragonStateProvider.getData(player).getBody().getKnockbackBonus()),
-            new ModifierBuilder(DRAGON_BODY_SWIM_SPEED_BONUS, NeoForgeMod.SWIM_SPEED, Operation.ADD_VALUE, player ->  DragonStateProvider.getData(player).getBody().getSwimSpeedBonus()),
-            new ModifierBuilder(DRAGON_BODY_STEP_HEIGHT_BONUS, Attributes.STEP_HEIGHT, Operation.ADD_VALUE, player ->  DragonStateProvider.getData(player).getBody().getStepBonus()),
-            new ModifierBuilder(DRAGON_BODY_GRAVITY_MULT, Attributes.GRAVITY, Operation.ADD_MULTIPLIED_TOTAL, player ->  DragonStateProvider.getData(player).getBody().getGravityMult() - 1),
-            new ModifierBuilder(DRAGON_BODY_HEALTH_BONUS, Attributes.MAX_HEALTH, Operation.ADD_VALUE, player ->  DragonStateProvider.getData(player).getBody().getHealthBonus()),
-            new ModifierBuilder(DRAGON_BODY_HEALTH_MULT, Attributes.MAX_HEALTH, Operation.ADD_MULTIPLIED_TOTAL, player ->  DragonStateProvider.getData(player).getBody().getHealthMult() - 1),
-            new ModifierBuilder(DRAGON_BODY_JUMP_BONUS, Attributes.JUMP_STRENGTH, Operation.ADD_VALUE, player ->  DragonStateProvider.getData(player).getBody().getJumpBonus()),
-            new ModifierBuilder(DRAGON_BODY_SAFE_FALL_DISTANCE, Attributes.SAFE_FALL_DISTANCE, Operation.ADD_VALUE, player -> DragonStateProvider.getData(player).getBody().getSafeFallBonus()),
-            new ModifierBuilder(DRAGON_BODY_FLIGHT_STAMINA, DSAttributes.FLIGHT_STAMINA_COST, Operation.ADD_MULTIPLIED_TOTAL, player ->  DragonStateProvider.getData(player).getBody().getFlightStaminaMult())
+            new ModifierBuilder(DRAGON_BODY_MOVEMENT_SPEED, Attributes.MOVEMENT_SPEED, Operation.ADD_MULTIPLIED_TOTAL, handler ->  handler.getBody().getRunMult() - 1),
+            new ModifierBuilder(DRAGON_BODY_ARMOR, Attributes.ARMOR, Operation.ADD_VALUE, handler ->  handler.getBody().getArmorBonus()),
+            new ModifierBuilder(DRAGON_BODY_STRENGTH, Attributes.ATTACK_DAMAGE, Operation.ADD_VALUE, handler ->  handler.getBody().getDamageBonus()),
+            new ModifierBuilder(DRAGON_BODY_STRENGTH_MULT, Attributes.ATTACK_DAMAGE, Operation.ADD_MULTIPLIED_TOTAL, handler ->  handler.getBody().getDamageMult() - 1),
+            new ModifierBuilder(DRAGON_BODY_KNOCKBACK_BONUS, Attributes.ATTACK_KNOCKBACK, Operation.ADD_VALUE, handler ->  handler.getBody().getKnockbackBonus()),
+            new ModifierBuilder(DRAGON_BODY_SWIM_SPEED_BONUS, NeoForgeMod.SWIM_SPEED, Operation.ADD_VALUE, handler -> handler.getBody().getSwimSpeedBonus()),
+            new ModifierBuilder(DRAGON_BODY_STEP_HEIGHT_BONUS, Attributes.STEP_HEIGHT, Operation.ADD_VALUE, handler ->  handler.getBody().getStepBonus()),
+            new ModifierBuilder(DRAGON_BODY_GRAVITY_MULT, Attributes.GRAVITY, Operation.ADD_MULTIPLIED_TOTAL, handler ->  handler.getBody().getGravityMult() - 1),
+            new ModifierBuilder(DRAGON_BODY_HEALTH_BONUS, Attributes.MAX_HEALTH, Operation.ADD_VALUE, handler ->  handler.getBody().getHealthBonus()),
+            new ModifierBuilder(DRAGON_BODY_HEALTH_MULT, Attributes.MAX_HEALTH, Operation.ADD_MULTIPLIED_TOTAL, handler ->  handler.getBody().getHealthMult() - 1),
+            new ModifierBuilder(DRAGON_BODY_JUMP_BONUS, Attributes.JUMP_STRENGTH, Operation.ADD_VALUE, handler ->  handler.getBody().getJumpBonus()),
+            new ModifierBuilder(DRAGON_BODY_FLIGHT_STAMINA, DSAttributes.FLIGHT_STAMINA_COST, Operation.ADD_MULTIPLIED_TOTAL, handler ->  handler.getBody().getFlightStaminaMult())
     );
   
-    private static double buildForestSafeFallDistanceMod(Player player) {
+    private static double buildForestSafeFallDistanceMod(DragonStateHandler handler) {
         double distance = 0;
-        if (DragonUtils.isDragonType(player, DragonTypes.FOREST)) {
-            Optional<CliffhangerAbility> ability = DragonAbilities.getAbility(player, CliffhangerAbility.class);
+        if (DragonUtils.isDragonType(handler, DragonTypes.FOREST)) {
+            Optional<CliffhangerAbility> ability = DragonAbilities.getAbility(handler, CliffhangerAbility.class);
             if (ability.isPresent()) {
                 distance = ability.get().getHeight();
             }
@@ -143,9 +141,8 @@ public class DSModifiers {
         return distance;
     }
   
-    private static double buildHealthMod(Player player) {
+    private static double buildHealthMod(DragonStateHandler handler) {
         if (!DragonBonusConfig.healthAdjustments) return 0;
-        DragonStateHandler handler = DragonStateProvider.getData(player);
         double healthModifier;
         double size = handler.getSize();
         // TODO :: change to sth. simpler? e.g. health point per size point (0.5 by default?)
@@ -159,8 +156,7 @@ public class DSModifiers {
         return healthModifier;
     }
 
-    private static double buildReachMod(Player player) {
-        DragonStateHandler handler = DragonStateProvider.getData(player);
+    private static double buildReachMod(DragonStateHandler handler) {
         double reachModifier;
         double size = handler.getSize();
         if (ServerConfig.allowLargeScaling && size > ServerConfig.DEFAULT_MAX_GROWTH_SIZE) {
@@ -171,9 +167,8 @@ public class DSModifiers {
         return reachModifier;
     }
 
-    private static double buildDamageMod(Player player) {
+    private static double buildDamageMod(DragonStateHandler handler) {
         if (!DragonBonusConfig.isDamageBonusEnabled) return 0;
-        DragonStateHandler handler = DragonStateProvider.getData(player);
         double ageBonus = handler.getLevel() == DragonLevel.ADULT ? DragonBonusConfig.adultBonusDamage : handler.getLevel() == DragonLevel.YOUNG ? DragonBonusConfig.youngBonusDamage : DragonBonusConfig.newbornBonusDamage;
         if (ServerConfig.allowLargeScaling && handler.getSize() > ServerConfig.DEFAULT_MAX_GROWTH_SIZE) {
             ageBonus += ServerConfig.largeDamageBonus * ((handler.getSize() - ServerConfig.DEFAULT_MAX_GROWTH_SIZE) / ServerConfig.DEFAULT_MAX_GROWTH_SIZE);
@@ -181,19 +176,16 @@ public class DSModifiers {
         return ageBonus;
     }
 
-    public static double buildSwimSpeedMod(Player player) {
-        DragonStateHandler handler = DragonStateProvider.getData(player);
+    public static double buildSwimSpeedMod(DragonStateHandler handler) {
         return DragonUtils.isDragonType(handler, DragonTypes.SEA) && SeaDragonConfig.seaSwimmingBonuses ? 1 : 0;
     }
 
-    private static double buildLavaSwimSpeedMod(Player player) {
-        DragonStateHandler handler = DragonStateProvider.getData(player);
+    private static double buildLavaSwimSpeedMod(DragonStateHandler handler) {
         // No extra config since it's basically already checked through 'ServerConfig#caveLavaSwimming'
         return DragonUtils.isDragonType(handler, DragonTypes.CAVE) ? 1 : 0;
     }
 
-    private static double buildStepHeightMod(Player player) {
-        DragonStateHandler handler = DragonStateProvider.getData(player);
+    private static double buildStepHeightMod(DragonStateHandler handler) {
         double size = handler.getSize();
         double stepHeightBonus = handler.getLevel() == DragonLevel.ADULT ? DragonBonusConfig.adultStepHeight : handler.getLevel() == DragonLevel.YOUNG ? DragonBonusConfig.youngStepHeight : DragonBonusConfig.newbornStepHeight;
         if (size > ServerConfig.DEFAULT_MAX_GROWTH_SIZE && ServerConfig.allowLargeScaling) {
@@ -202,8 +194,7 @@ public class DSModifiers {
         return stepHeightBonus;
     }
 
-    private static double buildMovementSpeedMod(Player player) {
-        DragonStateHandler handler = DragonStateProvider.getData(player);
+    private static double buildMovementSpeedMod(DragonStateHandler handler) {
         double moveSpeedMultiplier = 1;
         double size = handler.getSize();
         if (handler.getLevel() == DragonLevel.NEWBORN) {
@@ -223,8 +214,7 @@ public class DSModifiers {
     }
 
     // Needs to be public for fall damage math in DragonBonusHandler
-    public static double buildJumpMod(Player player) {
-        DragonStateHandler handler = DragonStateProvider.getData(player);
+    public static double buildJumpMod(DragonStateHandler handler) {
         double jumpBonus = 0;
         if (handler.getBody() != null) {
             jumpBonus = handler.getBody().getJumpBonus();
@@ -240,8 +230,7 @@ public class DSModifiers {
         return jumpBonus;
     }
 
-    private static double buildSubmergedMiningSpeedMod(Player player) {
-        DragonStateHandler handler = DragonStateProvider.getData(player);
+    private static double buildSubmergedMiningSpeedMod(DragonStateHandler handler) {
         return DragonUtils.isDragonType(handler, DragonTypes.SEA) ? (2 * (handler.getLevel().ordinal() + 1)) : 0;
     }
 

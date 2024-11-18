@@ -67,8 +67,8 @@ public class BlockLootTableSubProvider extends BlockLootSubProvider {
                 } else if (block instanceof DragonBeacon) {
                     // We want all dragon beacons to drop empty dragon beacons instead
                     return createSingleItemTable(DSBlocks.EMPTY_DRAGON_BEACON.value());
-                } else if (block instanceof VaultBlock) {
-                    // Vaults should not drop anything
+                } else if (block instanceof VaultBlock || block instanceof PrimordialAnchorBlock) {
+                    // Vaults and Primordial Anchors should not drop anything
                     return LootTable.lootTable();
                 }
 

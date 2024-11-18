@@ -39,7 +39,6 @@ public class NetworkHandler {
         registrar.playBidirectional(SyncDragonHandler.Data.TYPE, SyncDragonHandler.Data.STREAM_CODEC, new DirectionalPayloadHandler<>(SyncDragonHandler::handleClient, SyncDragonHandler::handleServer));
         registrar.playBidirectional(SyncDragonMovement.Data.TYPE, SyncDragonMovement.Data.STREAM_CODEC, new DirectionalPayloadHandler<>(SyncDragonMovement::handleClient, SyncDragonMovement::handleServer));
         registrar.playToClient(SyncDragonType.Data.TYPE, SyncDragonType.Data.STREAM_CODEC, SyncDragonType::handleClient);
-        registrar.playToClient(SyncChatEvent.Data.TYPE, SyncChatEvent.Data.STREAM_CODEC, SyncChatEvent::handleClient);
         registrar.playToClient(SyncPlayerJump.Data.TYPE, SyncPlayerJump.Data.STREAM_CODEC, SyncPlayerJump::handleClient);
         registrar.playToClient(RefreshDragon.Data.TYPE, RefreshDragon.Data.STREAM_CODEC, RefreshDragon::handleClient);
         registrar.playBidirectional(SyncAltarCooldown.Data.TYPE, SyncAltarCooldown.Data.STREAM_CODEC, new DirectionalPayloadHandler<>(SyncAltarCooldown::handleClient, SyncAltarCooldown::handleServer));
