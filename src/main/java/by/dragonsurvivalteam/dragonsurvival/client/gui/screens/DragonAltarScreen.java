@@ -7,10 +7,10 @@ import by.dragonsurvivalteam.dragonsurvival.client.util.FakeClientPlayerUtils;
 import by.dragonsurvivalteam.dragonsurvival.client.util.TextRenderUtil;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
-import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonBodies;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.Translation;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.lang.LangKey;
+import by.dragonsurvivalteam.dragonsurvival.registry.dragon.DragonBody;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonLevel;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -32,7 +32,6 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.lwjgl.opengl.GL11;
-
 
 public class DragonAltarScreen extends Screen {
     @Translation(type = Translation.Type.MISC, comments = "Choose a Dragon Species")
@@ -94,14 +93,12 @@ public class DragonAltarScreen extends Screen {
             animation1++;
             animation2++;
 
-            int randBody = (int) (Math.random() * (DragonBodies.bodyMappings.size()));
-
             if (handler1.getBody() == null) {
-                handler1.setBody(DragonBodies.CENTER);
+                handler1.setBody(DragonBody.random(null));
             }
 
-            handler2.setBody(DragonBodies.staticBodies.get(handler1.getBody().getBodyName()));
-            handler1.setBody(DragonBodies.staticBodies.get(DragonBodies.bodyMappings.keySet().toArray(new String[0])[randBody]));
+            handler2.setBody(handler1.getBody());
+            handler1.setBody(DragonBody.random(null));
 
             if (animation1 >= animations.length) {
                 animation1 = 0;
@@ -116,11 +113,21 @@ public class DragonAltarScreen extends Screen {
             if (btn instanceof AltarTypeButton button) {
                 if (button.isHoveredOrFocused()) {
                     handler1.setType(button.type);
+
+                    if (handler1.getBody() == null) {
+                        handler1.setBody(DragonBody.random(null));
+                    }
+
                     handler1.setHasFlight(true);
                     handler1.setSize(DragonLevel.NEWBORN.size);
                     handler1.getSkinData().skinPreset.skinAges.get(DragonLevel.NEWBORN).get().defaultSkin = true;
 
                     handler2.setType(button.type);
+
+                    if (handler2.getBody() == null) {
+                        handler2.setBody(DragonBody.random(null));
+                    }
+
                     handler2.setHasFlight(true);
                     handler2.setSize(button.type == null ? DragonLevel.NEWBORN.size : DragonLevel.ADULT.size);
                     handler2.getSkinData().skinPreset.skinAges.get(button.type == null ? DragonLevel.NEWBORN : DragonLevel.ADULT).get().defaultSkin = true;

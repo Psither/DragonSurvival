@@ -369,15 +369,15 @@ public class SourceOfMagicBlock extends HorizontalDirectionalBlock implements Si
         DragonStateHandler handler = DragonStateProvider.getData(player);
         Block block = state.getBlock();
 
-        if (block == DSBlocks.CAVE_SOURCE_OF_MAGIC.get() && !DragonUtils.isDragonType(handler, DragonTypes.CAVE)) {
+        if (block == DSBlocks.CAVE_SOURCE_OF_MAGIC.get() && !DragonUtils.isType(handler, DragonTypes.CAVE)) {
             return true;
         }
 
-        if (block == DSBlocks.SEA_SOURCE_OF_MAGIC.get() && !DragonUtils.isDragonType(handler, DragonTypes.SEA)) {
+        if (block == DSBlocks.SEA_SOURCE_OF_MAGIC.get() && !DragonUtils.isType(handler, DragonTypes.SEA)) {
             return true;
         }
 
-        return block == DSBlocks.FOREST_SOURCE_OF_MAGIC.get() && !DragonUtils.isDragonType(handler, DragonTypes.FOREST);
+        return block == DSBlocks.FOREST_SOURCE_OF_MAGIC.get() && !DragonUtils.isType(handler, DragonTypes.FOREST);
     }
 
     public SourceOfMagicTileEntity getBlockEntity(Level world, BlockPos pos) {

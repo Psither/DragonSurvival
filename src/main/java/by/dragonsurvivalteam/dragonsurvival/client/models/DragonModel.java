@@ -7,15 +7,16 @@ import by.dragonsurvivalteam.dragonsurvival.client.util.RenderingUtils;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.objects.DragonMovementData;
-import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonBody;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.DragonEntity;
 import by.dragonsurvivalteam.dragonsurvival.config.ClientConfig;
+import by.dragonsurvivalteam.dragonsurvival.registry.dragon.DragonBody;
 import by.dragonsurvivalteam.dragonsurvival.util.AnimationUtils;
 import by.dragonsurvivalteam.dragonsurvival.util.Functions;
 import com.mojang.blaze3d.platform.NativeImage;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -235,10 +236,12 @@ public class DragonModel extends GeoModel<DragonEntity> {
     public static ResourceLocation getAnimationResource(final Player player) {
         if (player != null) {
             DragonStateHandler handler = DragonStateProvider.getData(player);
-            AbstractDragonBody body = handler.getBody();
+            Holder<DragonBody> body = handler.getBody();
 
             if (body != null) {
-                return ResourceLocation.fromNamespaceAndPath(MODID, String.format("animations/dragon_%s.json", body.getBodyNameLowerCase()));
+                //noinspection DataFlowIssue -> key is present
+                ResourceLocation location = body.getKey().location();
+                return ResourceLocation.fromNamespaceAndPath(location.getNamespace(), String.format("animations/dragon_%s.json", location.getPath()));
             }
         }
 

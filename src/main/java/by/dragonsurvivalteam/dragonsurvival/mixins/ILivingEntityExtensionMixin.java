@@ -17,7 +17,7 @@ public interface ILivingEntityExtensionMixin {
     /** Allow cave dragons to be considered as swimming when in lava (this enables properly sinking in lava when pressing shift e.g.) */
     @Inject(method = "canSwimInFluidType", at = @At("HEAD"), cancellable = true)
     private void dragonSurvival$enableLavaSwimming(final CallbackInfoReturnable<Boolean> callback, @Local(argsOnly = true) final FluidType fluid) {
-        if (fluid == NeoForgeMod.LAVA_TYPE.value() && (Object) this instanceof Player player && DragonUtils.isDragonType(player, DragonTypes.CAVE)) {
+        if (fluid == NeoForgeMod.LAVA_TYPE.value() && (Object) this instanceof Player player && DragonUtils.isType(player, DragonTypes.CAVE)) {
             callback.setReturnValue(true);
         }
     }

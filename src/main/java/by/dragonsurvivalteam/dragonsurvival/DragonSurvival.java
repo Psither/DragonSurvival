@@ -2,10 +2,10 @@ package by.dragonsurvivalteam.dragonsurvival;
 
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.EntityStateHandler;
-import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonBodies;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.config.ConfigHandler;
 import by.dragonsurvivalteam.dragonsurvival.magic.DragonAbilities;
+import by.dragonsurvivalteam.dragonsurvival.registry.*;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.loot.AddTableLootExtendedLootModifier;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.loot.DragonHeartLootModifier;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.loot.DragonOreLootModifier;
@@ -35,24 +35,6 @@ import org.apache.logging.log4j.Logger;
 import java.util.HashMap;
 import java.util.Map;
 
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSAdvancementTriggers.DS_TRIGGERS;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSAttributes.DS_ATTRIBUTES;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSBlocks.DS_BLOCKS;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSContainers.DS_CONTAINERS;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSCreativeTabs.DS_CREATIVE_MODE_TABS;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSEffects.DS_MOB_EFFECTS;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSEntities.DS_ENTITY_TYPES;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSEquipment.DS_ARMOR_MATERIALS;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSItems.DS_ITEMS;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSMapDecorationTypes.DS_MAP_DECORATIONS;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSParticles.DS_PARTICLES;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSPotions.DS_POTIONS;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSSounds.DS_SOUNDS;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSStructurePlacementTypes.DS_STRUCTURE_PLACEMENT_TYPES;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSTileEntities.DS_TILE_ENTITIES;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSTrades.DS_POI_TYPES;
-import static by.dragonsurvivalteam.dragonsurvival.registry.DSTrades.DS_VILLAGER_PROFESSIONS;
-
 @Mod(DragonSurvival.MODID)
 public class DragonSurvival {
     public static final String MODID = "dragonsurvival";
@@ -74,32 +56,32 @@ public class DragonSurvival {
         PROXY = FMLLoader.getDist().isClient() ? new ClientProxy() : new ServerProxy();
 
         DragonTypes.registerTypes();
-        DragonBodies.registerBodies();
 
         ConfigHandler.initConfig();
         DragonAbilities.initAbilities();
 
         bus.addListener(this::addPackFinders);
 
-        // We need to register blocks before items, since otherwise the items will register before the item-blocks can be assigned
-        DS_ATTRIBUTES.register(bus);
-        DS_ARMOR_MATERIALS.register(bus);
-        DS_BLOCKS.register(bus);
-        DS_ITEMS.register(bus);
         DS_ATTACHMENT_TYPES.register(bus);
-        DS_MOB_EFFECTS.register(bus);
-        DS_CONTAINERS.register(bus);
-        DS_CREATIVE_MODE_TABS.register(bus);
-        DS_PARTICLES.register(bus);
-        DS_SOUNDS.register(bus);
-        DS_POTIONS.register(bus);
-        DS_TILE_ENTITIES.register(bus);
-        DS_ENTITY_TYPES.register(bus);
-        DS_MAP_DECORATIONS.register(bus);
-        DS_POI_TYPES.register(bus);
-        DS_VILLAGER_PROFESSIONS.register(bus);
-        DS_STRUCTURE_PLACEMENT_TYPES.register(bus);
-        DS_TRIGGERS.register(bus);
+        DSAttributes.DS_ATTRIBUTES.register(bus);
+        DSEquipment.DS_ARMOR_MATERIALS.register(bus);
+        // We need to register blocks before items, since otherwise the items will register before the item-blocks can be assigned
+        DSBlocks.DS_BLOCKS.register(bus);
+        DSItems.DS_ITEMS.register(bus);
+        DSEffects.DS_MOB_EFFECTS.register(bus);
+        DSContainers.DS_CONTAINERS.register(bus);
+        DSCreativeTabs.DS_CREATIVE_MODE_TABS.register(bus);
+        DSParticles.DS_PARTICLES.register(bus);
+        DSSounds.DS_SOUNDS.register(bus);
+        DSPotions.DS_POTIONS.register(bus);
+        DSTileEntities.DS_TILE_ENTITIES.register(bus);
+        DSEntities.DS_ENTITY_TYPES.register(bus);
+        DSMapDecorationTypes.DS_MAP_DECORATIONS.register(bus);
+        DSTrades.DS_POI_TYPES.register(bus);
+        DSTrades.DS_VILLAGER_PROFESSIONS.register(bus);
+        DSStructurePlacementTypes.DS_STRUCTURE_PLACEMENT_TYPES.register(bus);
+        DSAdvancementTriggers.DS_TRIGGERS.register(bus);
+        DSCommands.ARGUMENT_TYPES.register(bus);
         GLM.register(bus);
     }
 

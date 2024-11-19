@@ -154,11 +154,11 @@ public class ServerFlightHandler {
     }
 
     private static Holder<MobEffect> getFlightEffectForType(AbstractDragonType type) {
-        if (DragonUtils.isDragonType(type, DragonTypes.SEA)) {
+        if (DragonUtils.isType(type, DragonTypes.SEA)) {
             return DSEffects.SEA_DRAGON_WINGS;
-        } else if (DragonUtils.isDragonType(type, DragonTypes.CAVE)) {
+        } else if (DragonUtils.isType(type, DragonTypes.CAVE)) {
             return DSEffects.CAVE_DRAGON_WINGS;
-        } else if (DragonUtils.isDragonType(type, DragonTypes.FOREST)) {
+        } else if (DragonUtils.isType(type, DragonTypes.FOREST)) {
             return DSEffects.FOREST_DRAGON_WINGS;
         }
 
@@ -321,7 +321,7 @@ public class ServerFlightHandler {
 
     public static boolean canSwimSpin(Player player){
         DragonStateHandler dragonStateHandler = DragonStateProvider.getData(player);
-        boolean validSwim = (DragonUtils.isDragonType(dragonStateHandler, DragonTypes.SEA) || DragonUtils.isDragonType(dragonStateHandler, DragonTypes.FOREST)) && player.isInWater() || player.isInLava() && DragonUtils.isDragonType(dragonStateHandler, DragonTypes.CAVE);
+        boolean validSwim = (DragonUtils.isType(dragonStateHandler, DragonTypes.SEA) || DragonUtils.isType(dragonStateHandler, DragonTypes.FOREST)) && player.isInWater() || player.isInLava() && DragonUtils.isType(dragonStateHandler, DragonTypes.CAVE);
         return validSwim && dragonStateHandler.hasFlight() && !player.onGround();
     }
 

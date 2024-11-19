@@ -37,11 +37,11 @@ public class DragonStateProvider implements ICapabilityProvider<Player, Void, Dr
     }
 
     public static boolean isDragon(@Nullable Entity entity) {
-        if (!(entity instanceof Player)) {
+        if (!(entity instanceof Player player)) {
             return false;
         }
 
-        return getOptional(entity).filter(DragonStateHandler::isDragon).isPresent();
+        return DragonStateProvider.getData(player).isDragon();
     }
 
     private static DragonStateHandler getFakePlayerHandler(@NotNull Entity entity) {

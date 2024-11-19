@@ -1,6 +1,5 @@
 package by.dragonsurvivalteam.dragonsurvival.common.items;
 
-
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.network.player.SyncDragonHandler;
@@ -23,9 +22,9 @@ public class WingGrantItem extends TooltipItem {
         DragonStateHandler handler = DragonStateProvider.getData(player);
 
         if (handler.isDragon()) {
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 handler.setHasFlight(!handler.hasFlight());
-                PacketDistributor.sendToAllPlayers(new SyncDragonHandler.Data(player.getId(), handler.isHiding(), handler.getType(), handler.getBody(), handler.getSize(), handler.hasFlight(), handler.getPassengerId()));
+                PacketDistributor.sendToAllPlayers(new SyncDragonHandler.Data(handler.getTypeName(), handler.getBody(), handler.getSize(), player.getId(), handler.getPassengerId(), handler.hasFlight(), handler.isHiding()));
 
                 if (!player.isCreative()) {
                     player.getItemInHand(hand).shrink(1);

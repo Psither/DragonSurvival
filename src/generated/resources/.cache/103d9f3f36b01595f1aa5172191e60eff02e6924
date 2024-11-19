@@ -1,4 +1,4 @@
-// 1.21.1	2024-11-13T08:21:16.1497263	Registries
+// 1.21.1	2024-11-19T00:20:27.828279	Registries
 011b2ee382ec961722c100bbf059b4aa460f44b0 data/dragonsurvival/damage_type/anti_dragon.json
 afb20257741b4a8be55ecf8e013125f113a9d486 data/dragonsurvival/damage_type/cave_dragon_breath.json
 7a732909707be826e322901b5c204e548e48a12b data/dragonsurvival/damage_type/cave_dragon_burn.json
@@ -13,4 +13,9 @@ deed90b4724d21cdbf6bcc3d547ce88b8ebf220c data/dragonsurvival/damage_type/forest_
 9324d2a244a05eb4c3b5e1569cf72db6a0dad382 data/dragonsurvival/damage_type/sea_dragon_breath.json
 8742553c9323837e23002ce815536f5ce4a86427 data/dragonsurvival/damage_type/spectral_impact.json
 3f23f53780e47cb3f324226b6427baef314125d5 data/dragonsurvival/damage_type/water_burn.json
+faec1481698b888501c6e017f435e285fc0d8c59 data/dragonsurvival/dragonsurvival/dragon_bodies/center.json
+373f9398520f39e5bdc8f9a21cbde87df27d6b68 data/dragonsurvival/dragonsurvival/dragon_bodies/east.json
+b6b12b2d8ca745950df8c259c05200b9f7ef15d9 data/dragonsurvival/dragonsurvival/dragon_bodies/north.json
+b521d62fb12b4f32652120f44ef8dd1e31fcc94f data/dragonsurvival/dragonsurvival/dragon_bodies/south.json
+06b3f3ea0903267e8680b776ce1d1d243fedfcd3 data/dragonsurvival/dragonsurvival/dragon_bodies/west.json
 af16c6fd6045f7a95654506a3b0c0bef505e6c33 data/dragonsurvival/enchantment/bolas.json

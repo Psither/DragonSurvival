@@ -54,8 +54,14 @@ public class DragonTypes {
         return staticTypes.get(name.toLowerCase(Locale.ENGLISH));
     }
 
-    public static AbstractDragonType getStaticSubtype(String name) {
-        return staticSubtypes.get(name.toLowerCase(Locale.ENGLISH));
+    public static @Nullable AbstractDragonType getStaticSubtype(String name) {
+        String lowerCase = name.toLowerCase(Locale.ENGLISH);
+
+        if (name.equals("none") || name.equals("human")) {
+            return null;
+        }
+
+        return staticSubtypes.get(lowerCase);
     }
 
     public static List<String> getTypes() {

@@ -311,7 +311,7 @@ public class ToolTipHandler {
             event.setBorderStart(top);
             event.setBorderEnd(bottom);
         } else if (isAbilityScreen || isDragonFood) {
-            AbstractDragonType type = DragonUtils.getDragonType(DragonSurvival.PROXY.getLocalPlayer());
+            AbstractDragonType type = DragonUtils.getType(DragonSurvival.PROXY.getLocalPlayer());
             Color topColor = null;
             Color bottomColor = null;
 

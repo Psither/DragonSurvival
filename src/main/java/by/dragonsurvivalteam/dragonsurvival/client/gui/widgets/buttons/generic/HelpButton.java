@@ -27,12 +27,12 @@ public class HelpButton extends ExtendedButton {
     private boolean usesVanillaTooltip;
 
     public HelpButton(int x, int y, int sizeX, int sizeY, String text, int variation) {
-        this(DragonUtils.getDragonType(Minecraft.getInstance().player), x, y, sizeX, sizeY, text, variation);
+        this(DragonUtils.getType(Minecraft.getInstance().player), x, y, sizeX, sizeY, text, variation);
     }
 
     // This is needed for the DragonScreen, as otherwise we'll get cut out by the scissoring used for the rendering of the player entity in the window
     public HelpButton(int x, int y, int sizeX, int sizeY, String text, int variation, boolean usesVanillaTooltip) {
-        this(DragonUtils.getDragonType(Minecraft.getInstance().player), x, y, sizeX, sizeY, text, variation);
+        this(DragonUtils.getType(Minecraft.getInstance().player), x, y, sizeX, sizeY, text, variation);
         if (usesVanillaTooltip) {
             setTooltip(Tooltip.create(Component.translatable(text)));
         }

@@ -9,7 +9,6 @@ import by.dragonsurvivalteam.dragonsurvival.config.server.dragon.DragonBonusConf
 import by.dragonsurvivalteam.dragonsurvival.config.server.dragon.ForestDragonConfig;
 import by.dragonsurvivalteam.dragonsurvival.network.status.SyncPlayerJump;
 import by.dragonsurvivalteam.dragonsurvival.registry.DSEffects;
-import by.dragonsurvivalteam.dragonsurvival.registry.DSModifiers;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.DamageTypeTags;
@@ -41,17 +40,17 @@ public class DragonBonusHandler {
         DragonStateProvider.getOptional(living).ifPresent(handler -> {
             if (handler.isDragon()) {
                 if (DragonBonusConfig.bonusesEnabled) {
-                    if (CaveDragonConfig.caveFireImmunity && DragonUtils.isDragonType(handler, DragonTypes.CAVE) && damageSource.is(DamageTypeTags.IS_FIRE)) {
+                    if (CaveDragonConfig.caveFireImmunity && DragonUtils.isType(handler, DragonTypes.CAVE) && damageSource.is(DamageTypeTags.IS_FIRE)) {
                         event.setCanceled(true);
-                    } else if (ForestDragonConfig.bushImmunity && DragonUtils.isDragonType(handler, DragonTypes.FOREST) && damageSource == living.damageSources().sweetBerryBush()) {
+                    } else if (ForestDragonConfig.bushImmunity && DragonUtils.isType(handler, DragonTypes.FOREST) && damageSource == living.damageSources().sweetBerryBush()) {
                         event.setCanceled(true);
-                    } else if (ForestDragonConfig.cactusImmunity && DragonUtils.isDragonType(handler, DragonTypes.FOREST) && damageSource == living.damageSources().cactus()) {
+                    } else if (ForestDragonConfig.cactusImmunity && DragonUtils.isType(handler, DragonTypes.FOREST) && damageSource == living.damageSources().cactus()) {
                         event.setCanceled(true);
                     }
                 }
 
                 if (CaveDragonConfig.caveSplashDamage != 0) {
-                    if (DragonUtils.isDragonType(handler, DragonTypes.CAVE) && !living.hasEffect(DSEffects.FIRE)) {
+                    if (DragonUtils.isType(handler, DragonTypes.CAVE) && !living.hasEffect(DSEffects.FIRE)) {
                         if (damageSource.getDirectEntity() instanceof Snowball) {
                             living.hurt(living.damageSources().generic(), CaveDragonConfig.caveSplashDamage.floatValue());
                         }
@@ -71,7 +70,7 @@ public class DragonBonusHandler {
             boolean isRelevant = event.getSound().value().getLocation().getPath().contains(".step");
 
             if (isRelevant && DragonBonusConfig.bonusesEnabled && CaveDragonConfig.caveLavaSwimming) {
-                if (DragonUtils.isDragonType(player, DragonTypes.CAVE) && DragonSizeHandler.getOverridePose(player) == Pose.SWIMMING) {
+                if (DragonUtils.isType(player, DragonTypes.CAVE) && DragonSizeHandler.getOverridePose(player) == Pose.SWIMMING) {
                     event.setCanceled(true);
                 }
             }
@@ -103,7 +102,7 @@ public class DragonBonusHandler {
         if (dropsEvent.getBreaker() == null) return;
 
         // TODO :: also handle experience? would need a hook in 'CommonHooks#handleBlockDrops' to store some context and then modify the experience orb in 'ExperienceOrb#award'
-        if (DragonUtils.isDragonType(dropsEvent.getBreaker(), DragonTypes.CAVE)) {
+        if (DragonUtils.isType(dropsEvent.getBreaker(), DragonTypes.CAVE)) {
             dropsEvent.getDrops().forEach(drop -> drop.getData(DragonSurvival.ENTITY_HANDLER).isFireImmune = true);
         }
     }
@@ -138,7 +137,8 @@ public class DragonBonusHandler {
                 if(gravity <= 0) return;
 
                 // Don't allow a negative jump penalty to cause a negative safe fall distance
-                double jumpMod = DSModifiers.buildJumpMod(DragonStateProvider.getData(player)) + handler.getBody().getJumpBonus();
+//                double jumpMod = DSModifiers.buildJumpMod(DragonStateProvider.getData(player)) + handler.getBody().getJumpBonus(); // FIXME
+                double jumpMod = 0;
                 if(jumpMod <= 0) return;
 
                 // Calculate the extra jump height that the dragon gains based off of the jumpMod and gravity

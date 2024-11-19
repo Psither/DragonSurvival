@@ -1,5 +1,6 @@
 package by.dragonsurvivalteam.dragonsurvival.registry;
 
+import by.dragonsurvivalteam.dragonsurvival.DragonSurvival;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
@@ -8,6 +9,8 @@ import by.dragonsurvivalteam.dragonsurvival.config.server.dragon.DragonBonusConf
 import by.dragonsurvivalteam.dragonsurvival.config.server.dragon.SeaDragonConfig;
 import by.dragonsurvivalteam.dragonsurvival.magic.DragonAbilities;
 import by.dragonsurvivalteam.dragonsurvival.magic.abilities.ForestDragon.passive.CliffhangerAbility;
+import by.dragonsurvivalteam.dragonsurvival.mixins.AttributeMapAccessor;
+import by.dragonsurvivalteam.dragonsurvival.registry.dragon.DragonBody;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonLevel;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import net.minecraft.core.Holder;
@@ -22,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.neoforged.neoforge.common.NeoForgeMod;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
 
@@ -114,24 +118,9 @@ public class DSModifiers {
             new ModifierBuilder(DRAGON_JUMP_BONUS, Attributes.JUMP_STRENGTH, Operation.ADD_VALUE, DSModifiers::buildJumpMod)
     );
 
-    private static final List<ModifierBuilder> BODY_MODIFIER_BUILDERS = List.of(
-            new ModifierBuilder(DRAGON_BODY_MOVEMENT_SPEED, Attributes.MOVEMENT_SPEED, Operation.ADD_MULTIPLIED_TOTAL, handler ->  handler.getBody().getRunMult() - 1),
-            new ModifierBuilder(DRAGON_BODY_ARMOR, Attributes.ARMOR, Operation.ADD_VALUE, handler ->  handler.getBody().getArmorBonus()),
-            new ModifierBuilder(DRAGON_BODY_STRENGTH, Attributes.ATTACK_DAMAGE, Operation.ADD_VALUE, handler ->  handler.getBody().getDamageBonus()),
-            new ModifierBuilder(DRAGON_BODY_STRENGTH_MULT, Attributes.ATTACK_DAMAGE, Operation.ADD_MULTIPLIED_TOTAL, handler ->  handler.getBody().getDamageMult() - 1),
-            new ModifierBuilder(DRAGON_BODY_KNOCKBACK_BONUS, Attributes.ATTACK_KNOCKBACK, Operation.ADD_VALUE, handler ->  handler.getBody().getKnockbackBonus()),
-            new ModifierBuilder(DRAGON_BODY_SWIM_SPEED_BONUS, NeoForgeMod.SWIM_SPEED, Operation.ADD_VALUE, handler -> handler.getBody().getSwimSpeedBonus()),
-            new ModifierBuilder(DRAGON_BODY_STEP_HEIGHT_BONUS, Attributes.STEP_HEIGHT, Operation.ADD_VALUE, handler ->  handler.getBody().getStepBonus()),
-            new ModifierBuilder(DRAGON_BODY_GRAVITY_MULT, Attributes.GRAVITY, Operation.ADD_MULTIPLIED_TOTAL, handler ->  handler.getBody().getGravityMult() - 1),
-            new ModifierBuilder(DRAGON_BODY_HEALTH_BONUS, Attributes.MAX_HEALTH, Operation.ADD_VALUE, handler ->  handler.getBody().getHealthBonus()),
-            new ModifierBuilder(DRAGON_BODY_HEALTH_MULT, Attributes.MAX_HEALTH, Operation.ADD_MULTIPLIED_TOTAL, handler ->  handler.getBody().getHealthMult() - 1),
-            new ModifierBuilder(DRAGON_BODY_JUMP_BONUS, Attributes.JUMP_STRENGTH, Operation.ADD_VALUE, handler ->  handler.getBody().getJumpBonus()),
-            new ModifierBuilder(DRAGON_BODY_FLIGHT_STAMINA, DSAttributes.FLIGHT_STAMINA_COST, Operation.ADD_MULTIPLIED_TOTAL, handler ->  handler.getBody().getFlightStaminaMult())
-    );
-  
     private static double buildForestSafeFallDistanceMod(DragonStateHandler handler) {
         double distance = 0;
-        if (DragonUtils.isDragonType(handler, DragonTypes.FOREST)) {
+        if (DragonUtils.isType(handler, DragonTypes.FOREST)) {
             Optional<CliffhangerAbility> ability = DragonAbilities.getAbility(handler, CliffhangerAbility.class);
             if (ability.isPresent()) {
                 distance = ability.get().getHeight();
@@ -177,12 +166,12 @@ public class DSModifiers {
     }
 
     public static double buildSwimSpeedMod(DragonStateHandler handler) {
-        return DragonUtils.isDragonType(handler, DragonTypes.SEA) && SeaDragonConfig.seaSwimmingBonuses ? 1 : 0;
+        return DragonUtils.isType(handler, DragonTypes.SEA) && SeaDragonConfig.seaSwimmingBonuses ? 1 : 0;
     }
 
     private static double buildLavaSwimSpeedMod(DragonStateHandler handler) {
         // No extra config since it's basically already checked through 'ServerConfig#caveLavaSwimming'
-        return DragonUtils.isDragonType(handler, DragonTypes.CAVE) ? 1 : 0;
+        return DragonUtils.isType(handler, DragonTypes.CAVE) ? 1 : 0;
     }
 
     private static double buildStepHeightMod(DragonStateHandler handler) {
@@ -217,7 +206,7 @@ public class DSModifiers {
     public static double buildJumpMod(DragonStateHandler handler) {
         double jumpBonus = 0;
         if (handler.getBody() != null) {
-            jumpBonus = handler.getBody().getJumpBonus();
+//            jumpBonus = handler.getBody().getJumpBonus(); // FIXME
             if (ServerConfig.allowLargeScaling && handler.getSize() > ServerConfig.DEFAULT_MAX_GROWTH_SIZE) {
                 jumpBonus += ServerConfig.largeJumpHeightScalar * (handler.getSize() - ServerConfig.DEFAULT_MAX_GROWTH_SIZE) / ServerConfig.DEFAULT_MAX_GROWTH_SIZE;
             }
@@ -231,43 +220,82 @@ public class DSModifiers {
     }
 
     private static double buildSubmergedMiningSpeedMod(DragonStateHandler handler) {
-        return DragonUtils.isDragonType(handler, DragonTypes.SEA) ? (2 * (handler.getLevel().ordinal() + 1)) : 0;
+        return DragonUtils.isType(handler, DragonTypes.SEA) ? (2 * (handler.getLevel().ordinal() + 1)) : 0;
     }
 
     public static void updateAllModifiers(Player player) {
-        updateTypeModifiers(player);
-        updateSizeModifiers(player);
-        updateBodyModifiers(player);
+        if (player.level().isClientSide()) {
+            return;
+        }
+
+        DragonStateHandler handler = DragonStateProvider.getData(player);
+
+        updateTypeModifiers(player, handler);
+        updateSizeModifiers(player, handler);
+        updateBodyModifiers(player, handler);
     }
 
-    public static void updateTypeModifiers(Player player) {
+    public static void updateTypeModifiers(Player player, DragonStateHandler handler) {
+        if (player.level().isClientSide()) {
+            return;
+        }
+
         for (ModifierBuilder builder : TYPE_MODIFIER_BUILDERS) {
             builder.updateModifier(player);
         }
     }
 
-    public static void updateSizeModifiers(Player player) {
+    public static void updateSizeModifiers(Player player, DragonStateHandler handler) {
+        if (player.level().isClientSide()) {
+            return;
+        }
+
         for (ModifierBuilder builder : SIZE_MODIFIER_BUILDERS) {
             builder.updateModifier(player);
         }
     }
 
-    public static void updateBodyModifiers(Player player) {
-        for (ModifierBuilder builder : BODY_MODIFIER_BUILDERS) {
-            builder.updateModifier(player);
+    public static void updateBodyModifiers(Player player, DragonStateHandler handler) {
+        if (player.level().isClientSide()) {
+            return;
+        }
+
+        Map<Holder<Attribute>, AttributeInstance> attributes = ((AttributeMapAccessor) player.getAttributes()).dragonSurvival$getAttributes();
+
+        attributes.values().forEach(instance -> instance.getModifiers().forEach(modifier -> {
+            if (modifier.id().getPath().startsWith(DragonBody.ATTRIBUTE_PATH)) {
+                instance.removeModifier(modifier);
+            }
+        }));
+
+        if (handler.isDragon()) {
+            handler.getBody().value().modifiers().forEach(modifier -> {
+                AttributeInstance instance = player.getAttribute(modifier.attribute());
+
+                if (instance != null) {
+                    instance.addPermanentModifier(modifier.modifier());
+                } else {
+                    DragonSurvival.LOGGER.error("Player does not have the attribute [{}] - bonus from dragon body [{}] cannot be applied", modifier.attribute(), handler.getBody());
+                }
+            });
         }
     }
 
     public static void updateSafeFallDistanceModifiers(Player player) {
+        if (player.level().isClientSide()) {
+            return;
+        }
+
         for (ModifierBuilder builder : SIZE_MODIFIER_BUILDERS) {
             if (builder.modifier.equals(DRAGON_SAFE_FALL_DISTANCE)) {
                 builder.updateModifier(player);
             }
         }
-        for (ModifierBuilder builder : BODY_MODIFIER_BUILDERS) {
-            if (builder.modifier.equals(DRAGON_BODY_SAFE_FALL_DISTANCE)) {
-                builder.updateModifier(player);
-            }
-        }
+        // FIXME
+//        for (ModifierBuilder builder : BODY_MODIFIER_BUILDERS) {
+//            if (builder.modifier.equals(DRAGON_BODY_SAFE_FALL_DISTANCE)) {
+//                builder.updateModifier(player);
+//            }
+//        }
     }
 }

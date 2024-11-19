@@ -156,11 +156,11 @@ public class AltarTypeButton extends Button {
 
         int uOffset = 3;
 
-        if (DragonUtils.isDragonType(type, DragonTypes.CAVE)) {
+        if (DragonUtils.isType(type, DragonTypes.CAVE)) {
             uOffset = 0;
-        } else if (DragonUtils.isDragonType(type, DragonTypes.FOREST)) {
+        } else if (DragonUtils.isType(type, DragonTypes.FOREST)) {
             uOffset = 1;
-        } else if (DragonUtils.isDragonType(type, DragonTypes.SEA)) {
+        } else if (DragonUtils.isType(type, DragonTypes.SEA)) {
             uOffset = 2;
         }
 

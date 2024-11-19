@@ -129,12 +129,12 @@ public class MagicCap extends SubCap {
 
     public List<ActiveDragonAbility> getActiveAbilities() {
         if (abilities.isEmpty()) initAbilities(handler.getType());
-        return abilities.values().stream().filter(ActiveDragonAbility.class::isInstance).filter(s -> DragonUtils.isDragonType(handler, s.getDragonType())).map(ActiveDragonAbility.class::cast).toList();
+        return abilities.values().stream().filter(ActiveDragonAbility.class::isInstance).filter(s -> DragonUtils.isType(handler, s.getDragonType())).map(ActiveDragonAbility.class::cast).toList();
     }
 
     public List<PassiveDragonAbility> getPassiveAbilities() {
         if (abilities.isEmpty()) initAbilities(handler.getType());
-        return abilities.values().stream().filter(PassiveDragonAbility.class::isInstance).filter(s -> DragonUtils.isDragonType(handler, s.getDragonType())).map(PassiveDragonAbility.class::cast).toList();
+        return abilities.values().stream().filter(PassiveDragonAbility.class::isInstance).filter(s -> DragonUtils.isType(handler, s.getDragonType())).map(PassiveDragonAbility.class::cast).toList();
     }
 
     public ActiveDragonAbility getAbilityFromSlot(int slot) {

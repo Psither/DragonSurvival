@@ -136,11 +136,11 @@ public class DragonFoodHandler {
             return List.of();
         }
 
-        if (DragonUtils.isDragonType(type, DragonTypes.FOREST) && !FOREST_DRAGON_FOOD.isEmpty()) {
+        if (DragonUtils.isType(type, DragonTypes.FOREST) && !FOREST_DRAGON_FOOD.isEmpty()) {
             return FOREST_DRAGON_FOOD;
-        } else if (DragonUtils.isDragonType(type, DragonTypes.SEA) && !SEA_DRAGON_FOOD.isEmpty()) {
+        } else if (DragonUtils.isType(type, DragonTypes.SEA) && !SEA_DRAGON_FOOD.isEmpty()) {
             return SEA_DRAGON_FOOD;
-        } else if (DragonUtils.isDragonType(type, DragonTypes.CAVE) && !CAVE_DRAGON_FOOD.isEmpty()) {
+        } else if (DragonUtils.isType(type, DragonTypes.CAVE) && !CAVE_DRAGON_FOOD.isEmpty()) {
             return CAVE_DRAGON_FOOD;
         }
 
@@ -164,11 +164,11 @@ public class DragonFoodHandler {
             }
         }
 
-        if (DragonUtils.isDragonType(type, DragonTypes.FOREST)) {
+        if (DragonUtils.isType(type, DragonTypes.FOREST)) {
             FOREST_DRAGON_FOOD = foods;
-        } else if (DragonUtils.isDragonType(type, DragonTypes.CAVE)) {
+        } else if (DragonUtils.isType(type, DragonTypes.CAVE)) {
             CAVE_DRAGON_FOOD = foods;
-        } else if (DragonUtils.isDragonType(type, DragonTypes.SEA)) {
+        } else if (DragonUtils.isType(type, DragonTypes.SEA)) {
             SEA_DRAGON_FOOD = foods;
         }
 

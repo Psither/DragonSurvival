@@ -6,6 +6,7 @@ import by.dragonsurvivalteam.dragonsurvival.registry.DSEnchantments;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.advancements.DSAdvancements;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.lang.DSLanguageProvider;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.tags.*;
+import by.dragonsurvivalteam.dragonsurvival.registry.dragon.DragonBody;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.core.registries.Registries;
@@ -28,7 +29,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 @EventBusSubscriber(bus = EventBusSubscriber.Bus.MOD)
-public class NeoForgedDataGen {
+public class DataGeneration {
     @SubscribeEvent
     public static void generateData(final GatherDataEvent event) {
         DataGenerator generator = event.getGenerator();
@@ -52,6 +53,7 @@ public class NeoForgedDataGen {
         RegistrySetBuilder builder = new RegistrySetBuilder();
         builder.add(Registries.DAMAGE_TYPE, DSDamageTypes::registerDamageTypes);
         builder.add(Registries.ENCHANTMENT, DSEnchantments::registerEnchantments);
+        builder.add(DragonBody.REGISTRY, DragonBody::registerBodies);
         DatapackBuiltinEntriesProvider datapackProvider = new DatapackBuiltinEntriesProvider(output, lookup, builder, Set.of(DragonSurvival.MODID));
         generator.addProvider(event.includeServer(), datapackProvider);
 
@@ -66,6 +68,7 @@ public class NeoForgedDataGen {
         generator.addProvider(event.includeServer(), new DSEffectTags(output, lookup, helper));
         generator.addProvider(event.includeServer(), new DSPoiTypeTags(output, lookup, helper));
         generator.addProvider(event.includeServer(), new DSEnchantmentTags(output, lookup, helper));
+        generator.addProvider(event.includeServer(), new DSBodyTags(output, lookup, helper));
         generator.addProvider(event.includeServer(), new DataBlockModelProvider(output, helper));
         generator.addProvider(event.includeServer(), new AdvancementProvider(output, lookup, helper, List.of(new DSAdvancements())));
 

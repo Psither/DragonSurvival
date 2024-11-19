@@ -38,8 +38,6 @@ public class DSBlocks {
 
     // --- Dragon Doors --- //
 
-    // TODO :: blocks used description_addition
-
     @Translation(type = Translation.Type.BLOCK, comments = "Spruce Dragon Door")
     public static final DeferredHolder<Block, DragonDoor> SPRUCE_DRAGON_DOOR = register(
             "spruce_dragon_door",

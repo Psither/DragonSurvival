@@ -34,7 +34,7 @@ public abstract class DragonWingAbility extends InnateDragonAbility {
         DragonStateHandler data = DragonStateProvider.getData(player);
         String spin;
 
-        if (DragonUtils.isDragonType(data, DragonTypes.CAVE)) {
+        if (DragonUtils.isType(data, DragonTypes.CAVE)) {
             spin = data.getMovementData().spinLearned ? LAVA_SPIN : NO_LAVA_SPIN;
         } else {
             spin = data.getMovementData().spinLearned ? WATER_SPIN : NO_WATER_SPIN;

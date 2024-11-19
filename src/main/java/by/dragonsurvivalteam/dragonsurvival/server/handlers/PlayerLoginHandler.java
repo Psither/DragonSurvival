@@ -4,7 +4,6 @@ import by.dragonsurvivalteam.dragonsurvival.DragonSurvival;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
-import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonBodies;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.types.CaveDragonType;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.types.ForestDragonType;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.types.SeaDragonType;
@@ -12,6 +11,7 @@ import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
 import by.dragonsurvivalteam.dragonsurvival.config.server.dragon.CaveDragonConfig;
 import by.dragonsurvivalteam.dragonsurvival.network.container.AllowOpenDragonAltar;
 import by.dragonsurvivalteam.dragonsurvival.network.syncing.SyncComplete;
+import by.dragonsurvivalteam.dragonsurvival.registry.dragon.DragonBody;
 import by.dragonsurvivalteam.dragonsurvival.util.Functions;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -39,7 +39,7 @@ public class PlayerLoginHandler {
             DragonStateProvider.getOptional(player).ifPresent(handler -> {
                 if (handler.getType() != null && handler.getBody() == null) {
                     // Otherwise players won't be able to join the world
-                    handler.setBody(DragonBodies.CENTER);
+                    handler.setBody(DragonBody.random(entity.registryAccess()));
                     DragonSurvival.LOGGER.error("Player {} was a dragon but had an invalid dragon body type", player);
                 }
 
@@ -114,7 +114,7 @@ public class PlayerLoginHandler {
             data.altarCooldown--;
         }
 
-        if (!ServerConfig.startWithDragonChoice || data.hasUsedAltar || serverPlayer.tickCount < Functions.secondsToTicks(5)) {
+        if (!ServerConfig.startWithDragonChoice || data.hasUsedAltar || data.isInAltar || serverPlayer.tickCount < Functions.secondsToTicks(5)) {
             return;
         }
 

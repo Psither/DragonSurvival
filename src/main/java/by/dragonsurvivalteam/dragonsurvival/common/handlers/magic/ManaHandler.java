@@ -14,9 +14,9 @@ import by.dragonsurvivalteam.dragonsurvival.config.types.BlockStateConfig;
 import by.dragonsurvivalteam.dragonsurvival.magic.DragonAbilities;
 import by.dragonsurvivalteam.dragonsurvival.magic.common.passive.MagicAbility;
 import by.dragonsurvivalteam.dragonsurvival.network.magic.SyncMagicStats;
+import by.dragonsurvivalteam.dragonsurvival.registry.DSAttributes;
 import by.dragonsurvivalteam.dragonsurvival.registry.DSEffects;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.tags.DSBlockTags;
-import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import by.dragonsurvivalteam.dragonsurvival.util.ExperienceUtils;
 import by.dragonsurvivalteam.dragonsurvival.util.Functions;
 import net.minecraft.server.level.ServerPlayer;
@@ -118,7 +118,7 @@ public class ManaHandler {
     }
 
     public static int getMaxMana(final Player player) {
-        int mana = 1;
+        int mana = (int) player.getAttributeValue(DSAttributes.MANA);
 
         if (ServerConfig.consumeExperienceAsMana) {
             mana += getManaFromExperience(player);
@@ -126,10 +126,6 @@ public class ManaHandler {
 
         DragonStateHandler data = DragonStateProvider.getData(player);
         mana += DragonAbilities.getAbility(player, MagicAbility.class, data.getType()).map(MagicAbility::getMana).orElse(0);
-
-        if (DragonUtils.getDragonBody(player) != null) {
-            mana += data.getBody().getManaBonus();
-        }
 
         return Math.max(0, mana);
     }

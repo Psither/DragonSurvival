@@ -192,7 +192,7 @@ public class DragonAbilities {
 
             // FIXME :: has ability checks the subtype, this doesnt - what is the expected behaviour?
 
-            return DragonUtils.isDragonType(handler.getType(), ability.getDragonType());
+            return DragonUtils.isType(handler.getType(), ability.getDragonType());
         }).findAny();
     }
 
@@ -207,7 +207,7 @@ public class DragonAbilities {
 
             // FIXME :: has ability checks the subtype, this doesnt - what is the expected behaviour?
 
-            return DragonUtils.isDragonType(dragonType, ability.getDragonType());
+            return DragonUtils.isType(dragonType, ability.getDragonType());
         }).findAny();
     }
 

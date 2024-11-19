@@ -71,9 +71,9 @@ public class DragonPressurePlates extends PressurePlateBlock implements SimpleWa
                     return switch (type) {
                         case DRAGON -> DragonStateProvider.isDragon(entity) ? 15 : 0;
                         case HUMAN -> !DragonStateProvider.isDragon(entity) ? 15 : 0;
-                        case SEA -> DragonUtils.isDragonType(entity, DragonTypes.SEA) ? 15 : 0;
-                        case FOREST -> DragonUtils.isDragonType(entity, DragonTypes.FOREST) ? 15 : 0;
-                        case CAVE -> DragonUtils.isDragonType(entity, DragonTypes.CAVE) ? 15 : 0;
+                        case SEA -> DragonUtils.isType(entity, DragonTypes.SEA) ? 15 : 0;
+                        case FOREST -> DragonUtils.isType(entity, DragonTypes.FOREST) ? 15 : 0;
+                        case CAVE -> DragonUtils.isType(entity, DragonTypes.CAVE) ? 15 : 0;
                     };
                 }
             }

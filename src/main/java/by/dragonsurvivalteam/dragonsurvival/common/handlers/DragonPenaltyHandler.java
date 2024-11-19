@@ -72,7 +72,7 @@ public class DragonPenaltyHandler {
 
                 DragonStateProvider.getOptional(player).ifPresent(dragonStateHandler -> {
                     if(dragonStateHandler.isDragon()){
-                        if(dragonStateHandler.getType() == null || !DragonUtils.isDragonType(dragonStateHandler, DragonTypes.CAVE)){
+                        if(dragonStateHandler.getType() == null || !DragonUtils.isType(dragonStateHandler, DragonTypes.CAVE)){
                             return;
                         }
                         player.hurt(new DamageSource(DSDamageTypes.get(player.level(), DSDamageTypes.WATER_BURN)), CaveDragonConfig.caveSplashDamage.floatValue());
@@ -128,7 +128,7 @@ public class DragonPenaltyHandler {
                 if (!player.level().isClientSide() && SeaDragonConfig.seaAllowWaterBottles && itemStack.getItem() instanceof PotionItem) {
                     Optional<Potion> potion = PotionUtils.getPotion(itemStack);
 
-                    if (potion.isPresent() && potion.get() == Potions.WATER.value() && DragonUtils.isDragonType(handler, DragonTypes.SEA)) {
+                    if (potion.isPresent() && potion.get() == Potions.WATER.value() && DragonUtils.isType(handler, DragonTypes.SEA)) {
                         seaDragonType.timeWithoutWater = Math.max(seaDragonType.timeWithoutWater - SeaDragonConfig.seaTicksWithoutWaterRestored, 0);
                         PacketDistributor.sendToPlayersTrackingEntity(player, new SyncDragonType.Data(player.getId(), seaDragonType.writeNBT()));
                     }

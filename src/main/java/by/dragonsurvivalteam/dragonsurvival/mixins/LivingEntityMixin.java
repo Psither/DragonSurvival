@@ -171,7 +171,7 @@ public abstract class LivingEntityMixin extends Entity {
             return;
         }
 
-        boolean isInLava = DragonBonusConfig.bonusesEnabled && CaveDragonConfig.caveLavaSwimming && DragonUtils.isDragonType(data, DragonTypes.CAVE) && isInLava();
+        boolean isInLava = DragonBonusConfig.bonusesEnabled && CaveDragonConfig.caveLavaSwimming && DragonUtils.isType(data, DragonTypes.CAVE) && isInLava();
 
         if (!isInLava && !isInWater() || !player.isAffectedByFluids() || player.canStandOnFluid(fluidState)) {
             return;

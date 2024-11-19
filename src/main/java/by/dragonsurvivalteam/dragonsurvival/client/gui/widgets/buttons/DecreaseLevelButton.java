@@ -42,8 +42,8 @@ public class DecreaseLevelButton extends ArrowButton {
     }
 
     @Override
-    public void renderWidget(@NotNull final GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        super.renderWidget(guiGraphics, pMouseX, pMouseY, pPartialTick);
+    public void renderWidget(@NotNull final GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+        super.renderWidget(graphics, pMouseX, pMouseY, pPartialTick);
 
         if (isHovered()) {
             DragonStateProvider.getOptional(Minecraft.getInstance().player).ifPresent(cap -> {
@@ -51,7 +51,7 @@ public class DecreaseLevelButton extends ArrowButton {
 
                 if (ability != null) {
                     if (ability.getLevel() > ability.getMinLevel()) {
-                        guiGraphics.renderTooltip(Minecraft.getInstance().font, Component.translatable(LEVEL_DOWN, (int) Math.max(0, ability.getLevelCost() * 0.0F)), pMouseX, pMouseY);
+                        graphics.renderTooltip(Minecraft.getInstance().font, Component.translatable(LEVEL_DOWN, (int) Math.max(0, ability.getLevelCost() * 0.0F)), pMouseX, pMouseY);
                     }
                 }
             });

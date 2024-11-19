@@ -104,7 +104,7 @@ public abstract class EntityMixin {
         }
 
         DragonStateProvider.getOptional(entity).ifPresent(handler -> {
-            if (handler.isDragon() && DragonUtils.isDragonType(handler, DragonTypes.CAVE)) {
+            if (handler.isDragon() && DragonUtils.isType(handler, DragonTypes.CAVE)) {
                 callback.setReturnValue(false);
             }
         });
@@ -151,7 +151,7 @@ public abstract class EntityMixin {
         }
 
         //noinspection ConstantValue -> the condition is not always false
-        return DragonBonusConfig.bonusesEnabled && CaveDragonConfig.caveFireImmunity && (Object) this instanceof Player player && DragonUtils.isDragonType(player, DragonTypes.CAVE);
+        return DragonBonusConfig.bonusesEnabled && CaveDragonConfig.caveFireImmunity && (Object) this instanceof Player player && DragonUtils.isType(player, DragonTypes.CAVE);
     }
 
     @Shadow public abstract double getX();

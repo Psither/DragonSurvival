@@ -167,9 +167,9 @@ public class SmallDragonDoor extends Block implements SimpleWaterloggedBlock {
 
         boolean canOpen = switch (blockState.getValue(OPEN_REQ)) {
             case NONE -> true;
-            case CAVE -> DragonUtils.isDragonType(handler, DragonTypes.CAVE);
-            case FOREST -> DragonUtils.isDragonType(handler, DragonTypes.FOREST);
-            case SEA -> DragonUtils.isDragonType(handler, DragonTypes.SEA);
+            case CAVE -> DragonUtils.isType(handler, DragonTypes.CAVE);
+            case FOREST -> DragonUtils.isType(handler, DragonTypes.FOREST);
+            case SEA -> DragonUtils.isType(handler, DragonTypes.SEA);
             case POWER -> /* TODO :: Unused? */ true;
             case LOCKED -> /* TODO :: Unused? */ true;
         };

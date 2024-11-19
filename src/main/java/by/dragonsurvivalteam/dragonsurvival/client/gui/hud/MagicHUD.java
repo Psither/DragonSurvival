@@ -223,8 +223,8 @@ public class MagicHUD {
                 guiGraphics.pose().pushPose();
                 guiGraphics.pose().scale(0.5F, 0.5F, 0);
 
-                int yPos1 = DragonUtils.isDragonType(handler, DragonTypes.CAVE) ? 0 : DragonUtils.isDragonType(handler, DragonTypes.FOREST) ? 47 : 94;
-                int yPos2 = DragonUtils.isDragonType(handler, DragonTypes.CAVE) ? 142 : DragonUtils.isDragonType(handler, DragonTypes.FOREST) ? 147 : 152;
+                int yPos1 = DragonUtils.isType(handler, DragonTypes.CAVE) ? 0 : DragonUtils.isType(handler, DragonTypes.FOREST) ? 47 : 94;
+                int yPos2 = DragonUtils.isType(handler, DragonTypes.CAVE) ? 142 : DragonUtils.isType(handler, DragonTypes.FOREST) ? 147 : 152;
 
                 float perc = Math.min((float) currentCastTime / (float) skillCastTime, 1);
 

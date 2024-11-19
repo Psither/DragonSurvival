@@ -24,7 +24,7 @@ public class DragonTreatItem extends TooltipItem {
 
     @Override
     public @NotNull ItemStack finishUsingItem(@NotNull final ItemStack itemStack, @NotNull final Level level, @NotNull final LivingEntity livingEntity) {
-        if (livingEntity instanceof Player player && DragonUtils.isDragonType(player, type)) {
+        if (livingEntity instanceof Player player && DragonUtils.isType(player, type)) {
             ManaHandler.replenishMana(player, ManaHandler.getMaxMana(player));
             player.addEffect(new MobEffectInstance(DSEffects.SOURCE_OF_MAGIC, Functions.minutesToTicks(1)));
         }

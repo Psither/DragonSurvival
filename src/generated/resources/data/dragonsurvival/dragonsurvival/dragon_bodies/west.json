@@ -1,0 +1,53 @@
+{
+  "can_hide_wings": false,
+  "modifiers": [
+    {
+      "attribute": "minecraft:generic.attack_knockback",
+      "modifier": {
+        "amount": 0.5,
+        "id": "dragonsurvival:dragonsurvival/body/west.generic.attack_knockback",
+        "operation": "add_value"
+      }
+    },
+    {
+      "attribute": "minecraft:generic.movement_speed",
+      "modifier": {
+        "amount": -0.3,
+        "id": "dragonsurvival:dragonsurvival/body/west.generic.movement_speed",
+        "operation": "add_multiplied_total"
+      }
+    },
+    {
+      "attribute": "minecraft:generic.step_height",
+      "modifier": {
+        "amount": 1.0,
+        "id": "dragonsurvival:dragonsurvival/body/west.generic.step_height",
+        "operation": "add_value"
+      }
+    },
+    {
+      "attribute": "neoforge:swim_speed",
+      "modifier": {
+        "amount": -0.3,
+        "id": "dragonsurvival:dragonsurvival/body/west.swim_speed",
+        "operation": "add_value"
+      }
+    },
+    {
+      "attribute": "dragonsurvival:flight_speed",
+      "modifier": {
+        "amount": 0.2,
+        "id": "dragonsurvival:dragonsurvival/body/west.flight_speed",
+        "operation": "add_value"
+      }
+    },
+    {
+      "attribute": "dragonsurvival:flight_stamina_cost",
+      "modifier": {
+        "amount": 1.0,
+        "id": "dragonsurvival:dragonsurvival/body/west.flight_stamina_cost",
+        "operation": "add_multiplied_total"
+      }
+    }
+  ]
+}

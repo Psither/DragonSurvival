@@ -66,7 +66,7 @@ public class DragonFoodItem extends TooltipItem {
     public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity entity) {
         ItemStack result = super.finishUsingItem(stack, level, entity);
 
-        if (dragonType == null || DragonUtils.isDragonType(entity, dragonType)) {
+        if (dragonType == null || DragonUtils.isType(entity, dragonType)) {
             if (onEat != null) {
                 onEat.accept(entity);
             }

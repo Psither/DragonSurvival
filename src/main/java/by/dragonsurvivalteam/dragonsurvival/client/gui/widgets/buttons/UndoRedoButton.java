@@ -16,11 +16,11 @@ public class UndoRedoButton extends ArrowButton {
     }
 
     @Override
-    public void renderWidget(@NonNull final GuiGraphics guiGraphics, int p_230431_2_, int p_230431_3_, float p_230431_4_) {
+    public void renderWidget(@NonNull final GuiGraphics graphics, int p_230431_2_, int p_230431_3_, float p_230431_4_) {
         if (next) {
-            guiGraphics.blit(REDO, getX(), getY(), 0, 0, width, height, width, height);
+            graphics.blit(REDO, getX(), getY(), 0, 0, width, height, width, height);
         } else {
-            guiGraphics.blit(UNDO, getX(), getY(), 0, 0, width, height, width, height);
+            graphics.blit(UNDO, getX(), getY(), 0, 0, width, height, width, height);
         }
     }
 }

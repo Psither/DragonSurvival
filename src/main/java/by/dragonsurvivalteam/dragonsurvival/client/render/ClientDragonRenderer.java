@@ -144,9 +144,9 @@ public class ClientDragonRenderer {
             int range = BreathAbility.calculateCurrentBreathRange(handler.getSize());
             AbstractDragonType dragonType = handler.getType();
 
-            int red = DragonUtils.isDragonType(dragonType, DragonTypes.CAVE) ? 1 : 0;
-            int green = DragonUtils.isDragonType(dragonType, DragonTypes.FOREST) ? 1 : 0;
-            int blue = DragonUtils.isDragonType(dragonType, DragonTypes.SEA) ? 1 : 0;
+            int red = DragonUtils.isType(dragonType, DragonTypes.CAVE) ? 1 : 0;
+            int green = DragonUtils.isType(dragonType, DragonTypes.FOREST) ? 1 : 0;
+            int blue = DragonUtils.isType(dragonType, DragonTypes.SEA) ? 1 : 0;
 
             LevelRenderer.renderLineBox(poseStack, buffer, DragonAbilities.calculateBreathArea(localPlayer, handler, range), red, green, blue, 1);
 
@@ -503,7 +503,7 @@ public class ClientDragonRenderer {
         }
 
         DragonStateProvider.getOptional(Minecraft.getInstance().player).ifPresent(handler -> {
-            if (DragonUtils.isDragonType(handler, DragonTypes.CAVE)) {
+            if (DragonUtils.isType(handler, DragonTypes.CAVE)) {
                 event.setCanceled(true);
             }
         });

@@ -19,28 +19,28 @@ public class ArrowButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int p_230431_2_, int p_230431_3_, float p_230431_4_) {
+    public void renderWidget(GuiGraphics graphics, int p_230431_2_, int p_230431_3_, float p_230431_4_) {
         RenderSystem.setShaderTexture(0, TEXTURE);
 
-        guiGraphics.pose().pushPose();
-        guiGraphics.pose().translate(0, 0, 0);
         float xSize = (float) width / 34F;
         float ySize = (float) height / 34F;
 
-        guiGraphics.pose().translate(getX() - getX() * xSize, getY() - getY() * ySize, 0);
-        guiGraphics.pose().scale(xSize, ySize, 0);
+        graphics.pose().pushPose();
+        graphics.pose().translate(getX() - getX() * xSize, getY() - getY() * ySize, 0);
+        graphics.pose().scale(xSize, ySize, 0);
 
-        if (next)
+        if (next) {
             if (isHovered) {
-                guiGraphics.blit(TEXTURE, getX(), getY(), 34, 34, 34, 34);
+                graphics.blit(TEXTURE, getX(), getY(), 34, 34, 34, 34);
             } else {
-                guiGraphics.blit(TEXTURE, getX(), getY(), 0, 34, 34, 34);
+                graphics.blit(TEXTURE, getX(), getY(), 0, 34, 34, 34);
             }
-        else if (isHovered) {
-            guiGraphics.blit(TEXTURE, getX(), getY(), 34, 0, 34, 34);
+        } else if (isHovered) {
+            graphics.blit(TEXTURE, getX(), getY(), 34, 0, 34, 34);
         } else {
-            guiGraphics.blit(TEXTURE, getX(), getY(), 0, 0, 34, 34);
+            graphics.blit(TEXTURE, getX(), getY(), 0, 0, 34, 34);
         }
-        guiGraphics.pose().popPose();
+
+        graphics.pose().popPose();
     }
 }

@@ -11,6 +11,7 @@ import by.dragonsurvivalteam.dragonsurvival.config.obj.ConfigSide;
 import by.dragonsurvivalteam.dragonsurvival.input.Keybind;
 import by.dragonsurvivalteam.dragonsurvival.network.flight.SyncFlyingStatus;
 import by.dragonsurvivalteam.dragonsurvival.network.flight.SyncSpinStatus;
+import by.dragonsurvivalteam.dragonsurvival.registry.DSAttributes;
 import by.dragonsurvivalteam.dragonsurvival.registry.DSEffects;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.Translation;
 import by.dragonsurvivalteam.dragonsurvival.registry.datagen.lang.LangKey;
@@ -255,10 +256,7 @@ public class ClientFlightHandler {
             } else {
                 DragonStateProvider.getOptional(player).ifPresent(handler -> {
                     if (handler.isDragon()) {
-                        Double flightMult = 1.0;
-                        if (DragonUtils.getDragonBody(handler) != null) {
-                            flightMult = DragonUtils.getDragonBody(handler).getFlightMult();
-                        }
+                        Double flightSpeedMultiplier = player.getAttributeValue(DSAttributes.FLIGHT_SPEED);
 
                         Vec3 viewVector = player.getLookAngle();
                         double yaw = Math.toRadians(player.getYHeadRot() + 90);
@@ -324,37 +322,37 @@ public class ClientFlightHandler {
                                     deltaMovement = player.getDeltaMovement().add(0.0D, gravity * (-1.0D + (double) verticalDelta * 0.75D), 0.0D);
 
                                     if (deltaMovement.y < 0 && horizontalView > 0) {
-                                        double downwardMomentum = deltaMovement.y * -0.1D * (double) verticalDelta * flightMult;
+                                        double downwardMomentum = deltaMovement.y * -0.1D * (double) verticalDelta * flightSpeedMultiplier;
                                         deltaMovement = deltaMovement.add(viewVector.x * downwardMomentum / horizontalView, downwardMomentum, viewVector.z * downwardMomentum / horizontalView);
                                     }
 
                                     if (pitch < 0 && horizontalView > 0) {
                                         // Handle movement when the player makes turns
-                                        double delta = horizontalMovement * -Mth.sin(pitch) * 0.04D * flightMult;
+                                        double delta = horizontalMovement * -Mth.sin(pitch) * 0.04D * flightSpeedMultiplier;
                                         deltaMovement = deltaMovement.add(-viewVector.x * delta / horizontalView, delta * 3.2D, -viewVector.z * delta / horizontalView);
                                     }
 
                                     if (horizontalView > 0) {
-                                        deltaMovement = deltaMovement.add((viewVector.x * flightMult / horizontalView * horizontalMovement - deltaMovement.x) * 0.1D, 0.0D, (viewVector.z * flightMult / horizontalView * horizontalMovement - deltaMovement.z) * 0.1D);
+                                        deltaMovement = deltaMovement.add((viewVector.x * flightSpeedMultiplier / horizontalView * horizontalMovement - deltaMovement.x) * 0.1D, 0.0D, (viewVector.z * flightSpeedMultiplier / horizontalView * horizontalMovement - deltaMovement.z) * 0.1D);
                                     }
 
                                     // Increase speed while flying down or height when flying up
                                     if (viewVector.y < 0) {
-                                        ax += (Math.cos(yaw) * flightMult * 2) / 500;
-                                        az += (Math.sin(yaw) * flightMult * 2) / 500;
+                                        ax += (Math.cos(yaw) * flightSpeedMultiplier * 2) / 500;
+                                        az += (Math.sin(yaw) * flightSpeedMultiplier * 2) / 500;
                                     } else {
                                         ay = viewVector.y / 4;
                                         ax *= 0.98;
                                         az *= 0.98;
                                     }
 
-                                    double speedLimit = ServerFlightHandler.maxFlightSpeed * flightMult;
+                                    double speedLimit = ServerFlightHandler.maxFlightSpeed * flightSpeedMultiplier;
                                     ax = Mth.clamp(ax, -0.4 * speedLimit, 0.4 * speedLimit);
                                     az = Mth.clamp(az, -0.4 * speedLimit, 0.4 * speedLimit);
 
                                     if (ServerFlightHandler.isSpin(player)) { // TODO :: If the spin move is used in water won't the acceleration be applied twice?
-                                        ax += (Math.cos(yaw) * flightMult * 100 * 2) / 500;
-                                        az += (Math.sin(yaw) * flightMult * 100 * 2) / 500;
+                                        ax += (Math.cos(yaw) * flightSpeedMultiplier * 100 * 2) / 500;
+                                        az += (Math.sin(yaw) * flightSpeedMultiplier * 100 * 2) / 500;
                                         ay = viewVector.y / 4;
                                     }
 
@@ -376,16 +374,16 @@ public class ClientFlightHandler {
 
                                 if (!ServerFlightHandler.isGliding(player)) {
                                     wasGliding = false;
-                                    double maxForward = 0.5 * flightMult * 2;
+                                    double maxForward = 0.5 * flightSpeedMultiplier * 2;
 
                                     Vec3 moveVector = getInputVector(new Vec3(movement.leftImpulse, 0, movement.forwardImpulse), 1F, player.getYRot());
-                                    moveVector.multiply(1.3 * flightMult * 2, 0, 1.3 * flightMult * 2);
+                                    moveVector.multiply(1.3 * flightSpeedMultiplier * 2, 0, 1.3 * flightSpeedMultiplier * 2);
 
                                     boolean moving = movement.up || movement.down || movement.left || movement.right;
 
                                     if (ServerFlightHandler.isSpin(player)) {
-                                        ax += (Math.cos(yaw) * flightMult * 200 * 2) / 500;
-                                        az += (Math.sin(yaw) * flightMult * 200 * 2) / 500;
+                                        ax += (Math.cos(yaw) * flightSpeedMultiplier * 200 * 2) / 500;
+                                        az += (Math.sin(yaw) * flightSpeedMultiplier * 200 * 2) / 500;
                                         ay = viewVector.y / 8;
                                     }
 
@@ -394,8 +392,8 @@ public class ClientFlightHandler {
                                     }
 
                                     if (moving && !movement.jumping && !movement.shiftKeyDown) {
-                                        maxForward = 0.8 * flightMult * 2;
-                                        moveVector.multiply(1.4 * flightMult * 2, 0, 1.4 * flightMult * 2);
+                                        maxForward = 0.8 * flightSpeedMultiplier * 2;
+                                        moveVector.multiply(1.4 * flightSpeedMultiplier * 2, 0, 1.4 * flightSpeedMultiplier * 2);
                                         deltaMovement = new Vec3(Mth.lerp(0.14, deltaMovement.x, moveVector.x), 0, Mth.lerp(0.14, deltaMovement.z, moveVector.z));
                                         deltaMovement = new Vec3(Mth.clamp(deltaMovement.x, -maxForward, maxForward), 0, Mth.clamp(deltaMovement.z, -maxForward, maxForward));
 

@@ -133,6 +133,7 @@ public class ToolUtils {
         return 0;
     }
 
+    /** Converts the supplied harvest level to a corresponding vanilla {@link Tier} */
     public static @Nullable Tier harvestLevelToTier(int harvestLevel) {
         if (harvestLevel == 0) {
             return Tiers.WOOD;

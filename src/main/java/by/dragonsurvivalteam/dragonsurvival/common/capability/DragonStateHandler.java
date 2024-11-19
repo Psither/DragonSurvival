@@ -3,9 +3,7 @@ package by.dragonsurvivalteam.dragonsurvival.common.capability;
 import by.dragonsurvivalteam.dragonsurvival.commands.DragonCommand;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.objects.DragonMovementData;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.subcapabilities.*;
-import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonBody;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
-import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonBodies;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.DragonTypes;
 import by.dragonsurvivalteam.dragonsurvival.common.handlers.magic.HunterHandler;
 import by.dragonsurvivalteam.dragonsurvival.config.ServerConfig;
@@ -14,10 +12,13 @@ import by.dragonsurvivalteam.dragonsurvival.mixins.PlayerEndMixin;
 import by.dragonsurvivalteam.dragonsurvival.mixins.PlayerStartMixin;
 import by.dragonsurvivalteam.dragonsurvival.network.client.ClientProxy;
 import by.dragonsurvivalteam.dragonsurvival.registry.DSModifiers;
+import by.dragonsurvivalteam.dragonsurvival.registry.dragon.DragonBody;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonLevel;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import by.dragonsurvivalteam.dragonsurvival.util.Functions;
 import by.dragonsurvivalteam.dragonsurvival.util.ToolUtils;
+import net.minecraft.ResourceLocationException;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -34,11 +35,14 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.UnknownNullability;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 public class DragonStateHandler extends EntityStateHandler {
+    public static final String DRAGON_BODY = "dragon_body";
+
     @SuppressWarnings("unchecked")
     public final Supplier<SubCap>[] caps = new Supplier[]{this::getSkinData, this::getMagicData, this::getEmoteData, this::getClawToolData};
 
@@ -82,7 +86,7 @@ public class DragonStateHandler extends EntityStateHandler {
     private final Map<String, Double> savedDragonSize = new ConcurrentHashMap<>();
 
     private AbstractDragonType dragonType;
-    private AbstractDragonBody dragonBody;
+    private Holder<DragonBody> dragonBody;
 
     private int passengerId = -1;
     private boolean isHiding;
@@ -97,7 +101,7 @@ public class DragonStateHandler extends EntityStateHandler {
     /** Sets the size, health and base damage */
     public void setSize(double size, Player player) {
         setSize(size);
-        DSModifiers.updateSizeModifiers(player);
+        DSModifiers.updateSizeModifiers(player, this);
     }
 
     private void checkAndRemoveModifier(@Nullable final AttributeInstance attribute, @Nullable final ResourceLocation modifier) {
@@ -170,11 +174,12 @@ public class DragonStateHandler extends EntityStateHandler {
         savedDragonSize.put(type, size);
     }
 
-    public AbstractDragonType getType() {
+    // TODO :: use optional for these?
+    public @Nullable AbstractDragonType getType() {
         return dragonType;
     }
 
-    public AbstractDragonBody getBody() {
+    public @Nullable Holder<DragonBody> getBody() {
         return dragonBody;
     }
 
@@ -206,8 +211,8 @@ public class DragonStateHandler extends EntityStateHandler {
         AbstractDragonType oldType = dragonType;
         setType(type);
 
-        if (!DragonUtils.isDragonType(oldType, dragonType)) {
-            DSModifiers.updateTypeModifiers(player);
+        if (!DragonUtils.isType(oldType, dragonType)) {
+            DSModifiers.updateTypeModifiers(player, this);
             skinData.skinPreset.initDefaults(dragonType);
         }
     }
@@ -219,7 +224,7 @@ public class DragonStateHandler extends EntityStateHandler {
             return;
         }
 
-        if (DragonUtils.isDragonType(dragonType, type)) {
+        if (DragonUtils.isType(dragonType, type)) {
             return;
         }
 
@@ -228,24 +233,24 @@ public class DragonStateHandler extends EntityStateHandler {
         dragonType = DragonTypes.newDragonTypeInstance(type.getSubtypeName());
     }
 
-    public void setBody(final AbstractDragonBody body, Player player) {
-        AbstractDragonBody oldBody = dragonBody;
+    public void setBody(final Holder<DragonBody> body, Player player) {
+        Holder<DragonBody> oldBody = dragonBody;
         setBody(body);
 
-        if (!DragonUtils.isBodyType(oldBody, dragonBody)) {
-            DSModifiers.updateBodyModifiers(player);
+        if (!DragonUtils.isBody(oldBody, dragonBody)) {
+            DSModifiers.updateBodyModifiers(player, this);
         }
     }
 
-    /** Only used for rendering related code - to properly set the body (and update modifiers) use {@link DragonStateHandler#setBody(AbstractDragonBody, Player)} */
-    public void setBody(final AbstractDragonBody body) {
+    /** Only used for rendering (does not update modifiers) */
+    public void setBody(final Holder<DragonBody> body) {
         if (body == null) {
             dragonType = null;
             return;
         }
 
-        if (dragonBody == null || !DragonUtils.isBodyType(body, dragonBody)) {
-            dragonBody = DragonBodies.newDragonBodyInstance(body.getBodyName());
+        if (dragonBody == null || !DragonUtils.isBody(body, dragonBody)) {
+            dragonBody = body;
             refreshBody = true;
         }
     }
@@ -352,7 +357,7 @@ public class DragonStateHandler extends EntityStateHandler {
     }
 
     public boolean isDragon() {
-        return dragonType != null;
+        return dragonType != null && dragonBody != null;
     }
 
     public int getPassengerId() {
@@ -387,13 +392,10 @@ public class DragonStateHandler extends EntityStateHandler {
         CompoundTag tag = new CompoundTag();
         tag.putString("type", dragonType != null ? dragonType.getTypeName() : "none");
         tag.putString("subtype", dragonType != null ? dragonType.getSubtypeName() : "none");
-        tag.putString("dragonBody", dragonBody != null ? dragonBody.getBodyName() : "none");
+        tag.putString(DRAGON_BODY, dragonBody != null ? dragonBody.getKey().location().toString() : "none");
 
         if (isDragon()) {
             tag.put("typeData", dragonType.writeNBT());
-            if (dragonBody != null) {
-                tag.put("bodyData", dragonBody.writeNBT());
-            }
 
             //Rendering
             DragonMovementData movementData = getMovementData();
@@ -463,25 +465,28 @@ public class DragonStateHandler extends EntityStateHandler {
     }
 
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag, boolean isLoadingForSoul) {
-        if (tag.getAllKeys().contains("subtype"))
+        if (tag.getAllKeys().contains("subtype")) {
             dragonType = DragonTypes.newDragonTypeInstance(tag.getString("subtype"));
-        else
+        } else {
             dragonType = DragonTypes.newDragonTypeInstance(tag.getString("type"));
-
-        if (dragonType != null) {
-            if (tag.contains("typeData")) {
-                dragonType.readNBT(tag.getCompound("typeData"));
-            }
         }
 
-        dragonBody = DragonBodies.newDragonBodyInstance(tag.getString("dragonBody"));
-        if (dragonBody != null) {
-            if (tag.contains("bodyData")) {
-                dragonBody.readNBT(tag.getCompound("bodyData"));
-            }
+        if (dragonType != null && tag.contains("typeData")) {
+            dragonType.readNBT(tag.getCompound("typeData"));
         }
+
+        try {
+            ResourceLocation bodyLocation = ResourceLocation.parse(tag.getString(DRAGON_BODY));
+            Optional<Holder.Reference<DragonBody>> optionalBody = provider.lookupOrThrow(DragonBody.REGISTRY).get(DragonBody.key(bodyLocation));
+            optionalBody.ifPresent(body -> dragonBody = body);
+        } catch (ResourceLocationException ignored) {}
 
         if (isDragon()) {
+            if (dragonBody == null) {
+                // This can happen if a dragon body gets removed
+                dragonBody = DragonBody.random(provider);
+            }
+
             setBite(tag.getBoolean("bite"));
             getMovementData().headYawLastFrame = getMovementData().headYaw;
             getMovementData().bodyYawLastFrame = getMovementData().bodyYaw;

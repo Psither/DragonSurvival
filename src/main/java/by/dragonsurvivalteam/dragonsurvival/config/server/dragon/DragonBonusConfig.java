@@ -112,7 +112,7 @@ public class DragonBonusConfig {
     @ConfigOption(side = ConfigSide.SERVER, category = "bonuses", key = "break_speed_multiplier")
     public static Float bonusBreakSpeed = 2f;
 
-    @ConfigRange(min = 1, max = 10) // FIXME :: put the stage at the start
+    @ConfigRange(min = 1, max = 10) // FIXME :: put the stage at the start (e.g. adult_break_speed_multiplier)
     @Translation(key = "break_speed_multiplier_adult", type = Translation.Type.CONFIGURATION, comments = {
             "Break speed bonus for blocks the dragon is effective against",
             "This config is only applicable to adult dragons"

@@ -49,8 +49,8 @@ public class IncreaseLevelButton extends ArrowButton {
     }
 
     @Override
-    public void renderWidget(@NotNull final GuiGraphics guiGraphics, int pMouseX, int pMouseY, float pPartialTick) {
-        super.renderWidget(guiGraphics, pMouseX, pMouseY, pPartialTick);
+    public void renderWidget(@NotNull final GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
+        super.renderWidget(graphics, pMouseX, pMouseY, pPartialTick);
 
         if (isHovered()) {
             DragonStateProvider.getOptional(Minecraft.getInstance().player).ifPresent(cap -> {
@@ -66,7 +66,7 @@ public class IncreaseLevelButton extends ArrowButton {
 
                     if (ability.getLevel() < ability.getMaxLevel()) {
                         skillCost = ability.getLevelCost(1);
-                        guiGraphics.renderComponentTooltip(Minecraft.getInstance().font, description, pMouseX, pMouseY);
+                        graphics.renderComponentTooltip(Minecraft.getInstance().font, description, pMouseX, pMouseY);
                     }
                 }
             });

@@ -7,9 +7,9 @@ import by.dragonsurvivalteam.dragonsurvival.client.util.RenderingUtils;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.subcapabilities.SkinCap;
-import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonBody;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
 import by.dragonsurvivalteam.dragonsurvival.common.entity.DragonEntity;
+import by.dragonsurvivalteam.dragonsurvival.registry.dragon.DragonBody;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import com.mojang.blaze3d.pipeline.RenderTarget;
 import com.mojang.blaze3d.pipeline.TextureTarget;
@@ -26,6 +26,7 @@ import net.minecraft.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ShaderInstance;
 import net.minecraft.client.renderer.texture.AbstractTexture;
+import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
@@ -76,7 +77,7 @@ public class DragonEditorHandler {
         }
 
         if (layer == EnumSkinLayer.BASE && (key.equalsIgnoreCase("Skin") || key.equalsIgnoreCase(SkinCap.defaultSkinValue))) {
-            return getSkinTextureMetadata(player, layer, type.getTypeNameLowerCase() + "_base_" + DragonUtils.getDragonLevel(player).ordinal(), type);
+            return getSkinTextureMetadata(player, layer, type.getTypeNameLowerCase() + "_base_" + DragonUtils.getLevel(player).ordinal(), type);
         }
 
         DragonTextureMetadata[] texts = DragonEditorRegistry.CUSTOMIZATIONS.getOrDefault(type.getTypeNameUpperCase(), new HashMap<>()).getOrDefault(layer, new DragonTextureMetadata[0]);
@@ -90,7 +91,7 @@ public class DragonEditorHandler {
         return null;
     }
 
-    public static ArrayList<String> getKeys(AbstractDragonType type, AbstractDragonBody body, EnumSkinLayer layers) {
+    public static ArrayList<String> getKeys(AbstractDragonType type, Holder<DragonBody> body, EnumSkinLayer layers) {
         if (Objects.equals(layers.name, "Extra") && layers != EnumSkinLayer.EXTRA) {
             return getKeys(type, body, EnumSkinLayer.EXTRA);
         }
@@ -99,7 +100,8 @@ public class DragonEditorHandler {
 
         DragonTextureMetadata[] texts = DragonEditorRegistry.CUSTOMIZATIONS.getOrDefault(type.getTypeNameUpperCase(), new HashMap<>()).getOrDefault(layers, new DragonTextureMetadata[0]);
         for (DragonTextureMetadata texture : texts) {
-            if (texture.bodies == null || Arrays.asList(texture.bodies).contains(body.toString())) {
+            // TODO :: change how body is checked
+            if (texture.bodies == null || Arrays.asList(texture.bodies).contains(body.getKey().location().getPath())) {
                 list.add(texture.key);
             }
         }
@@ -108,7 +110,7 @@ public class DragonEditorHandler {
     }
 
     public static ArrayList<String> getKeys(Player player, EnumSkinLayer layers) {
-        return getKeys(DragonUtils.getDragonType(player), DragonUtils.getDragonBody(player), layers);
+        return getKeys(DragonUtils.getType(player), DragonUtils.getBody(player), layers);
     }
 
     public static CompletableFuture<List<Pair<NativeImage, ResourceLocation>>> generateSkinTextures(final DragonEntity dragon) {

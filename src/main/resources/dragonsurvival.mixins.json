@@ -6,6 +6,7 @@
   "plugin": "by.dragonsurvivalteam.dragonsurvival.mixins.ApplyMixinPlugin",
   "refmap": "dragonsurvival.refmap.json",
   "mixins": [
+    "AttributeMapAccessor",
     "AttributesMixin",
     "BlockMixin",
     "EndPortalBlockMixin",
@@ -55,6 +56,7 @@
     "client.PlayerRendererMixin",
     "client.RenderTypeHelperMixin",
     "client.ScreenAccessor",
+    "client.TextureManagerAccess",
     "iris.GameRendererMixin",
     "sodium.ClientNeoForgeModMixin",
     "tool_swap.MultiPlayerGameModeEndMixin",

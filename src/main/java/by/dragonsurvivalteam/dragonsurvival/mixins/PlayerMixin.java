@@ -41,11 +41,11 @@ public abstract class PlayerMixin extends LivingEntity {
     /** Disables the mining speed penalty for not being on the ground (for sea dragons that are in the water) */
     @WrapOperation(method = "getDigSpeed", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/player/Player;onGround()Z"))
     private boolean dragonSurvival$disablePenalty(final Player instance, final Operation<Boolean> original) {
-        if (instance.isInWater() && DragonUtils.isDragonType(instance, DragonTypes.SEA)) {
+        if (instance.isInWater() && DragonUtils.isType(instance, DragonTypes.SEA)) {
             return true;
         }
 
-        if (instance.isInLava() && DragonUtils.isDragonType(instance, DragonTypes.CAVE)) {
+        if (instance.isInLava() && DragonUtils.isType(instance, DragonTypes.CAVE)) {
             return true;
         }
 
@@ -86,7 +86,7 @@ public abstract class PlayerMixin extends LivingEntity {
     @ModifyReturnValue(method = "canPlayerFitWithinBlocksAndEntitiesWhen", at = @At("RETURN"))
     private boolean dragonSurvival$checkDragonHitbox(boolean returnValue, @Local(argsOnly = true) Pose pose) {
         if (DragonStateProvider.isDragon(this)) {
-            return DragonSizeHandler.canPoseFit(this, pose);
+            return DragonSizeHandler.canPoseFit((Player) (Object) this, pose);
         } else {
             return returnValue;
         }

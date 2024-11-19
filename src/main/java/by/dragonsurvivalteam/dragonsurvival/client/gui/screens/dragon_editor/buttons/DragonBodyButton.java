@@ -1,53 +1,68 @@
 package by.dragonsurvivalteam.dragonsurvival.client.gui.screens.dragon_editor.buttons;
 
 import by.dragonsurvivalteam.dragonsurvival.client.gui.screens.dragon_editor.DragonEditorScreen;
-import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonBody;
-import com.mojang.blaze3d.systems.RenderSystem;
+import by.dragonsurvivalteam.dragonsurvival.mixins.client.TextureManagerAccess;
+import by.dragonsurvivalteam.dragonsurvival.registry.datagen.Translation;
+import by.dragonsurvivalteam.dragonsurvival.registry.dragon.DragonBody;
+import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
-import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.NotNull;
 
-import static by.dragonsurvivalteam.dragonsurvival.DragonSurvival.MODID;
-
 public class DragonBodyButton extends Button {
-    private final DragonEditorScreen dragonEditorScreen;
-    private final AbstractDragonBody dragonBody;
+    public static final String LOCATION_PREFIX = "textures/gui/body/";
+
+    public static final int HOVERED = 1;
+    public static final int SELECTED = 2;
+    private static final int LOCKED = 3;
+
+    private final DragonEditorScreen screen;
+    private final Holder<DragonBody> dragonBody;
     private final ResourceLocation location;
-    private final int pos;
     private final boolean locked;
 
-    public DragonBodyButton(DragonEditorScreen dragonEditorScreen, int x, int y, int xSize, int ySize, AbstractDragonBody dragonBody, int pos, boolean locked) {
-        super(x, y, xSize, ySize, Component.literal(dragonBody.toString()), btn -> {
+    public DragonBodyButton(DragonEditorScreen screen, int x, int y, int xSize, int ySize, Holder<DragonBody> dragonBody, boolean locked) {
+        super(x, y, xSize, ySize, Component.literal(dragonBody.toString()), action -> {
             if (!locked) {
-                dragonEditorScreen.actionHistory.add(new DragonEditorScreen.EditorAction<>(dragonEditorScreen.dragonBodySelectAction, dragonBody));
+                screen.actionHistory.add(new DragonEditorScreen.EditorAction<>(screen.dragonBodySelectAction, dragonBody));
             }
         }, DEFAULT_NARRATION);
-        location = ResourceLocation.fromNamespaceAndPath(MODID, "textures/gui/body_type_icon_" + dragonEditorScreen.dragonType.getTypeNameLowerCase() + ".png"); // TODO :: add final field to dragon bodies
-        this.dragonEditorScreen = dragonEditorScreen;
+
+        //noinspection DataFlowIssue -> key is present
+        ResourceLocation bodyLocation = dragonBody.getKey().location();
+        setTooltip(Tooltip.create(Component.translatable(Translation.Type.BODY_DESCRIPTION.wrap(bodyLocation.getNamespace(), bodyLocation.getPath()))));
+        ResourceLocation iconLocation = ResourceLocation.fromNamespaceAndPath(bodyLocation.getNamespace(), LOCATION_PREFIX + bodyLocation.getPath() + "/" + screen.dragonType.getTypeNameLowerCase() + ".png");
+        ResourceManager manager = ((TextureManagerAccess) Minecraft.getInstance().getTextureManager()).dragonSurvival$getResourceManager();
+
+        if (manager.getResource(iconLocation).isEmpty()) {
+            iconLocation = ResourceLocation.fromNamespaceAndPath(DragonBody.center.location().getNamespace(), LOCATION_PREFIX + DragonBody.center.location().getPath() + "/" + screen.dragonType.getTypeNameLowerCase() + ".png");
+        }
+
+        this.location = iconLocation;
+        this.screen = screen;
         this.dragonBody = dragonBody;
-        this.pos = pos;
         this.locked = locked;
-        this.setTooltip(Tooltip.create(dragonBody.translatableInfo()));
     }
 
     @Override
     public void renderWidget(@NotNull GuiGraphics graphics, int pMouseX, int pMouseY, float pPartialTick) {
-        active = visible = dragonEditorScreen.showUi;
-        RenderSystem.setShaderTexture(0, location);
-        RenderSystem.setShader(GameRenderer::getRendertypeTranslucentShader);
+        active = visible = screen.showUi;
+        int state = 0;
 
-        int i = 0;
-        if (this.dragonBody.equals(dragonEditorScreen.dragonBody)) {
-            i = 2;
-        } else if (this.locked) {
-            i = 3;
-        } else if (this.isHoveredOrFocused()) {
-            i = 1;
+        if (DragonUtils.isBody(dragonBody, screen.dragonBody)) {
+            state = SELECTED;
+        } else if (locked) {
+            state = LOCKED;
+        } else if (isHoveredOrFocused()) {
+            state = HOVERED;
         }
-        graphics.blit(this.location, getX(), getY(), pos * this.width, i * this.height, this.width, this.height, 256, 256);
+
+        graphics.blit(location, getX(), getY(), 0, state * this.height, this.width, this.height, 32, 104);
     }
 }

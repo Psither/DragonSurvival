@@ -1,4 +1,4 @@
-// 1.21.1	2024-11-04T11:30:45.2985889	Loot Tables
+// 1.21.1	2024-11-18T11:48:49.8805992	Loot Tables
 6d9ed87da9516e134f0c759cd6158d7cceb46deb data/dragonsurvival/loot_table/blocks/acacia_dragon_door.json
 a0e48a8403c2a28c8d0a9c3a9f3b342083128a85 data/dragonsurvival/loot_table/blocks/birch_dragon_altar.json
 98e4b6ec89c84451f36a6e4fa03adfb8f6d58008 data/dragonsurvival/loot_table/blocks/birch_dragon_door.json
@@ -38,6 +38,7 @@ dcc9c74181adfdc74af697750c8dc6484e06c45c data/dragonsurvival/loot_table/blocks/l
 15e93bed0a36822e449c6569d542a87768f7ae3c data/dragonsurvival/loot_table/blocks/nether_brick_dragon_altar.json
 a95edf3793658f9db4a63c52bf2d355593c94b6b data/dragonsurvival/loot_table/blocks/oak_dragon_altar.json
 9cfaec52a4d91f4fd932764ee0503bdc8df6a42b data/dragonsurvival/loot_table/blocks/oak_dragon_door.json
+8fe598e8b8188326f3699afb6deae4dae0edc55b data/dragonsurvival/loot_table/blocks/primordial_anchor.json
 3ac702aa41ef925291fb71d1ae8dab19a99e9253 data/dragonsurvival/loot_table/blocks/purpur_dragon_altar.json
 7d465fad4d23389aa661ca901fae5f413b754e03 data/dragonsurvival/loot_table/blocks/red_sandstone_dragon_altar.json
 6bf69f920ee90a71cac737069e504319be453e9b data/dragonsurvival/loot_table/blocks/sandstone_dragon_altar.json

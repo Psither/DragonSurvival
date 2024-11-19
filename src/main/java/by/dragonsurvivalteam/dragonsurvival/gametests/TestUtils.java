@@ -3,12 +3,14 @@ package by.dragonsurvivalteam.dragonsurvival.gametests;
 import by.dragonsurvivalteam.dragonsurvival.DragonSurvival;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateHandler;
 import by.dragonsurvivalteam.dragonsurvival.common.capability.DragonStateProvider;
-import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonBody;
 import by.dragonsurvivalteam.dragonsurvival.common.dragon_types.AbstractDragonType;
 import by.dragonsurvivalteam.dragonsurvival.config.ConfigHandler;
+import by.dragonsurvivalteam.dragonsurvival.registry.dragon.DragonBody;
 import by.dragonsurvivalteam.dragonsurvival.util.DragonUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
@@ -53,14 +55,16 @@ public class TestUtils {
         }
     }
 
-    public static void setToDragon(final GameTestHelper helper, final Player player, final AbstractDragonType dragonType, final AbstractDragonBody dragonBody, double size) {
+    public static void setToDragon(final GameTestHelper helper, final Player player, final AbstractDragonType dragonType, final ResourceKey<DragonBody> dragonBody, double size) {
         DragonStateHandler data = DragonStateProvider.getData(player);
 
         data.setType(dragonType, player);
-        helper.assertTrue(DragonUtils.isDragonType(data, dragonType), String.format("Dragon type was [%s] - expected [%s]", data.getType(), dragonType));
+        helper.assertTrue(DragonUtils.isType(data, dragonType), String.format("Dragon type was [%s] - expected [%s]", data.getType(), dragonType));
 
-        data.setBody(dragonBody, player);
-        helper.assertTrue(DragonUtils.isBodyType(data, dragonBody), String.format("Dragon type was [%s] - expected [%s]", data.getBody(), dragonBody));
+        Holder.Reference<DragonBody> body = player.registryAccess().lookupOrThrow(DragonBody.REGISTRY).getOrThrow(dragonBody);
+
+        data.setBody(body, player);
+        helper.assertTrue(DragonUtils.isBody(data, body), String.format("Dragon type was [%s] - expected [%s]", data.getBody(), dragonBody));
 
         data.setSize(size, player);
         helper.assertTrue(data.getSize() == size, String.format("Size was [%f] - expected [%f]", data.getSize(), size));
@@ -81,7 +85,7 @@ public class TestUtils {
         AbstractDragonType dragonType = data.getType();
         helper.assertTrue(dragonType == null, String.format("Dragon type was [%s] - expected [null]", dragonType));
 
-        AbstractDragonBody dragonBody = data.getBody();
+        Holder<DragonBody> dragonBody = data.getBody();
         helper.assertTrue(dragonBody == null, String.format("Dragon body was [%s] - expected [null]", dragonBody));
 
         double size = data.getSize();

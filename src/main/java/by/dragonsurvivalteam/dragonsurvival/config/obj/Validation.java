@@ -1,6 +1,6 @@
 package by.dragonsurvivalteam.dragonsurvival.config.obj;
 
-public enum Validation { // TODO :: find a better way to do this
+public enum Validation {
     /** Checks for {@link net.minecraft.resources.ResourceLocation} */
     RESOURCE_LOCATION,
     /** Checks the namespace for {@link net.minecraft.resources.ResourceLocation} while allowing regex for the path */

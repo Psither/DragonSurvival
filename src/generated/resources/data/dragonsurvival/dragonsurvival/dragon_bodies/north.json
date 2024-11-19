@@ -1,0 +1,54 @@
+{
+  "has_extended_crouch": true,
+  "height_multiplier": 0.55,
+  "modifiers": [
+    {
+      "attribute": "minecraft:generic.attack_damage",
+      "modifier": {
+        "amount": -0.2,
+        "id": "dragonsurvival:dragonsurvival/body/north.generic.attack_damage",
+        "operation": "add_multiplied_total"
+      }
+    },
+    {
+      "attribute": "minecraft:generic.attack_knockback",
+      "modifier": {
+        "amount": -0.5,
+        "id": "dragonsurvival:dragonsurvival/body/north.generic.attack_knockback",
+        "operation": "add_value"
+      }
+    },
+    {
+      "attribute": "minecraft:generic.movement_speed",
+      "modifier": {
+        "amount": -0.3,
+        "id": "dragonsurvival:dragonsurvival/body/north.generic.movement_speed",
+        "operation": "add_multiplied_total"
+      }
+    },
+    {
+      "attribute": "neoforge:swim_speed",
+      "modifier": {
+        "amount": 0.5,
+        "id": "dragonsurvival:dragonsurvival/body/north.swim_speed",
+        "operation": "add_value"
+      }
+    },
+    {
+      "attribute": "dragonsurvival:mana",
+      "modifier": {
+        "amount": 2.0,
+        "id": "dragonsurvival:dragonsurvival/body/north.mana",
+        "operation": "add_value"
+      }
+    },
+    {
+      "attribute": "dragonsurvival:flight_stamina_cost",
+      "modifier": {
+        "amount": -0.1,
+        "id": "dragonsurvival:dragonsurvival/body/north.flight_stamina_cost",
+        "operation": "add_multiplied_total"
+      }
+    }
+  ]
+}
